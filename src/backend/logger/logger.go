@@ -3,6 +3,12 @@ package logger
 import (
 	"log"
 	"os"
+	"path"
+	"time"
+)
+
+const (
+	logsPath = "logs/"
 )
 
 var (
@@ -12,9 +18,9 @@ var (
 )
 
 func init() {
-	path := "logs/logs.txt"
-	os.MkdirAll(path, os.ModePerm)
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	filename := time.Now().Format("2006-1-2_15°4'5''.txt")
+	os.MkdirAll(path.Dir(logsPath), os.ModePerm)
+	file, err := os.OpenFile(logsPath+filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
