@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bb/backend/database"
+	"bb/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"html/template"
