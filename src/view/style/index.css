@@ -1,0 +1,28 @@
+a:visited {
+    color: inherit
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: row;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+.header {
+    display: flex;
+    padding-left: 4%;
+    padding-right: 4%;
+    height: 6.5%;
+}
+
+.logo {
+    height: 100%;
+    width: 100%;
+}

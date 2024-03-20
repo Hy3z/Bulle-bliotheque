@@ -1,0 +1,43 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    display: flex;
+    height: 70px;
+}
+
+.left-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 30%;
+}
+
+
+.right-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 70%;
+}
+
+.logo, .user {
+    height: 100%;
+    width: auto;
+}
+
+.categories {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+hr {
+    margin: 0;
+}
