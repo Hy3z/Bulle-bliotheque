@@ -6,17 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bulle-bliothèque</title>
 <link rel="stylesheet" href="style/indexV.css">
+<link rel="stylesheet" href="style/Bookgrid.css">
 <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <div class="fixed-top-bar">
     <div class="left-menu">
-                <div id="myDropdown" class="dropdown-content">
-            <a href="#home">Accueil</a>
-            <a href="#services">Services</a>
-            <a href="#about">À propos</a>
-          </div>
         <a href="indexV.html">
             <img src="image/logo_r.png" alt="Logo" class="navbar-logo">
         </a>
@@ -33,18 +29,29 @@
     <div class="right-menu">
         <!-- <a href="/login" class="bar-item">Contact</a>
         <a href="/register" class="bar-item">Connexion</a> -->
-        <img src="image/White_Burger.png" alt="Menu" onclick="toggleDropdown()" style="cursor: pointer;width: 30px; height: auto;"/>
-
+        <img src="image/White_Burger.png" class="dropbtn" alt="Menu" onclick="toggleDropdown()" style="cursor: pointer;width: 30px; height: auto;"/>
+        <div id="myDropdown" class="dropdown-content">
+            <a href="#home">Accueil</a>
+            <a href="#services">Services</a>
+            <a href="#about">À propos</a>
+          </div>
     </div> 
 </div>
 
 <div class="content">
-    
-    <iframe src="test.html" width="100%" height="600px" style="border:none;">
-        Votre navigateur ne supporte pas les iframes.
-    </iframe>
-          <!-- Répétez ce paragraphe ou ajoutez d'autres éléments pour créer un contenu suffisamment long pour tester le défilement. -->
-</div>
+    <div class="book">
+        <img src="image/icon.png" alt="Book 1">
+        <h3>Book Title 1</h3>
+      </div>
+      <div class="book">
+        <img src="image/icon.png" alt="Book 2">
+        <h3>Book Title 2</h3>
+      </div>
+      <div class="book">
+        <img src="image/icon.png" alt="Book 3">
+        <h3>Book Title 3</h3>
+      </div>
+ </div>
 
 </body>
 </html>

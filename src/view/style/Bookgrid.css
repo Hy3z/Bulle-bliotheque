@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(50% - 10px), 1fr));
+    gap: 20px;
+  }
+
+.book img {
+    max-width: 100%;
+    height: auto; /* Vous pourriez vouloir limiter la hauteur aussi, mais cela déformerait l'image sauf si vous acceptez de couper une partie de celle-ci */
+  }
+  
+.book h3 {
+    margin-top: 5px; /* Réduction de l'espace au-dessus du titre */
+    font-size: 16px; /* Réduction de la taille de la police */
+  }
+  
+.book {
+    border: 1px solid #ccc;
+    padding: 5px; /* Réduction du padding */
+    text-align: center;
+  }
+  

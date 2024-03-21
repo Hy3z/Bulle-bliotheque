@@ -6,12 +6,9 @@ function toggleDropdown() {
         dropdown.classList.toggle("show");
     }
 }
-// Ferme le menu si l'utilisateur clique en dehors de celui-ci
 window.onclick = function (event) {
-    // Utilisez l'opérateur de coalescence des nuls pour gérer les cas où event.target est null
-    var target = event.target;
-    // Cette vérification s'assure que l'élément sur lequel l'utilisateur a cliqué n'est pas un bouton et n'est pas null
-    if (!target.matches('img')) {
+    console.log("test");
+    if (!event.target.closest('.dropbtn, .dropdown-content')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         for (var i = 0; i < dropdowns.length; i++) {
             var openDropdown = dropdowns[i];

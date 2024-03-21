@@ -50,23 +50,29 @@
 
 /* Style par défaut pour le contenu déroulant, caché */
 .dropdown-content {
-    display: none;
+    display: block;
+    opacity: 0; /* Commencez par rendre le menu invisible */
+    visibility: hidden; /* Cachez le menu pour éviter toute interaction lorsque celui-ci n'est pas "affiché" */
     position: absolute;
     background-color: #b8c7ca; /* Couleur de fond */
     color: #2a3f5f; /* Couleur du texte */
     padding: 3px 0;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    z-index: -1;
     top: 100%;
-    transition: background-color 0.3s;
+    right: 0;
+    transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+    transform: translateY(-20px); /* Commencez légèrement au-dessus de la position finale */
   }
-  
   
   /* Style pour le contenu déroulant lorsqu'il est affiché (classe .show ajoutée) */
   .show {
-    display: block;
+    opacity: 1; /* Rendez le menu entièrement visible */
+    visibility: visible; /* Assurez-vous que le menu est interactif */
+    transform: translateY(0); /* Déplacez le menu à sa position finale */
   }
+  
 
 .dropdown-content a {
     display: block; /* Ceci est crucial pour assurer que les éléments s'affichent sur différentes lignes */
