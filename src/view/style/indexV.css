@@ -29,12 +29,18 @@
 .left-menu {
     display: flex;
     align-items: center; /* Centre les éléments verticalement */
+    margin-left: 8px;
 }
 
+.center-menu {
+    display: flex;
+    align-items: center; /* Centre les éléments verticalement */
+}
 
 .right-menu {
     display: flex;
     align-items: center; /* Centre les éléments verticalement */
+    margin-right: 8px;
 }
 
 
