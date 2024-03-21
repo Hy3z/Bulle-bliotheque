@@ -3,17 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barre Fixe en Haut</title>
+<title>Bulle-bliothèque</title>
 <link rel="stylesheet" href="style/indexV.css">
+<script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <div class="fixed-top-bar">
     <div class="left-menu">
         <a href="indexV.html">
+            <img src="image/White_Burger.png" alt="Logo" class="navbar-logo">
+        </a>
+        <a href="indexV.html">
             <img src="image/logo.png" alt="Logo" class="navbar-logo">
         </a>
-        <a href="/manga" class="bar-item">Manga</a>
+        <input hx-post="/completions" hx-target="#results" hx-swap="outerHTML" hx-trigger="input delay:400ms"/>
+        <!--<a href="/manga" class="bar-item">Manga</a>
         <a href="/bd" class="bar-item">BD</a>
         <a href="/livre" class="bar-item">Autre</a>
         <a href="/nouveaux" class="bar-item">Nouveaux</a>
@@ -22,12 +27,12 @@
     </div>
     <div class="right-menu">
         <a href="/login" class="bar-item">Contact</a>
-        <a href="/register" class="bar-item">Connexion</a>
-        <!-- Autres éléments que vous souhaitez ajouter -->
-    </div>
+        <a href="/register" class="bar-item">Connexion</a>-->
+    </div> 
 </div>
 
 <div class="content">
+    <script src="Victor.js"></script>
     <p>Ici commence le contenu de votre page qui défilera normalement. Ajoutez suffisamment de contenu ici pour pouvoir faire défiler la page et voir l'effet de la barre fixe en haut.</p>
     <!-- Répétez ce paragraphe ou ajoutez d'autres éléments pour créer un contenu suffisamment long pour tester le défilement. -->
 </div>
