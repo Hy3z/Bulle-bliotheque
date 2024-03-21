@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="JS/Victor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bulle-bliothèque</title>
@@ -11,9 +12,12 @@
 
 <div class="fixed-top-bar">
     <div class="left-menu">
-        <a href="indexV.html">
-            <img src="image/White_Burger.png" alt="Logo" class="navbar-logo">
-        </a>
+        <img src="image/White_Burger.png" alt="Menu" onclick="toggleDropdown()" style="cursor: pointer;width: 30px; height: auto;"/>
+        <div id="myDropdown" class="dropdown-content">
+            <a href="#home">Accueil</a>
+            <a href="#services">Services</a>
+            <a href="#about">À propos</a>
+          </div>
         <a href="indexV.html">
             <img src="image/logo.png" alt="Logo" class="navbar-logo">
         </a>
@@ -32,7 +36,7 @@
 </div>
 
 <div class="content">
-    <script src="Victor.js"></script>
+    
     <p>Ici commence le contenu de votre page qui défilera normalement. Ajoutez suffisamment de contenu ici pour pouvoir faire défiler la page et voir l'effet de la barre fixe en haut.</p>
     <!-- Répétez ce paragraphe ou ajoutez d'autres éléments pour créer un contenu suffisamment long pour tester le défilement. -->
 </div>

@@ -31,6 +31,7 @@
     align-items: center; /* Centre les éléments verticalement */
 }
 
+
 .right-menu {
     display: flex;
     align-items: center; /* Centre les éléments verticalement */
@@ -40,3 +41,33 @@
 .bar-item:hover {
     background-color: #9ba8ab; /* Couleur de fond lors du survol */
 }
+
+/* Style par défaut pour le contenu déroulant, caché */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #b8c7ca; /* Couleur de fond */
+    color: #2a3f5f; /* Couleur du texte */
+    padding: 3px 0;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    top: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  
+  /* Style pour le contenu déroulant lorsqu'il est affiché (classe .show ajoutée) */
+  .show {
+    display: block;
+  }
+
+.dropdown-content a {
+    display: block; /* Ceci est crucial pour assurer que les éléments s'affichent sur différentes lignes */
+    color: black; /* Couleur du texte pour les éléments du menu */
+    padding: 12px 16px; /* Espacement autour du texte dans chaque élément du menu */
+    text-decoration: none; /* Supprime le soulignement par défaut des liens */
+  }
+.dropdown-content a:hover {
+    background-color: rgb(160, 181, 187); /* Couleur de fond au survol */
+  }
