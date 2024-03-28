@@ -1,52 +1,70 @@
 {{ block "index" . }}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Bulle-bliothèque</title>
-    <link rel="icon" href="image/icon.png" type="image/png">
-    <link rel="stylesheet" href="style/index.css">
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
 </head>
 <body>
+
 <div class="header">
+    <!--HEADER HERE-->
+</div>
+
+<div class="main-body">
 
 
-    <a href="/" class="logo">
-        <img src="image/logo.png" alt="logo"/>
-    </a>
-
-    <ul>
-        <li><a href="" class="manga">
-                Manga
-        </a></li>
-
-        <li><a href="" class="comic">
-                BD
-        </a></li>
-
-        <li><a href="" class="books">
-                Livres
-        </a></li>
-
-        <li><a href="" class="new">
-                Nouveaux
-        </a></li>
-    </ul>
-
-    <label>
-        <input type="text" placeholder="Rechercher un livre..." class="search">
-    </label>
-
-    <a href="">Contact</a>
-
-    <a href="">
-        <img src="image/user.png" alt="user"/>
-    </a>
-    <span class="caret"></span>
-
-    <hr>
+    <!--RESEARCH CONTAINERS HERE-->
+    {{range .}}
+        {{template "research-container" .}}
+    {{end}}
 
 </div>
 </body>
 </html>
+{{end}}
+
+<!-------------->
+
+{{block "research-container" .}}
+    <div class="research-container">
+        <div class="research-name">
+
+            <!--RESEARCH NAME HERE-->
+            {{.Name}}
+
+        </div>
+        <div class="book-container">
+
+            <!--BOOK TEMPLATES HERE-->
+            {{range .Books}}
+                {{template "book-preview" .}}
+            {{end}}
+
+        </div>
+    </div>
+{{end}}
+
+
+<!-------------->
+
+
+{{block "book-preview" .}}
+    <a href="{{.Link}}">
+        <div class="book-template">
+            <div class="book-image">
+
+                <!--BOOK IMAGE HERE-->
+                <img src="{{.Cover}}" alt="book">
+
+            </div>
+            <div class="book-title">
+
+                <!--BOOK TITLE HERE-->
+                {{.Title}}
+
+            </div>
+        </div>
+    </a>
 {{end}}

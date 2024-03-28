@@ -2,3 +2,5 @@
 .env
 .gradle
 /bin/
+src/tmp
+src/logs

@@ -1,28 +1,54 @@
-a:visited {
-    color: inherit
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
 }
 
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+.book {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
 
+.book img {
+    max-width: 10px;
+    max-height: 10px;
+    height: auto;
+}
+
+.book p {
+    margin-top: 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.book-receiver {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
-a:link {
-    text-decoration: none;
+.book-template {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.header {
-    display: flex;
-    padding-left: 4%;
-    padding-right: 4%;
-    height: 6.5%;
+.book-image {
+    width: 100px;
+    height: 100px;
 }
 
-.logo {
-    height: 100%;
-    width: 100%;
-}
+
