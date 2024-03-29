@@ -24,8 +24,9 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	e.GET("/", service.GetRootSearch)
+	e.GET("/", service.RootSearch)
 
+	//e.Get("/preview/:id", service.GetBookPreviewByID)
 	/*
 	e.GET("/scroll", func(c echo.Context) error {
 		result := database.Query(context.Background(), "MATCH (b:Book) RETURN b.name SKIP 0 LIMIT 1", nil)

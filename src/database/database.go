@@ -17,6 +17,7 @@ const (
 
 var (
 	driver neo4j.DriverWithContext
+	//QueryError = errors.New("Error on query")
 )
 
 
@@ -38,13 +39,17 @@ func Connect() {
 }
 
 func Query(ctx context.Context, query string, param map[string]any) (*neo4j.EagerResult,error) {
-	return neo4j.ExecuteQuery(
+	res, err := neo4j.ExecuteQuery(
 		ctx,
 		driver,
 		query,
 		param,
 		neo4j.EagerResultTransformer,
 		neo4j.ExecuteQueryWithDatabase("neo4j"))
+	if err != nil {
+		logger.WarningLogger.Println(err)
+	}
+	return res,err
 }
 
 func Disconnect() {

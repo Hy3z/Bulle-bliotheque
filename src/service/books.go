@@ -1,15 +1,23 @@
 package service
 
+import (
+	"bb/database"
+	"bb/logger"
+	"context"
+	"github.com/labstack/echo/v4"
+	"net/http"
+)
+
+
 type BookPreview struct {
 	Title string
 	Cover string
-	Link string
+	Id string
 }
 
-/*
 func GetBookPreviewByID(c echo.Context) error {
 	query := "MATCH (b:Book) WHERE elementId(b) = $id RETURN b.title, b.cover LIMIT 1"
-	id := c.QueryParam("elementId")
+	id := c.QueryParam("id")
 	res, err := database.Query(context.Background(), query, map[string]any {
 		"id": id,
 	})
@@ -39,4 +47,4 @@ func GetBookPreviewByID(c echo.Context) error {
 		"Title": title,
 		"Cover": cover,
 	})
-}*/
+}

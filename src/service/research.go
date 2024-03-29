@@ -1,6 +1,9 @@
 package service
 
 import (
+	"bb/database"
+	"bb/logger"
+	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -8,66 +11,76 @@ import (
 type Research struct {
 	Name string
 	Books []BookPreview
+
+	IsInfinite bool
 }
 
-func StructRender(c echo.Context, code int, name string, data struct{}) error {
+func RootSearch(c echo.Context) error {
+	research,err := researchLatestBooks(13)
+	var researches []Research
 
-	return c.Render(code, name, data)
-}
-
-func GetRootSearch(c echo.Context) error {
-	books1 := []BookPreview{
-		{Title: "Book 1"},
-		{Title: "Book 2"},
+	if err == nil {
+		researches = append(researches, research)
 	}
-	books2 := []BookPreview{
-		{Title: "Book 1"},
-		{Title: "Book 2"},
-	}
-
-	// Create Research instances
-	researches := []Research{
-		{Name: "Default research", Books: books1},
-		{Name: "Default research", Books: books2},
-	}
-
-
-
-
-
-
 	// Pass the slice of Research instances to the c.Render function
 	return c.Render(http.StatusOK, "index", researches)
-
-	/*
-	return c.Render(http.StatusOK, "index", map[string]any{
-		"Researches": []map[string]any{
-			{
-				"Name": "Default research",
-				"Books": []map[string]any{
-					{
-						"Title": "Book 1",
-						"Cover": "",
-					},
-					{
-						"Title": "Book 2",
-						"Cover": "",
-					},
-				},
-			},
-			{
-				"Name": "Default research",
-				"Books": []map[string]any{
-					{
-						"Title": "Book 1",
-						"Cover": "",
-					},
-					{
-						"Title": "Book 2",
-						"Cover": "",
-					},
-				},
-			},
-		},
-	})*/
 }
+
+func researchLatestBooks(limit int) (Research,error) {
+	query := "MATCH (b:Book) WHERE b.date IS NOT NULL RETURN elementId(b), " +
+			"b.title, b.cover ORDER BY b.date DESC LIMIT $limit"
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"limit": limit,
+	})
+
+	if err != nil {
+		logger.WarningLogger.Println("Error when fetching latest books")
+		return Research{}, err
+	}
+
+	books := make([]BookPreview, len(res.Records))
+	for i,record := range res.Records {
+		id,_ := record.Values[0].(string)
+		title,_ := record.Values[1].(string)
+		cover, _ := record.Values[2].(string)
+		book := BookPreview{Title: title, Cover: cover, Id: id}
+		books[i] = book
+	}
+
+	return Research {
+		Name: "Acquisitions récentes",
+		Books: books,
+		IsInfinite: false,
+	},nil
+}
+
+func researchAllBooks(batchSize int) (Research,error) {
+	return Research{
+		Name: "Tous les livres",
+	},nil
+}
+
+func getBooksByBatch(toSkip int, batchSize int) ([]BookPreview,error) {
+	query := "MATCH (b:Book) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"skip": toSkip,
+		"limit": batchSize,
+	})
+
+	if err != nil {
+		logger.WarningLogger.Println("Error when fetching books")
+		return nil, err
+	}
+
+	books := make([]BookPreview, len(res.Records))
+	for i,record := range res.Records {
+		id,_ := record.Values[0].(string)
+		title,_ := record.Values[1].(string)
+		cover, _ := record.Values[2].(string)
+		book := BookPreview{Title: title, Cover: cover, Id: id}
+		books[i] = book
+	}
+
+	return books,nil
+}
+

@@ -38,20 +38,35 @@
         <div class="book-container">
 
             <!--BOOK TEMPLATES HERE-->
-            {{range .Books}}
-                {{template "book-preview" .}}
+            {{template "book-set" .Books}}
+
+            {{if .IsInfinite}}
+                <div hx-trigger="revealed"
+                     hx-swap="outerHTML">
+                    ...
+                </div>
             {{end}}
 
         </div>
     </div>
 {{end}}
 
+{{block "book-set" .}}
+    {{range .}}
+        {{template "book-preview" .}}
+    {{end}}
+{{end}}
 
+{{block "infinite-book-set" .}}
+    <!--BOOK TEMPLATES HERE-->
+    {{template "book-set" .}}
+    <!--INFINITE SEARCH HERE-->
+{{end}}
 <!-------------->
 
 
 {{block "book-preview" .}}
-    <a href="{{.Link}}">
+    <a href="book/{{.Id}}">
         <div class="book-template">
             <div class="book-image">
 
