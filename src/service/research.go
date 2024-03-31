@@ -14,7 +14,12 @@ import (
 const (
 	MaxBatchSize = 2
 	MaxLatestBatchSize = 2
-	GetAllBooksPath = "/search/all"
+	PageParam = "page"
+	SearchPath = "/browse"
+	FilterParam = "q"
+	SearchAllPath= SearchPath+"/all"
+	BookSetTemplate = "book-set"
+	ResearchTemplate = "research-container"
 )
 
 //
@@ -33,7 +38,7 @@ type PathParameter struct {
 
 //
 
-func Root(c echo.Context) error {
+func RootResearches () []Research {
 	var researches []Research
 
 	research,err := researchLatestBooks()
@@ -42,10 +47,14 @@ func Root(c echo.Context) error {
 	}
 
 	researches = append(researches, researchAllBooks())
-
-	// Pass the slice of Research instances to the c.Render function
-	return c.Render(http.StatusOK, "index", researches)
+	return researches
 }
+
+func Root(c echo.Context) error {
+
+	return c.Render(http.StatusOK, "index", RootResearches())
+}
+
 func researchLatestBooks() (Research,error) {
 	query :=
 		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN elementId(b), " +
@@ -76,31 +85,29 @@ func researchLatestBooks() (Research,error) {
 }
 
 //Return a (infinite) book-set from all books, takes a page argument
-func GetAllBooks(c echo.Context) error {
-	page,err := strconv.Atoi(c.QueryParam("page"))
+func FetchAllBooks(c echo.Context) error {
+	page,err := strconv.Atoi(c.QueryParam(PageParam))
 	if err != nil || page < 1{
-		if err != nil {
-			logger.WarningLogger.Printf("Error on reading page argument: %s \n",err.Error())
-		}
-		return c.HTML(http.StatusNotFound, "Wrong or missing page argument")
+		logger.InfoLogger.Printf("Page argument missing or invalid, redirecting to page 1")
+		page = 1
 	}
 
 	skip,limit := (page-1)*MaxBatchSize, MaxBatchSize
 	books, err := fetchAllBooks(skip,limit)
 	if err != nil {
 		logger.WarningLogger.Printf("Error on fetching page %d: %s \n",page,err.Error())
-		return c.Render(http.StatusOK, "book-set", []BookPreview{})
+		return c.Render(http.StatusOK, BookSetTemplate, []BookPreview{})
 	}
 
 	//If this is the last page
 	if len(books) < MaxBatchSize {
-		return c.Render(http.StatusOK, "book-set", books)
+		return c.Render(http.StatusOK, BookSetTemplate, books)
 	} else {
-		return c.Render(http.StatusOK, "infinite-book-set", InfiniteBookPreviewSet{
+		return c.Render(http.StatusOK, InfiniteBookPreviewSetTemplate, InfiniteBookPreviewSet{
 			BookPreviewSet: books,
-			Url: GetAllBooksPath,
+			Url: SearchAllPath,
 			Params: []PathParameter {
-				{Key: "page", Value: page+1},
+				{Key: PageParam, Value: page+1},
 			},
 		})
 	}
@@ -112,9 +119,9 @@ func researchAllBooks() Research {
 		IsInfinite: true,
 		InfiniteBookPreviewSet: InfiniteBookPreviewSet{
 			BookPreviewSet: []BookPreview{},
-			Url: GetAllBooksPath,
-			Params: []PathParameter {
-				{Key: "page", Value: 1},
+			Url: SearchAllPath,
+			Params: []PathParameter{
+				{Key: PageParam, Value: "1"},
 			},
 		},
 	}
@@ -143,8 +150,64 @@ func fetchAllBooks(skip int, limit int) ([]BookPreview,error) {
 	return books,nil
 }
 
-//
+//Return a research-container
+func ResearchFromQuery (c echo.Context) error {
+	filter := c.QueryParam(FilterParam)
+	//If not filter applied, redirect to root
+	if filter=="" {
+		return c.Render(http.StatusOK, "main-body", RootResearches())
+	}
 
-func GetFromResearch (c echo.Context) error {
-	return nil
+	page,err := strconv.Atoi(c.QueryParam(PageParam))
+	//Display research-container if page is not specified, else (infinite) book-set
+	if err != nil || page < 1 {
+		return c.Render(http.StatusOK, ResearchTemplate, Research{
+			Name: filter,
+			IsInfinite: true,
+			InfiniteBookPreviewSet: InfiniteBookPreviewSet{
+				BookPreviewSet: nil,
+				Url: SearchPath,
+				Params: []PathParameter{
+					{Key: PageParam, Value: 1},
+					{Key: FilterParam, Value: filter},
+				},
+			},
+		})
+	}
+
+	query := "MATCH (b:Book)WHERE b.title =~ $regex RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+	skip, limit := (page-1)*MaxBatchSize, MaxBatchSize
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"skip": skip,
+		"limit": limit,
+		"regex": ".*"+filter+".*",
+	})
+
+	if err != nil {
+		logger.WarningLogger.Println("Error when fetching books")
+		return nil
+	}
+
+	books := make(BookPreviewSet, len(res.Records))
+	for i,record := range res.Records {
+		id,_ := record.Values[0].(string)
+		title,_ := record.Values[1].(string)
+		cover, _ := record.Values[2].(string)
+		book := BookPreview{Title: title, Cover: cover, Id: id}
+		books[i] = book
+	}
+
+	//If these are the last books
+	if len(books) < MaxBatchSize {
+		return c.Render(http.StatusOK, "book-set", books)
+	}
+
+	return c.Render(http.StatusOK, InfiniteBookPreviewSetTemplate, InfiniteBookPreviewSet{
+		BookPreviewSet: books,
+		Url: SearchPath,
+		Params: []PathParameter{
+			{Key: PageParam, Value: page + 1},
+			{Key: FilterParam, Value: filter},
+		},
+	})
 }

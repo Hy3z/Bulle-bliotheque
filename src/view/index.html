@@ -15,24 +15,30 @@
     <!--HEADER HERE-->
     <label>
         <input type="text" name="q" class="search-box"
-            hx-trigger="keyup changed delay:1s"
-            hx-get="/search"
+            hx-trigger="keyup changed delay:0.4s"
+            hx-get="/browse"
             hx-include="this"
             hx-target=".main-body"
             hx-swap="innerHTML">
     </label>
 </div>
 
-<div class="main-body">
+{{template "main-body" .}}
 
-    <!--RESEARCH CONTAINERS HERE-->
-    {{range .}}
-        {{template "research-container" .}}
-    {{end}}
-
-</div>
 </body>
 </html>
+{{end}}
+
+<!--
+{[]Research}
+-->
+{{block "main-body" .}}
+    <div class="main-body">
+        <!--RESEARCH CONTAINERS HERE-->
+        {{range .}}
+            {{template "research-container" .}}
+        {{end}}
+    </div>
 {{end}}
 
 <!--

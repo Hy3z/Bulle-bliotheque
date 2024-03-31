@@ -28,9 +28,12 @@ func Setup(e *echo.Echo) {
 
 	e.GET("/", service.Root)
 
-	e.GET(service.GetAllBooksPath, service.GetAllBooks)
 
-	e.GET("/search", service.GetFromResearch)
+
+	e.GET(service.SearchPath, service.ResearchFromQuery)
+
+	e.GET(service.SearchAllPath, service.FetchAllBooks)
+
 	/*
 	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD
 	e.GET("/image/:id", func(c echo.Context) error {
