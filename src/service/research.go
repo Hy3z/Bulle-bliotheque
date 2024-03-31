@@ -6,31 +6,52 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
+
+//
+
+const (
+	MaxBatchSize = 2
+	MaxLatestBatchSize = 2
+	GetAllBooksPath = "/search/all"
+)
+
+//
 
 type Research struct {
 	Name string
-	Books []BookPreview
-
 	IsInfinite bool
+	//Use either of the field below depending on boolean value
+	BookPreviewSet BookPreviewSet
+	InfiniteBookPreviewSet InfiniteBookPreviewSet
+}
+type PathParameter struct {
+	Key any
+	Value any
 }
 
-func RootSearch(c echo.Context) error {
-	research,err := researchLatestBooks(13)
+//
+
+func Root(c echo.Context) error {
 	var researches []Research
 
+	research,err := researchLatestBooks()
 	if err == nil {
 		researches = append(researches, research)
 	}
+
+	researches = append(researches, researchAllBooks())
+
 	// Pass the slice of Research instances to the c.Render function
 	return c.Render(http.StatusOK, "index", researches)
 }
-
-func researchLatestBooks(limit int) (Research,error) {
-	query := "MATCH (b:Book) WHERE b.date IS NOT NULL RETURN elementId(b), " +
-			"b.title, b.cover ORDER BY b.date DESC LIMIT $limit"
+func researchLatestBooks() (Research,error) {
+	query :=
+		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN elementId(b), " +
+		"b.title, b.cover ORDER BY b.date DESC LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"limit": limit,
+		"limit": MaxLatestBatchSize,
 	})
 
 	if err != nil {
@@ -49,22 +70,60 @@ func researchLatestBooks(limit int) (Research,error) {
 
 	return Research {
 		Name: "Acquisitions récentes",
-		Books: books,
 		IsInfinite: false,
+		BookPreviewSet: books,
 	},nil
 }
 
-func researchAllBooks(batchSize int) (Research,error) {
+//Return a (infinite) book-set from all books, takes a page argument
+func GetAllBooks(c echo.Context) error {
+	page,err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1{
+		if err != nil {
+			logger.WarningLogger.Printf("Error on reading page argument: %s \n",err.Error())
+		}
+		return c.HTML(http.StatusNotFound, "Wrong or missing page argument")
+	}
+
+	skip,limit := (page-1)*MaxBatchSize, MaxBatchSize
+	books, err := fetchAllBooks(skip,limit)
+	if err != nil {
+		logger.WarningLogger.Printf("Error on fetching page %d: %s \n",page,err.Error())
+		return c.Render(http.StatusOK, "book-set", []BookPreview{})
+	}
+
+	//If this is the last page
+	if len(books) < MaxBatchSize {
+		return c.Render(http.StatusOK, "book-set", books)
+	} else {
+		return c.Render(http.StatusOK, "infinite-book-set", InfiniteBookPreviewSet{
+			BookPreviewSet: books,
+			Url: GetAllBooksPath,
+			Params: []PathParameter {
+				{Key: "page", Value: page+1},
+			},
+		})
+	}
+}
+//Return an empty infinite search, linking to first page
+func researchAllBooks() Research {
 	return Research{
 		Name: "Tous les livres",
-	},nil
+		IsInfinite: true,
+		InfiniteBookPreviewSet: InfiniteBookPreviewSet{
+			BookPreviewSet: []BookPreview{},
+			Url: GetAllBooksPath,
+			Params: []PathParameter {
+				{Key: "page", Value: 1},
+			},
+		},
+	}
 }
-
-func getBooksByBatch(toSkip int, batchSize int) ([]BookPreview,error) {
+func fetchAllBooks(skip int, limit int) ([]BookPreview,error) {
 	query := "MATCH (b:Book) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"skip": toSkip,
-		"limit": batchSize,
+		"skip": skip,
+		"limit": limit,
 	})
 
 	if err != nil {
@@ -84,3 +143,8 @@ func getBooksByBatch(toSkip int, batchSize int) ([]BookPreview,error) {
 	return books,nil
 }
 
+//
+
+func GetFromResearch (c echo.Context) error {
+	return nil
+}

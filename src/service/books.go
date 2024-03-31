@@ -14,7 +14,12 @@ type BookPreview struct {
 	Cover string
 	Id string
 }
-
+type BookPreviewSet []BookPreview
+type InfiniteBookPreviewSet struct {
+	BookPreviewSet BookPreviewSet
+	Url string
+	Params []PathParameter
+}
 func GetBookPreviewByID(c echo.Context) error {
 	query := "MATCH (b:Book) WHERE elementId(b) = $id RETURN b.title, b.cover LIMIT 1"
 	id := c.QueryParam("id")

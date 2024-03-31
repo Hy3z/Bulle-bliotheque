@@ -1,3 +1,6 @@
+<!--
+    {[]Research}
+-->
 {{ block "index" . }}
 <!DOCTYPE html>
 <html lang="fr">
@@ -10,10 +13,17 @@
 
 <div class="header">
     <!--HEADER HERE-->
+    <label>
+        <input type="text" name="q" class="search-box"
+            hx-trigger="keyup changed delay:1s"
+            hx-get="/search"
+            hx-include="this"
+            hx-target=".main-body"
+            hx-swap="innerHTML">
+    </label>
 </div>
 
 <div class="main-body">
-
 
     <!--RESEARCH CONTAINERS HERE-->
     {{range .}}
@@ -25,8 +35,9 @@
 </html>
 {{end}}
 
-<!-------------->
-
+<!--
+{Name, IsInfinite, BookPreviewSet, InfiniteBookPreviewSet}
+-->
 {{block "research-container" .}}
     <div class="research-container">
         <div class="research-name">
@@ -38,33 +49,44 @@
         <div class="book-container">
 
             <!--BOOK TEMPLATES HERE-->
-            {{template "book-set" .Books}}
-
             {{if .IsInfinite}}
-                <div hx-trigger="revealed"
-                     hx-swap="outerHTML">
-                    ...
-                </div>
+                {{template "infinite-book-set" .InfiniteBookPreviewSet}}
+            {{else}}
+                {{template "book-set" .BookPreviewSet}}
             {{end}}
 
         </div>
     </div>
 {{end}}
 
+<!--
+    {[]BookPreview}
+-->
 {{block "book-set" .}}
     {{range .}}
         {{template "book-preview" .}}
     {{end}}
 {{end}}
 
+
+<!--
+    {BookPreviewSet, Url, Params}
+-->
 {{block "infinite-book-set" .}}
     <!--BOOK TEMPLATES HERE-->
-    {{template "book-set" .}}
+    {{template "book-set" .BookPreviewSet}}
     <!--INFINITE SEARCH HERE-->
+    <div
+        hx-swap="outerHTML"
+        hx-trigger="revealed"
+        hx-get="{{.Url}}"
+        hx-vals='{ {{range .Params}}"{{.Key}}": "{{.Value}}", {{end}} "": ""}'>
+    </div>
 {{end}}
-<!-------------->
 
-
+<!--
+    {Id, Cover, Title}
+-->
 {{block "book-preview" .}}
     <a href="book/{{.Id}}">
         <div class="book-template">

@@ -21,29 +21,17 @@ func newTemplate() *Templates {
 	}
 }
 
+//
+
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	e.GET("/", service.RootSearch)
+	e.GET("/", service.Root)
 
-	//e.Get("/preview/:id", service.GetBookPreviewByID)
+	e.GET(service.GetAllBooksPath, service.GetAllBooks)
+
+	e.GET("/search", service.GetFromResearch)
 	/*
-	e.GET("/scroll", func(c echo.Context) error {
-		result := database.Query(context.Background(), "MATCH (b:Book) RETURN b.name SKIP 0 LIMIT 1", nil)
-		name, ok := result.Records[0].Values[0].(string)
-
-		if !ok {
-			return c.HTML(http.StatusOK, "Error")
-		}
-
-		book := Book{Title: name}
-		return c.Render(http.StatusOK, "scroll", book)
-	})
-
-	e.GET("/image", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "image", nil)
-	})
-
 	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD
 	e.GET("/image/:id", func(c echo.Context) error {
 		id := c.Param("id")
