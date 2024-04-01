@@ -1,0 +1,23 @@
+<!--
+{Name, IsInfinite, BookPreviewSet, InfiniteBookPreviewSet}
+-->
+{{define "research"}}
+    <div class="research">
+        <div class="research-name">
+
+            <!--RESEARCH NAME HERE-->
+            {{.Name}}
+
+        </div>
+        <div class="book-container">
+
+            <!--BOOK TEMPLATES HERE-->
+            {{if .IsInfinite}}
+                {{template "infinite-book-set" .InfiniteBookPreviewSet}}
+            {{else}}
+                {{template "book-set" .BookPreviewSet}}
+            {{end}}
+
+        </div>
+    </div>
+{{end}}

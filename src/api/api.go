@@ -2,6 +2,7 @@ package api
 
 import (
 	"bb/service"
+	"bb/service/browse"
 	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
@@ -28,11 +29,9 @@ func Setup(e *echo.Echo) {
 
 	e.GET("/", service.Root)
 
+	e.GET(browse.BrowsePath, browse.RespondWithQueryResult)
 
-
-	e.GET(service.SearchPath, service.ResearchFromQuery)
-
-	e.GET(service.SearchAllPath, service.FetchAllBooks)
+	e.GET(browse.BrowseAllPath, browse.RespondWithAllBooks)
 
 	/*
 	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD

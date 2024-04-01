@@ -1,0 +1,46 @@
+<!--
+    {BookPreviewSet, Url, Params}
+-->
+{{define "infinite-book-set"}}
+    <!--BOOK TEMPLATES HERE-->
+    {{template "book-set" .BookPreviewSet}}
+    <!--INFINITE SEARCH HERE-->
+    <div
+            hx-swap="outerHTML"
+            hx-trigger="revealed"
+            hx-get="{{.Url}}"
+            hx-vals='{ {{range .Params}}"{{.Key}}": "{{.Value}}", {{end}} "": ""}'>
+    </div>
+{{end}}
+
+<!--
+    {[]BookPreview}
+-->
+{{define "book-set"}}
+    {{range .}}
+        {{template "book-preview" .}}
+    {{end}}
+{{end}}
+
+<!--
+    {Id, Cover, Title}
+-->
+{{define "book-preview"}}
+    <div class="book-template">
+        <a href="book/{{.Id}}">
+
+            <div class="book-image">
+
+                <!--BOOK IMAGE HERE-->
+                <img src="{{.Cover}}" alt="book">
+
+            </div>
+            <div class="book-title">
+
+                <!--BOOK TITLE HERE-->
+                {{.Title}}
+
+            </div>
+        </a>
+    </div>
+{{end}}
