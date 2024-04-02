@@ -46,32 +46,33 @@ func fetchBooks(skip int, limit int) (model.BookPreviewSet,error) {
 func RespondWithAllBooks(c echo.Context) error {
 	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
 	if err != nil || page < 1{
-		logger.InfoLogger.Printf("Page argument missing or invalid, redirecting to page 1")
-		page = 1
+		logger.InfoLogger.Printf("Page argument missing or invalid, redirecting to main")
+		return c.Redirect(http.StatusPermanentRedirect, util.MainTemplate)
 	}
 
 	skip,limit := (page-1)*MaxBatchSize, MaxBatchSize
 	books, err := fetchBooks(skip,limit)
 	if err != nil {
 		logger.WarningLogger.Printf("Error on fetching page %d: %s \n",page,err.Error())
-		return c.Render(http.StatusOK, model.BookPreviewSetTemplate, nil)
+		return model.BookPreviewSet{}.Render(c, http.StatusOK)
 	}
 
 	//If this is the last page, return a finite set
 	if len(books) < MaxBatchSize {
-		return c.Render(http.StatusOK, model.BookPreviewSetTemplate, books)
+		return books.Render(c, http.StatusOK)
 	} else {
-		return c.Render(http.StatusOK, model.InfiniteBookPreviewSetTemplate, model.InfiniteBookPreviewSet{
+		return model.InfiniteBookPreviewSet{
 			BookPreviewSet: books,
 			Url:            BrowseAllPath,
-			Params: []model.PathParameter {
-				{Key: util.PageParam, Value: page+1},
+			Params: map[string]any {
+				util.PageParam: page+1,
 			},
-		})
+		}.Render(c, http.StatusOK)
 	}
 }
 
 //Return an empty infinite search, linking to first page
+//SHOULD FILL AT LEAST FIRST PAGE AND LINK TO THE FOLLOWING PAGE TO REDUCE NETWORKING COST!!!!!
 func allBooksResearch() model.Research {
 	return model.Research{
 		Name: "Tous les livres",
@@ -79,8 +80,8 @@ func allBooksResearch() model.Research {
 		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
 			BookPreviewSet: nil,
 			Url:            BrowseAllPath,
-			Params: []model.PathParameter{
-				{Key: util.PageParam, Value: 1},
+			Params: map[string]any{
+				util.PageParam: 1,
 			},
 		},
 	}

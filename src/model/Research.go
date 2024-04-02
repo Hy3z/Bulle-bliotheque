@@ -1,5 +1,7 @@
 package model
 
+import "github.com/labstack/echo/v4"
+
 type Research struct {
 	Name string
 	IsInfinite bool
@@ -9,3 +11,7 @@ type Research struct {
 }
 
 const ResearchTemplate = "research"
+
+func (r Research) Render(c echo.Context, code int) error {
+	return c.Render(code, ResearchTemplate, r)
+}

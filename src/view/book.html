@@ -9,7 +9,7 @@
             hx-swap="outerHTML"
             hx-trigger="revealed"
             hx-get="{{.Url}}"
-            hx-vals='{ {{range .Params}}"{{.Key}}": "{{.Value}}", {{end}} "": ""}'>
+            hx-vals='{ {{range $key, $value := .Params}}"{{$key}}": "{{$value}}", {{end}} "": ""}'>
     </div>
 {{end}}
 

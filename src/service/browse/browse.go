@@ -14,35 +14,36 @@ import (
 //
 
 const (
-	MaxBatchSize = 2
-	MaxLatestBatchSize = 2
+	MaxBatchSize = 20
+	MaxLatestBatchSize = 20
 	BrowsePath = "/browse"
-	FilterParam = "q"
+	QueryParam = "q"
 )
 
 //Return a research-container
 func RespondWithQueryResult (c echo.Context) error {
-	filter := c.QueryParam(FilterParam)
+	qParam := c.QueryParam(QueryParam)
 	//If not filter applied, redirect to main
-	if filter=="" {
-		return c.Render(http.StatusOK, util.MainTemplate, RootResearches())
+	if qParam=="" {
+		return c.Redirect(http.StatusPermanentRedirect	, util.MainTemplate)
 	}
 
 	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
 	//Display infinite research if page is not specified, else (infinite) book-set
 	if err != nil || page < 1 {
-		return c.Render(http.StatusOK, model.ResearchTemplate, model.Research{
-			Name: filter,
+		//SHOULD FILL AT LEAST FIRST PAGE AND LINK TO THE FOLLOWING PAGE TO REDUCE NETWORKING COST!!!!!
+		return model.Research{
+			Name: qParam,
 			IsInfinite: true,
 			InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
 				BookPreviewSet: nil,
 				Url:            BrowsePath,
-				Params: []model.PathParameter{
-					{Key: util.PageParam, Value: 1},
-					{Key: FilterParam, Value: filter},
+				Params: map[string]any{
+					QueryParam: qParam,
+					util.PageParam: 1,
 				},
 			},
-		})
+		}.Render(c, http.StatusOK)
 	}
 
 	query := "MATCH (b:Book)WHERE b.title =~ $regex RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
@@ -50,7 +51,7 @@ func RespondWithQueryResult (c echo.Context) error {
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"skip": skip,
 		"limit": limit,
-		"regex": ".*"+filter+".*",
+		"regex": ".*"+qParam+".*",
 	})
 
 	if err != nil {
@@ -67,19 +68,19 @@ func RespondWithQueryResult (c echo.Context) error {
 		books[i] = book
 	}
 
-	//If these are the last books
+	//If these are the last books, return only a book-set, else return an infinite one
 	if len(books) < MaxBatchSize {
-		return c.Render(http.StatusOK, "book-set", books)
+		return books.Render(c, http.StatusOK)
 	}
 
-	return c.Render(http.StatusOK, model.InfiniteBookPreviewSetTemplate, model.InfiniteBookPreviewSet{
+	return model.InfiniteBookPreviewSet{
 		BookPreviewSet: books,
 		Url:            BrowsePath,
-		Params: []model.PathParameter{
-			{Key: util.PageParam, Value: page + 1},
-			{Key: FilterParam, Value: filter},
+		Params: map[string]any{
+			QueryParam: qParam,
+			util.PageParam: page + 1,
 		},
-	})
+	}.Render(c, http.StatusOK)
 }
 
 func RootResearches () []model.Research {

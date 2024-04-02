@@ -30,6 +30,30 @@
                    hx-target=".main"
                    hx-swap="innerHTML">
         </label>
+        <div class="browse-button">
+            <button type="button"
+                    hx-get="/main"
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    hx-trigger="click">Acceuil</button>
+            <button type="button"
+                hx-get="/browse/all"
+                hx-target=".main"
+                hx-swap="innerHTML"
+                hx-trigger="click">Nouveautés</button>
+            <button type="button"
+                    hx-get="/browse/tag"
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+                    hx-vals='{"t":["manga"]}'>Manga</button>
+            <button type="button"
+                    hx-get="/browse/tag"
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+                    hx-vals='{"t":["bd"]}'>BD</button>
+        </div>
     </div>
 {{end}}
 

@@ -27,7 +27,9 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	e.GET("/", service.Root)
+	e.GET("/", service.RespondWithIndex)
+
+	e.GET("/main", service.RespondWithMain)
 
 	e.GET(browse.BrowsePath, browse.RespondWithQueryResult)
 

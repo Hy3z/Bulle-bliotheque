@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
-func Root(c echo.Context) error {
+func RespondWithIndex(c echo.Context) error {
 	return c.Render(http.StatusOK, util.IndexTemplate, browse.RootResearches())
 }
+
+func RespondWithMain(c echo.Context) error {
+	return c.Render(http.StatusOK, util.MainTemplate, browse.RootResearches())
+}
+
