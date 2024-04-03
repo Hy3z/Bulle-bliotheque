@@ -13,8 +13,10 @@
 
     {{template "header"}}
 
-    {{template "main" .}}
-
+    <!-- class here are outside of main template as header buttons have to target innerhtml-->
+    <div class="main">
+        {{template "main" .}}
+    </div>
     </body>
     </html>
 {{end}}
@@ -37,7 +39,7 @@
                     hx-swap="innerHTML"
                     hx-trigger="click">Acceuil</button>
             <button type="button"
-                hx-get="/browse/all"
+                hx-get="/browse/latest"
                 hx-target=".main"
                 hx-swap="innerHTML"
                 hx-trigger="click">Nouveautés</button>
@@ -61,10 +63,8 @@
 {[]Research}
 -->
 {{define "main"}}
-    <div class="main">
-        <!--RESEARCHES HERE-->
-        {{range .}}
-            {{template "research" .}}
-        {{end}}
-    </div>
+    <!--RESEARCHES HERE-->
+    {{range .}}
+        {{template "research" .}}
+    {{end}}
 {{end}}

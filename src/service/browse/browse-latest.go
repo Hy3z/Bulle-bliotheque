@@ -5,9 +5,16 @@ import (
 	"bb/logger"
 	"bb/model"
 	"context"
+	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
-func latestBooksResearch() (model.Research,error) {
+const (
+	BrowseLatestPath = BrowsePath+"/latest"
+	MaxLatestBatchSize = 20
+)
+
+func latestBooksResearch() model.Research {
 	query :=
 		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN elementId(b), " +
 			"b.title, b.cover ORDER BY b.date DESC LIMIT $limit"
@@ -17,7 +24,11 @@ func latestBooksResearch() (model.Research,error) {
 
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching latest books")
-		return model.Research{}, err
+		return model.Research{
+			Name: "Nouveautés",
+			IsInfinite: false,
+			BookPreviewSet: model.BookPreviewSet{},
+		}
 	}
 
 	books := make([]model.BookPreview, len(res.Records))
@@ -30,9 +41,14 @@ func latestBooksResearch() (model.Research,error) {
 	}
 
 	return model.Research {
-		Name: "Acquisitions récentes",
+		Name: "Nouveautés",
 		IsInfinite: false,
 		BookPreviewSet: books,
-	},nil
+	}
+}
+
+//Return a research containing all the latest books
+func RespondWithLatestBooks(c echo.Context) error {
+	return latestBooksResearch().Render(c, http.StatusOK)
 }
 

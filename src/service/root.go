@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+const (
+	MainPath = "/main"
+)
+
 func RespondWithIndex(c echo.Context) error {
 	return c.Render(http.StatusOK, util.IndexTemplate, browse.RootResearches())
 }
@@ -14,4 +18,3 @@ func RespondWithIndex(c echo.Context) error {
 func RespondWithMain(c echo.Context) error {
 	return c.Render(http.StatusOK, util.MainTemplate, browse.RootResearches())
 }
-

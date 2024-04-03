@@ -29,11 +29,13 @@ func Setup(e *echo.Echo) {
 
 	e.GET("/", service.RespondWithIndex)
 
-	e.GET("/main", service.RespondWithMain)
+	e.GET(service.MainPath, service.RespondWithMain)
+
+	e.GET(browse.BrowseAllPath, browse.RespondWithAllBooks)
 
 	e.GET(browse.BrowsePath, browse.RespondWithQueryResult)
 
-	e.GET(browse.BrowseAllPath, browse.RespondWithAllBooks)
+	e.GET(browse.BrowseLatestPath, browse.RespondWithLatestBooks)
 
 	/*
 	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD

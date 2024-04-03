@@ -4,6 +4,7 @@ import (
 	"bb/database"
 	"bb/logger"
 	"bb/model"
+	"bb/service"
 	"bb/util"
 	"context"
 	"github.com/labstack/echo/v4"
@@ -14,51 +15,32 @@ import (
 //
 
 const (
-	MaxBatchSize = 20
-	MaxLatestBatchSize = 20
+	MaxBatchSize = 1
 	BrowsePath = "/browse"
 	QueryParam = "q"
 )
 
-//Return a research-container
-func RespondWithQueryResult (c echo.Context) error {
-	qParam := c.QueryParam(QueryParam)
-	//If not filter applied, redirect to main
-	if qParam=="" {
-		return c.Redirect(http.StatusPermanentRedirect	, util.MainTemplate)
-	}
+func RootResearches () []model.Research {
+	var researches []model.Research
 
-	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
-	//Display infinite research if page is not specified, else (infinite) book-set
-	if err != nil || page < 1 {
-		//SHOULD FILL AT LEAST FIRST PAGE AND LINK TO THE FOLLOWING PAGE TO REDUCE NETWORKING COST!!!!!
-		return model.Research{
-			Name: qParam,
-			IsInfinite: true,
-			InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
-				BookPreviewSet: nil,
-				Url:            BrowsePath,
-				Params: map[string]any{
-					QueryParam: qParam,
-					util.PageParam: 1,
-				},
-			},
-		}.Render(c, http.StatusOK)
-	}
 
-	query := "MATCH (b:Book)WHERE b.title =~ $regex RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
-	skip, limit := (page-1)*MaxBatchSize, MaxBatchSize
-	res, err := database.Query(context.Background(), query, map[string]any{
+	researches = append(researches, latestBooksResearch())
+	researches = append(researches, allBooksResearch())
+	return researches
+}
+
+func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet {
+	cypherQuery := "MATCH (b:Book)WHERE b.title =~ $regex RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+	skip := (page-1)*limit
+	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip": skip,
 		"limit": limit,
 		"regex": ".*"+qParam+".*",
 	})
-
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
-		return nil
+		return model.BookPreviewSet{}
 	}
-
 	books := make(model.BookPreviewSet, len(res.Records))
 	for i,record := range res.Records {
 		id,_ := record.Values[0].(string)
@@ -67,8 +49,54 @@ func RespondWithQueryResult (c echo.Context) error {
 		book := model.BookPreview{Title: title, Cover: cover, Id: id}
 		books[i] = book
 	}
+	return books
+}
 
-	//If these are the last books, return only a book-set, else return an infinite one
+func getBrowseResearch(qParam string) model.Research {
+	page := 1
+	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize)
+	if len(bps1) < MaxBatchSize {
+		return model.Research{
+			Name: qParam,
+			IsInfinite: false,
+			BookPreviewSet: bps1,
+		}
+	}
+	return model.Research{
+		Name: qParam,
+		IsInfinite: true,
+		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
+			BookPreviewSet: bps1,
+			Url:            BrowsePath,
+			Params: map[string]any{
+				QueryParam: qParam,
+				util.PageParam: page+1,
+			},
+		},
+	}
+}
+
+//subfunction of
+// |
+// v
+
+//Return a research-container
+func RespondWithQueryResult (c echo.Context) error {
+	qParam := c.QueryParam(QueryParam)
+	//If not filter applied, redirect to main
+	if qParam=="" {
+		return c.Redirect(http.StatusPermanentRedirect	, service.MainPath)
+	}
+
+	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
+	//Render (infinite) research if page is not specified, else (infinite) book-set
+	if err != nil || page < 1 {
+		return getBrowseResearch(qParam).Render(c, http.StatusOK)
+	}
+
+	books := executeBrowseQuery(qParam, page, MaxBatchSize)
+
+	//If these are the last books, render only a book-set, else render an infinite one
 	if len(books) < MaxBatchSize {
 		return books.Render(c, http.StatusOK)
 	}
@@ -81,16 +109,4 @@ func RespondWithQueryResult (c echo.Context) error {
 			util.PageParam: page + 1,
 		},
 	}.Render(c, http.StatusOK)
-}
-
-func RootResearches () []model.Research {
-	var researches []model.Research
-
-	research,err := latestBooksResearch()
-	if err == nil {
-	researches = append(researches, research)
-	}
-
-	researches = append(researches, allBooksResearch())
-	return researches
 }

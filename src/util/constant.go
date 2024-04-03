@@ -1,7 +1,9 @@
 package util
 
 const (
-	PageParam = "page"
+	PageParam = "p"
 	MainTemplate = "main"
 	IndexTemplate = "index"
 )
+
+
