@@ -8,8 +8,8 @@ type BookPreview struct {
 	Id string
 }
 
-const BookPreviewTemplate = "book-preview"
+const bookPreviewTemplate = "book-preview"
 
 func (bp BookPreview) Render(c echo.Context, code int) error {
-	return c.Render(code, BookPreviewTemplate, bp)
+	return c.Render(code, bookPreviewTemplate, bp)
 }

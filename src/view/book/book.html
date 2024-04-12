@@ -1,0 +1,64 @@
+{{define "book"}}
+
+
+
+    <div class="book">
+
+        {{if .Title}}
+            <div class="book-title">
+                {{.Title}}
+            </div>
+        {{else}}
+            NO TITLE {{end}}
+
+        {{if .Cover}}
+            <div class="book-cover">
+                <img src="{{.Cover}}" alt="book">
+            </div>
+        {{else}}
+            NO COVER {{end}}
+        {{if .Summary}}
+            <div class="book-summary">
+                {{.Summary}}
+            </div>
+        {{else}}
+            NO SUMMARY
+        {{end}}
+
+        {{if .Authors}}
+            <div class="book-author-container">
+                {{range .Authors}}
+                    <div class="book-author">
+                        {{.}}
+                    </div>
+                {{end}}
+            </div>
+        {{else}}
+            NO AUTHORS {{end}}
+
+        {{if .Tags}}
+            <div class="book-tag-container">
+                {{range .Tags}}
+                    <div class="book-tag">
+                        {{.}}
+                    </div>
+                {{end}}
+            </div>
+        {{else}}
+            NO TAGS {{end}}
+
+        {{if .Date}}
+            <div class="book-date">
+                {{.Date}}
+            </div>
+        {{else}}
+            NO DATE {{end}}
+
+        {{if .Language}}
+            <div class="book-language">
+                {{.Language}}
+            </div>
+        {{else}}
+            NO LANGUAGE {{end}}
+    </div>
+{{end}}

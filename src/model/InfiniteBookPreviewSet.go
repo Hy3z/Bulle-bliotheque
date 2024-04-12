@@ -10,8 +10,8 @@ type InfiniteBookPreviewSet struct {
 	Params map[string]any
 }
 
-const InfiniteBookPreviewSetTemplate = "infinite-book-set"
+const infiniteBookPreviewSetTemplate = "infinite-book-set"
 
 func (ibps InfiniteBookPreviewSet) Render(c echo.Context, code int) error {
-	return c.Render(code, InfiniteBookPreviewSetTemplate, ibps)
+	return c.Render(code, infiniteBookPreviewSetTemplate, ibps)
 }

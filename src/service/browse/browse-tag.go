@@ -11,28 +11,13 @@ import (
 	"strconv"
 )
 
-//
-
-const (
-	MaxBatchSize = 1
-)
-
-func rootResearches () []model.Research {
-	var researches []model.Research
-
-
-	researches = append(researches, latestBooksResearch())
-	researches = append(researches, allBooksResearch())
-	return researches
-}
-
-func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet {
-	cypherQuery := "MATCH (b:Book)WHERE b.title =~ $regex RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+func getTaggedBps(tag string, page int, limit int) model.BookPreviewSet {
+	cypherQuery := "MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag}) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
 	skip := (page-1)*limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip": skip,
 		"limit": limit,
-		"regex": ".*"+qParam+".*",
+		"tag": tag,
 	})
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
@@ -49,56 +34,54 @@ func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet
 	return books
 }
 
-func getBrowseResearch(qParam string) model.Research {
+func getTaggedRs(tag string) model.Research {
 	page := 1
-	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize)
+	bps1 := getTaggedBps(tag, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
 		return model.Research{
-			Name: qParam,
+			Name: tag,
 			IsInfinite: false,
 			BookPreviewSet: bps1,
 		}
 	}
 	return model.Research{
-		Name: qParam,
+		Name: tag,
 		IsInfinite: true,
 		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
 			BookPreviewSet: bps1,
-			Url:            util.BrowsePath,
+			Url:            util.BrowsePath+"/tag/"+tag,
 			Params: map[string]any{
-				util.QueryParam: qParam,
 				util.PageParam: page+1,
 			},
 		},
 	}
 }
 
-func respondWithBrowsePage(c echo.Context) error {
-	qParam := c.QueryParam(util.QueryParam)
+func respondWithTagPage(c echo.Context) error {
+	tag := c.Param(util.TagParam)
 	//If not filter applied, render default view
-	if qParam=="" {
-		var researches model.BrowseIndex = rootResearches()
-		return researches.Render(c, http.StatusOK)
+	if tag=="" {
+		logger.WarningLogger.Println("No tag specified")
+		return c.NoContent(http.StatusBadRequest)
 	}
-	return model.BrowseIndex{getBrowseResearch(qParam)}.Render(c, http.StatusOK)
+	return model.BrowseIndex{getTaggedRs(tag)}.Render(c, http.StatusOK)
 }
 
-func respondWithBrowseRs(c echo.Context) error {
-	qParam := c.QueryParam(util.QueryParam)
-	//If not filter applied, return default view
-	if qParam=="" {
-		logger.InfoLogger.Println("NO QUERY PARAM HOW")
-		var researches model.BrowseMain = rootResearches()
-		return researches.Render(c, http.StatusOK)
+func respondWithTagRs(c echo.Context) error {
+	tag := c.Param(util.TagParam)
+	//If not filter applied, render default view
+	if tag=="" {
+		logger.WarningLogger.Println("No tag specified")
+		return c.NoContent(http.StatusBadRequest)
 	}
-	return model.BrowseMain{getBrowseResearch(qParam)}.Render(c, http.StatusOK)
+	return getTaggedRs(tag).Render(c, http.StatusOK)
 }
 
-func respondWithBrowseBps(c echo.Context) error {
-	qParam := c.QueryParam(util.QueryParam)
+func respondWithTagBps(c echo.Context) error {
+	tag := c.Param(util.TagParam)
 	//If not filter applied, render nothing
-	if qParam=="" {
-		logger.WarningLogger.Println("Missing or invalid query argument")
+	if tag=="" {
+		logger.WarningLogger.Println("Missing or invalid tag argument")
 		return c.NoContent(http.StatusBadRequest)
 	}
 	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
@@ -108,7 +91,7 @@ func respondWithBrowseBps(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	books := executeBrowseQuery(qParam, page, MaxBatchSize)
+	books := getTaggedBps(tag, page, MaxBatchSize)
 
 	//If these are the last books, render only a book-set, else render an infinite one
 	if len(books) < MaxBatchSize {
@@ -117,22 +100,21 @@ func respondWithBrowseBps(c echo.Context) error {
 
 	return model.InfiniteBookPreviewSet{
 		BookPreviewSet: books,
-		Url:            util.BrowsePath,
+		Url:            util.BrowsePath+"/tag/"+tag,
 		Params: map[string]any{
-			util.QueryParam: qParam,
 			util.PageParam: page + 1,
 		},
 	}.Render(c, http.StatusOK)
 }
 
-func RespondWithBrowse(c echo.Context) error {
+func RespondWithTag(c echo.Context) error {
 	tmpl,err := util.GetHeaderTemplate(c)
 	if err != nil {
-		return respondWithBrowsePage(c)
+		return respondWithTagPage(c)
 	}
 	switch tmpl {
-	case util.ResearchType: return respondWithBrowseRs(c)
-	case util.BpsType: return respondWithBrowseBps(c)
+	case util.ResearchType: return respondWithTagRs(c)
+	case util.BpsType: return respondWithTagBps(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
 		return c.NoContent(http.StatusBadRequest)

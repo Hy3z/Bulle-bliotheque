@@ -1,0 +1,55 @@
+{{define "header"}}
+    <div class="header">
+        <!--HEADER HERE-->
+        <label>
+
+            <input type="text" name="q" class="search-box"
+                   hx-trigger="keyup changed delay:0.4s"
+                   hx-get="http://localhost:42069/browse"
+                   hx-headers='{"Tmpl":"rs"}'
+                   hx-include="this"
+                   hx-target=".main"
+                   hx-swap="innerHTML">
+        </label>
+        <div class="browse-button">
+            <a href="http://localhost:42069/browse"
+                    hx-boost="true"
+                    hx-headers='{"Tmpl":"rs"}'
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    class="header-main">
+                Acceuil
+            </a>
+            <a href="http://localhost:42069/browse/latest"
+                    hx-boost="true"
+                    hx-headers='{"Tmpl":"rs"}'
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    class="header-latest">
+                Nouveautés
+            </a>
+
+            <a href="http://localhost:42069/browse/tag/{myTag}"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"rs"}'
+               hx-vals='{"myTag":"Manga"}'
+               hx-ext="path-params"
+               hx-target=".main"
+               hx-swap="innerHTML"
+               class="header-manga">
+                Manga
+            </a>
+            <a href="http://localhost:42069/browse/tag/{tag}"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"rs"}'
+               hx-vals='{"tag":"BD"}'
+               hx-ext="path-params"
+               hx-target=".main"
+               hx-swap="innerHTML"
+               class="header-bd">
+                BD
+            </a>
+
+        </div>
+    </div>
+{{end}}

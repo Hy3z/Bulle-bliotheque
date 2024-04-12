@@ -1,0 +1,15 @@
+<!--
+    {BookPreviewSet, Url, Params}
+-->
+{{define "infinite-book-set"}}
+  <!--BOOK TEMPLATES HERE-->
+  {{template "book-set" .BookPreviewSet}}
+  <!--INFINITE SEARCH HERE-->
+  <div
+          hx-swap="outerHTML"
+          hx-trigger="revealed"
+          hx-get="{{.Url}}"
+          hx-headers='{"Tmpl":"bps"}'
+          hx-vals='{ {{range $key, $value := .Params}}"{{$key}}": "{{$value}}", {{end}} "": ""}'>
+  </div>
+{{end}}

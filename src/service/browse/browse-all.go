@@ -11,8 +11,6 @@ import (
 	"strconv"
 )
 
-const BrowseAllPath= BrowsePath +"/all"
-
 //Return a BookPreviewSet of all books, with skip and limit
 func fetchBooks(page int, limit int) model.BookPreviewSet {
 	query := "MATCH (b:Book) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
@@ -54,7 +52,7 @@ func allBooksResearch() model.Research {
 		IsInfinite: true,
 		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
 			BookPreviewSet: books,
-			Url:            BrowseAllPath,
+			Url:            util.BrowseAllPath,
 			Params: map[string]any{
 				util.PageParam: page+1,
 			},
@@ -63,11 +61,12 @@ func allBooksResearch() model.Research {
 }
 
 //Return a (infinite) book-set from all books, takes a page argument
-func RespondWithAllBooks(c echo.Context) error {
+func respondWithAllBps(c echo.Context) error {
 	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
-	//If no page is precised, render research instead
+	//If no page is precised, return nothing
 	if err != nil || page < 1{
-		allBooksResearch().Render(c, http.StatusOK)
+		logger.WarningLogger.Println("Missing or invalid page argument")
+		return c.NoContent(http.StatusBadRequest)
 	}
 
 	books := fetchBooks(page,MaxBatchSize)
@@ -78,12 +77,28 @@ func RespondWithAllBooks(c echo.Context) error {
 	} else {
 		return model.InfiniteBookPreviewSet{
 			BookPreviewSet: books,
-			Url:            BrowseAllPath,
+			Url:            util.BrowseAllPath,
 			Params: map[string]any {
 				util.PageParam: page+1,
 			},
 		}.Render(c, http.StatusOK)
 	}
 }
+
+func RespondWithAll(c echo.Context) error {
+	tmpl,err := util.GetHeaderTemplate(c)
+	if err != nil {
+		logger.ErrorLogger.Println("No or invalid template requested")
+		return c.NoContent(http.StatusBadRequest)
+	}
+	switch tmpl {
+	case util.BpsType: return respondWithAllBps(c)
+	default:
+		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
+		return c.NoContent(http.StatusBadRequest)
+	}
+}
+
+
 
 

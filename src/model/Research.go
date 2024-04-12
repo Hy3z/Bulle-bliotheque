@@ -10,8 +10,8 @@ type Research struct {
 	InfiniteBookPreviewSet InfiniteBookPreviewSet
 }
 
-const ResearchTemplate = "research"
+const researchTemplate = "research"
 
 func (r Research) Render(c echo.Context, code int) error {
-	return c.Render(code, ResearchTemplate, r)
+	return c.Render(code, researchTemplate, r)
 }

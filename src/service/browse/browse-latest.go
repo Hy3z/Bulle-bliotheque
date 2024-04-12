@@ -4,13 +4,13 @@ import (
 	"bb/database"
 	"bb/logger"
 	"bb/model"
+	"bb/util"
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 const (
-	BrowseLatestPath = BrowsePath+"/latest"
 	MaxLatestBatchSize = 20
 )
 
@@ -47,8 +47,27 @@ func latestBooksResearch() model.Research {
 	}
 }
 
+//Return a page with only the latest books as research
+func respondWithLatestPage(c echo.Context) error {
+	return model.BrowseIndex{latestBooksResearch()}.Render(c, http.StatusOK)
+}
 //Return a research containing all the latest books
-func RespondWithLatestBooks(c echo.Context) error {
+func respondWithLatestRs(c echo.Context) error {
 	return latestBooksResearch().Render(c, http.StatusOK)
 }
+
+func RespondWithLatest(c echo.Context) error {
+	tmpl,err := util.GetHeaderTemplate(c)
+	if err != nil {
+		return respondWithLatestPage(c)
+	}
+	switch tmpl {
+	case util.ResearchType: return respondWithLatestRs(c)
+	default:
+		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
+		return c.NoContent(http.StatusBadRequest)
+	}
+}
+
+
 

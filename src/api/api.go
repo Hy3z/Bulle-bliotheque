@@ -1,11 +1,13 @@
 package api
 
 import (
-	"bb/service"
+	"bb/service/book"
 	"bb/service/browse"
+	"bb/util"
 	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
+	"net/http"
 )
 
 type Templates struct {
@@ -16,9 +18,20 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+/*func ParseHTML(dir string) (*template.Template, error){
+	files := []string{}
+	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
+		if filepath.Ext(path) == "html" {
+			template.ParseFiles(path)
+			files = append(files, path)
+		}
+		return nil
+	})
+}*/
+
 func newTemplate() *Templates {
 	return &Templates{
-		templates: template.Must(template.ParseGlob("view/*.html")),
+		templates: template.Must(template.ParseGlob("view/*/*.html")),
 	}
 }
 
@@ -27,15 +40,19 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	e.GET("/", service.RespondWithIndex)
+	e.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
+	})
 
-	e.GET(service.MainPath, service.RespondWithMain)
+	e.GET(util.BrowsePath, browse.RespondWithBrowse)
 
-	e.GET(browse.BrowseAllPath, browse.RespondWithAllBooks)
+	e.GET(util.BrowseLatestPath, browse.RespondWithLatest)
 
-	e.GET(browse.BrowsePath, browse.RespondWithQueryResult)
+	e.GET(util.BrowseAllPath, browse.RespondWithAll)
 
-	e.GET(browse.BrowseLatestPath, browse.RespondWithLatestBooks)
+	e.GET(util.BookPath, book.RespondWithBook)
+
+	e.GET(util.BrowseTagPath, browse.RespondWithTag)
 
 	/*
 	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD

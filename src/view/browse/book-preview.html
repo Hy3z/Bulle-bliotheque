@@ -1,0 +1,26 @@
+<!--
+    {Id, Cover, Title}
+-->
+{{define "book-preview"}}
+    <div class="book-preview">
+        <a href="http://localhost:42069/book/{{.Id}}"
+           hx-boost="true"
+           hx-headers='{"Tmpl":"book"}'
+           hx-target=".main"
+           hx-swap="innerHTML">
+
+            <div class="book-image">
+
+                <!--BOOK IMAGE HERE-->
+                <img src="{{.Cover}}" alt="book">
+
+            </div>
+            <div class="book-title">
+
+                <!--BOOK TITLE HERE-->
+                {{.Title}}
+
+            </div>
+        </a>
+    </div>
+{{end}}
