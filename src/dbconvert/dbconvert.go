@@ -12,8 +12,9 @@ import (
 //This package is responsible for database convertion from the old .cvs files to neo4j
 
 const(
+	PATH = "D:/Code/Bulle-bliotheque/src/"
 	RESPATH = "dbconvert/resources/"
-	OUTPATH = "/out/"
+	OUTPATH = "out/"
 	BD = "oldinv_BDs.csv"
 	COMICS = "oldinv_Comics.csv"
 	MANGAS = "oldinv_Mangas.csv"
@@ -28,19 +29,19 @@ func CreateBDs() {
 
 	inpF, err := os.Open(RESPATH+BD)
 	if err != nil {
-		logger.ErrorLogger.Printf("Error opening BDs: %s \n", err)
+		logger.ErrorLogger.Panicf("Error opening BDs: %s \n", err)
 	}
 
-	outF, err := os.Open(OUTPATH+"BD.cypher")
+	outF, err := os.Create(OUTPATH+"BD.cypher")
 	if err != nil {
-		logger.ErrorLogger.Printf("Error creating output file: %s \n", err)
+		logger.ErrorLogger.Panicf("Error creating output file: %s \n", err)
 	}
 
 	reader := csv.NewReader(inpF)
 	reader.FieldsPerRecord = -1
 	data, err := reader.ReadAll()
 	if err != nil {
-		logger.ErrorLogger.Printf("Error reading data: %s \n", err)
+		logger.ErrorLogger.Panicf("Error reading data: %s \n", err)
 	}
 
 	for j, row := range data {
@@ -62,7 +63,7 @@ func CreateBDs() {
 			title = serie+" T."+num+": "+title
 		}
 
-		query := fmt.Sprintf("CREATE (b:Book {ISBN: %s, link: %s, title: %s, cote: %s})", isbn, link, title, cote)
+		query := fmt.Sprintf("CREATE (b:Book {ISBN: %q, link: %q, title: %q, cote: %q, cover: %q})\n", isbn, link, title, cote, cover)
 		outF.WriteString(query)
 
 		if cover == ""{
