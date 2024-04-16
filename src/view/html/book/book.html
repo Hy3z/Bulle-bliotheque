@@ -11,18 +11,21 @@
         {{else}}
             NO TITLE {{end}}
 
-        {{if .Cover}}
+        {{if .ISBN}}
+            <div class="book-isbn">
+                {{.ISBN}}
+            </div>
             <div class="book-cover">
-                <img src="{{.Cover}}" alt="book">
+                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book">
             </div>
         {{else}}
             NO COVER {{end}}
-        {{if .Summary}}
-            <div class="book-summary">
-                {{.Summary}}
+        {{if .Description}}
+            <div class="book-description">
+                {{.Description}}
             </div>
         {{else}}
-            NO SUMMARY
+            NO DESCRIPTION
         {{end}}
 
         {{if .Authors}}
@@ -47,18 +50,32 @@
         {{else}}
             NO TAGS {{end}}
 
-        {{if .Date}}
-            <div class="book-date">
-                {{.Date}}
+        {{if .PublishedDate}}
+            <div class="book-published-date">
+                {{.PublishedDate}}
             </div>
         {{else}}
-            NO DATE {{end}}
+            NO PUBLISHED DATE {{end}}
 
-        {{if .Language}}
-            <div class="book-language">
-                {{.Language}}
+        {{if .Publisher}}
+            <div class="book-publisher">
+                {{.Publisher}}
             </div>
         {{else}}
-            NO LANGUAGE {{end}}
+            NO PUBLISHER {{end}}
+
+        {{if .Cote}}
+            <div class="book-cote">
+                {{.Cote}}
+            </div>
+        {{else}}
+            NO COTE {{end}}
+
+        {{if .PageCount}}
+            <div class="book-page-count">
+                {{.PageCount}}
+            </div>
+        {{else}}
+            NO PAGE COUNT {{end}}
     </div>
 {{end}}

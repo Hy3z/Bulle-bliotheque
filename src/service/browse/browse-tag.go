@@ -12,7 +12,7 @@ import (
 )
 
 func getTaggedBps(tag string, page int, limit int) model.BookPreviewSet {
-	cypherQuery := "MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag}) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+	cypherQuery := "MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag}) RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
 	skip := (page-1)*limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip": skip,
@@ -25,10 +25,9 @@ func getTaggedBps(tag string, page int, limit int) model.BookPreviewSet {
 	}
 	books := make(model.BookPreviewSet, len(res.Records))
 	for i,record := range res.Records {
-		id,_ := record.Values[0].(string)
+		isbn13,_ := record.Values[0].(string)
 		title,_ := record.Values[1].(string)
-		cover, _ := record.Values[2].(string)
-		book := model.BookPreview{Title: title, Cover: cover, Id: id}
+		book := model.BookPreview{Title: title, ISBN: isbn13}
 		books[i] = book
 	}
 	return books

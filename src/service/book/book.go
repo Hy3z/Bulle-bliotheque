@@ -10,14 +10,15 @@ import (
 	"net/http"
 )
 
-func getBookById(id string) (model.Book,error) {
+func getBookByISBN(isbn13 string) (model.Book,error) {
 	query :=
-		"MATCH (a:Author)-[:WROTE]->(b:Book)-[:HAS_TAG]->(t:Tag) " +
-			"WHERE elementId(b) = $id " +
-			"RETURN b.title, b.cover, b.summary, b.date, b.language , collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags " +
+		"MATCH (b:Book {ISBN_13: $isbn13})" +
+			"OPTIONAL MATCH (a:Author)-[:WROTE]->(b) " +
+			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
+			"RETURN b.title, b.ISBN_13, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags " +
 			"LIMIT 1"
 	res, err := database.Query(context.Background(), query, map[string]any {
-		"id": id,
+		"isbn13": isbn13,
 	})
 
 	if err != nil {
@@ -30,19 +31,26 @@ func getBookById(id string) (model.Book,error) {
 
 	book := model.Book{}
 	record := res.Records[0]
+
 	title,okT := record.Values[0].(string)
-	cover, okC := record.Values[1].(string)
-	summary, okS := record.Values[2].(string)
-	date, okD := record.Values[3].(string)
-	language, okL := record.Values[4].(string)
-	authorsI, okAsI := record.Values[5].([]interface{})
-	tagsI,okTsI := record.Values[6].([]interface{})
+	isbn13, okI := record.Values[1].(string)
+	description, okDe := record.Values[2].(string)
+	pubdate, okPubd := record.Values[3].(string)
+	pub, okPub := record.Values[4].(string)
+	cote, okC := record.Values[5].(string)
+	pageCount, okP := record.Values[6].(int64)
+	authorsI, okAsI := record.Values[7].([]interface{})
+	tagsI,okTsI := record.Values[8].([]interface{})
 
 	if okT {book.Title = title}
-	if okC {book.Cover = cover}
-	if okS {book.Summary = summary}
-	if okD {book.Date = date}
-	if okL {book.Language = language}
+	if okI {book.ISBN = isbn13}
+	if okDe {book.Description = description}
+
+	if okPubd {book.PublishedDate = pubdate}
+	if okPub {book.Publisher = pub}
+	if okC {book.Cote = cote}
+	if okP {book.PageCount = pageCount}
+
 	if okAsI {
 		authors := make([]string, len(authorsI))
 		n := 0
@@ -71,7 +79,7 @@ func getBookById(id string) (model.Book,error) {
 }
 
 func respondWithBookBook(c echo.Context) error {
-	book,err := getBookById(c.Param(util.IdParam))
+	book,err := getBookByISBN(c.Param(util.IsbnParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n",err)
 		return c.NoContent(http.StatusNotFound)
@@ -80,7 +88,7 @@ func respondWithBookBook(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book,err := getBookById(c.Param(util.IdParam))
+	book,err := getBookByISBN(c.Param(util.IsbnParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n",err)
 		return c.NoContent(http.StatusNotFound)
@@ -99,4 +107,9 @@ func RespondWithBook(c echo.Context) error {
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
+}
+
+func RespondWithCover(c echo.Context) error {
+	isbn := c.Param(util.IsbnParam)
+	return c.File("./data/isbn/"+isbn+"/cover.jpg")
 }

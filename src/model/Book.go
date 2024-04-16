@@ -4,12 +4,14 @@ import "github.com/labstack/echo/v4"
 
 type Book struct {
 	Title string
-	Cover string
-	Summary string
+	ISBN string
+	Description string
 	Authors []string
 	Tags []string
-	Date string
-	Language string
+	PublishedDate string
+	Publisher string
+	Cote string
+	PageCount int64
 }
 
 const bookTemplate = "book"

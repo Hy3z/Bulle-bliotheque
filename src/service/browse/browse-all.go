@@ -13,7 +13,7 @@ import (
 
 //Return a BookPreviewSet of all books, with skip and limit
 func fetchBooks(page int, limit int) model.BookPreviewSet {
-	query := "MATCH (b:Book) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+	query := "MATCH (b:Book) RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"skip": (page-1)*limit,
 		"limit": limit,
@@ -26,10 +26,9 @@ func fetchBooks(page int, limit int) model.BookPreviewSet {
 
 	books := make([]model.BookPreview, len(res.Records))
 	for i,record := range res.Records {
-		id,_ := record.Values[0].(string)
+		isbn13,_ := record.Values[0].(string)
 		title,_ := record.Values[1].(string)
-		cover, _ := record.Values[2].(string)
-		book := model.BookPreview{Title: title, Cover: cover, Id: id}
+		book := model.BookPreview{Title: title, ISBN: isbn13}
 		books[i] = book
 	}
 

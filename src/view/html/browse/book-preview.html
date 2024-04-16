@@ -3,7 +3,7 @@
 -->
 {{define "book-preview"}}
     <div class="book-preview">
-        <a href="http://localhost:42069/book/{{.Id}}"
+        <a href="http://localhost:42069/book/{{.ISBN}}"
            hx-boost="true"
            hx-headers='{"Tmpl":"book"}'
            hx-target=".main"
@@ -12,7 +12,7 @@
             <div class="book-image">
 
                 <!--BOOK IMAGE HERE-->
-                <img src="{{.Cover}}" alt="book">
+                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book">
 
             </div>
             <div class="book-title">

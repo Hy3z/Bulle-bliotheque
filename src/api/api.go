@@ -40,6 +40,12 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
+	/*e.GET("/update", func(c echo.Context) error {
+		dbconvert.CreateAuthorsFromDB()
+		dbconvert.TagAllBD()
+		return c.String(http.StatusOK, "Updated")
+	})*/
+
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
 	})
@@ -51,6 +57,7 @@ func Setup(e *echo.Echo) {
 	e.GET(util.BrowseAllPath, browse.RespondWithAll)
 
 	e.GET(util.BookPath, book.RespondWithBook)
+	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.BrowseTagPath, browse.RespondWithTag)
 

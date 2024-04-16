@@ -4,8 +4,7 @@ import "github.com/labstack/echo/v4"
 
 type BookPreview struct {
 	Title string
-	Cover string
-	Id string
+	ISBN string
 }
 
 const bookPreviewTemplate = "book-preview"
