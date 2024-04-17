@@ -11,7 +11,7 @@ func CreateAuthorsFromDB() {
 	limit := 100
 	page := 0
 	for {
-		query := "MATCH (b:Book) WHERE b.ISBN_13 IS NOT NULL RETURN b.ISBN_13 SKIP $skip LIMIT $limit"
+		query := "MATCH (b:Book) RETURN b.ISBN_13 SKIP $skip LIMIT $limit"
 		res, err := database.Query(context.Background(), query, map[string]any {
 			"skip": limit*page,
 			"limit": limit,
