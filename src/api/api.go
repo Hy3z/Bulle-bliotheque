@@ -40,12 +40,6 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	/*e.GET("/update", func(c echo.Context) error {
-		dbconvert.CreateAuthorsFromDB()
-		dbconvert.TagAllBD()
-		return c.String(http.StatusOK, "Updated")
-	})*/
-
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
 	})
@@ -60,11 +54,4 @@ func Setup(e *echo.Echo) {
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.BrowseTagPath, browse.RespondWithTag)
-
-	/*
-	//CE CHEMIN PERMET D'ACCEDER A TOUTES LES IMAGES DANS LE DOSSIER view/image. FAUDRA MODIFIER CA PLUS TARD
-	e.GET("/image/:id", func(c echo.Context) error {
-		id := c.Param("id")
-		return c.File("./view/image/"+id)
-	})*/
 }
