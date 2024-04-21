@@ -3,6 +3,7 @@ package api
 import (
 	"bb/service/book"
 	"bb/service/browse"
+	"bb/service/serie"
 	"bb/util"
 	"github.com/labstack/echo/v4"
 	"html/template"
@@ -45,13 +46,12 @@ func Setup(e *echo.Echo) {
 	})
 
 	e.GET(util.BrowsePath, browse.RespondWithBrowse)
-
 	e.GET(util.BrowseLatestPath, browse.RespondWithLatest)
-
 	e.GET(util.BrowseAllPath, browse.RespondWithAll)
+	e.GET(util.BrowseTagPath, browse.RespondWithTag)
 
 	e.GET(util.BookPath, book.RespondWithBook)
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
-	e.GET(util.BrowseTagPath, browse.RespondWithTag)
+	e.GET(util.SeriePath, serie.RespondWithSerie)
 }

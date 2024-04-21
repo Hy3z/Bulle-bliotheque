@@ -63,7 +63,7 @@ func respondWithTagPage(c echo.Context) error {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	return model.BrowseIndex{getTaggedRs(tag)}.Render(c, http.StatusOK)
+	return model.Browse{getTaggedRs(tag)}.RenderIndex(c, http.StatusOK)
 }
 
 func respondWithTagRs(c echo.Context) error {

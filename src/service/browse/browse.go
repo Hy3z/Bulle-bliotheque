@@ -76,20 +76,20 @@ func respondWithBrowsePage(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render default view
 	if qParam=="" {
-		var researches model.BrowseIndex = rootResearches()
-		return researches.Render(c, http.StatusOK)
+		var researches model.Browse = rootResearches()
+		return researches.RenderIndex(c, http.StatusOK)
 	}
-	return model.BrowseIndex{getBrowseResearch(qParam)}.Render(c, http.StatusOK)
+	return model.Browse{getBrowseResearch(qParam)}.RenderIndex(c, http.StatusOK)
 }
 
 func respondWithBrowseRs(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, return default view
 	if qParam=="" {
-		var researches model.BrowseMain = rootResearches()
+		var researches model.Browse = rootResearches()
 		return researches.Render(c, http.StatusOK)
 	}
-	return model.BrowseMain{getBrowseResearch(qParam)}.Render(c, http.StatusOK)
+	return model.Browse{getBrowseResearch(qParam)}.Render(c, http.StatusOK)
 }
 
 func respondWithBrowseBps(c echo.Context) error {

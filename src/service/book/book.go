@@ -30,17 +30,17 @@ func getBookByISBN(isbn13 string) (model.Book,error) {
 	}
 
 	book := model.Book{}
-	record := res.Records[0]
+	values := res.Records[0].Values
 
-	title,okT := record.Values[0].(string)
-	isbn13, okI := record.Values[1].(string)
-	description, okDe := record.Values[2].(string)
-	pubdate, okPubd := record.Values[3].(string)
-	pub, okPub := record.Values[4].(string)
-	cote, okC := record.Values[5].(string)
-	pageCount, okP := record.Values[6].(int64)
-	authorsI, okAsI := record.Values[7].([]interface{})
-	tagsI,okTsI := record.Values[8].([]interface{})
+	title,okT := values[0].(string)
+	isbn13, okI := values[1].(string)
+	description, okDe := values[2].(string)
+	pubdate, okPubd := values[3].(string)
+	pub, okPub := values[4].(string)
+	cote, okC := values[5].(string)
+	pageCount, okP := values[6].(int64)
+	authorsI, okAsI := values[7].([]interface{})
+	tagsI,okTsI := values[8].([]interface{})
 
 	if okT {book.Title = title}
 	if okI {book.ISBN = isbn13}
@@ -78,7 +78,7 @@ func getBookByISBN(isbn13 string) (model.Book,error) {
 	return book,nil
 }
 
-func respondWithBookBook(c echo.Context) error {
+func respondWithBookMain(c echo.Context) error {
 	book,err := getBookByISBN(c.Param(util.IsbnParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n",err)
@@ -93,7 +93,7 @@ func respondWithBookPage(c echo.Context) error {
 		logger.WarningLogger.Printf("Error %s \n",err)
 		return c.NoContent(http.StatusNotFound)
 	}
-	return model.BookIndex(book).Render(c, http.StatusOK)
+	return book.RenderIndex(c, http.StatusOK)
 }
 
 func RespondWithBook(c echo.Context) error {
@@ -102,7 +102,7 @@ func RespondWithBook(c echo.Context) error {
 		return respondWithBookPage(c)
 	}
 	switch tmpl {
-	case util.BookType: return respondWithBookBook(c)
+	case util.BookType: return respondWithBookMain(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
 		return c.NoContent(http.StatusBadRequest)

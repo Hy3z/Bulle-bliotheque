@@ -14,8 +14,15 @@ type Book struct {
 	PageCount int64
 }
 
-const bookTemplate = "book"
+const (
+	bookTemplate = "book"
+	bookIndexTemplate = "book-index"
+)
 
 func (b Book) Render(c echo.Context, code int) error {
 	return c.Render(code, bookTemplate, b)
+}
+
+func (b Book) RenderIndex(c echo.Context, code int) error {
+	return c.Render(code, bookIndexTemplate, b)
 }

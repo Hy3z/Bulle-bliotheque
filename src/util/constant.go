@@ -5,6 +5,7 @@ const (
 	IsbnParam = "isbn"
 	QueryParam = "q"
 	TagParam = "tag"
+	SerieParam = "s"
 )
 
 

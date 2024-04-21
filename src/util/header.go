@@ -7,6 +7,10 @@ import (
 
 const (
 	headerTemplateKey = "Tmpl"
+	BpsType = "bps"
+	ResearchType = "rs"
+	BookType = "b"
+	SerieType = "s"
 )
 
 var (
