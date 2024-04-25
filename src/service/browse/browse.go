@@ -17,9 +17,8 @@ const (
 	MaxBatchSize = 100
 )
 
-func rootResearches () []model.Research {
+func rootResearches() []model.Research {
 	var researches []model.Research
-
 
 	researches = append(researches, latestBooksResearch())
 	researches = append(researches, allBooksResearch())
@@ -27,21 +26,51 @@ func rootResearches () []model.Research {
 }
 
 func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet {
-	cypherQuery := "MATCH (b:Book) WHERE b.title =~ $regex RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
-	skip := (page-1)*limit
+	cypherQuery :=
+		"MATCH (b:Book) " +
+			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
+			"OPTIONAL MATCH (b)<-[:WROTE]-(a:Author) " +
+			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
+			"WITH *,( " +
+			"$titleCoeff * apoc.text.sorensenDiceSimilarity(b.title, $expr) + " +
+			"$serieCoeff * CASE WHEN s IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(s.name, $expr) ELSE 0 END + " +
+			"$authorCoeff * CASE WHEN a IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(a.name, $expr) ELSE 0 END + " +
+			"$tagCoeff * CASE WHEN t IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(t.name, $expr) ELSE 0 END" +
+			") AS rank " +
+			"WHERE rank > $minRank " +
+			"RETURN b.ISBN_13, b.title, max(rank) " +
+			"ORDER BY max(rank) DESC, b.title " +
+			"SKIP $skip LIMIT $limit "
+	skip := (page - 1) * limit
+	/*terms := strings.Fields(qParam)
+	regex := "(?i).*("
+	for i,term := range terms {
+		if i == len(terms)-1 {
+			regex += term
+		} else{
+			regex += term+" | "
+		}
+	}
+	regex += ").*"
+	logger.InfoLogger.Println(regex)*/
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
-		"skip": skip,
-		"limit": limit,
-		"regex": ".*"+qParam+".*",
+		"skip":        skip,
+		"limit":       limit,
+		"expr":        qParam,
+		"titleCoeff":  4,
+		"serieCoeff":  3,
+		"authorCoeff": 2,
+		"tagCoeff":    1,
+		"minRank":     0.75,
 	})
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
 		return model.BookPreviewSet{}
 	}
 	books := make(model.BookPreviewSet, len(res.Records))
-	for i,record := range res.Records {
-		isbn13,_ := record.Values[0].(string)
-		title,_ := record.Values[1].(string)
+	for i, record := range res.Records {
+		isbn13, _ := record.Values[0].(string)
+		title, _ := record.Values[1].(string)
 		book := model.BookPreview{Title: title, ISBN: isbn13}
 		books[i] = book
 	}
@@ -53,20 +82,20 @@ func getBrowseResearch(qParam string) model.Research {
 	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
 		return model.Research{
-			Name: qParam,
-			IsInfinite: false,
+			Name:           qParam,
+			IsInfinite:     false,
 			BookPreviewSet: bps1,
 		}
 	}
 	return model.Research{
-		Name: qParam,
+		Name:       qParam,
 		IsInfinite: true,
 		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
 			BookPreviewSet: bps1,
 			Url:            util.BrowsePath,
 			Params: map[string]any{
 				util.QueryParam: qParam,
-				util.PageParam: page+1,
+				util.PageParam:  page + 1,
 			},
 		},
 	}
@@ -75,7 +104,7 @@ func getBrowseResearch(qParam string) model.Research {
 func respondWithBrowsePage(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render default view
-	if qParam=="" {
+	if qParam == "" {
 		var researches model.Browse = rootResearches()
 		return researches.RenderIndex(c, http.StatusOK)
 	}
@@ -85,7 +114,7 @@ func respondWithBrowsePage(c echo.Context) error {
 func respondWithBrowseRs(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, return default view
-	if qParam=="" {
+	if qParam == "" {
 		var researches model.Browse = rootResearches()
 		return researches.Render(c, http.StatusOK)
 	}
@@ -95,11 +124,11 @@ func respondWithBrowseRs(c echo.Context) error {
 func respondWithBrowseBps(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render nothing
-	if qParam=="" {
+	if qParam == "" {
 		logger.WarningLogger.Println("Missing or invalid query argument")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
+	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
 	//If page argument is incorrect, render nothing
 	if err != nil || page < 1 {
 		logger.WarningLogger.Println("Missing or invalid page argument")
@@ -118,21 +147,23 @@ func respondWithBrowseBps(c echo.Context) error {
 		Url:            util.BrowsePath,
 		Params: map[string]any{
 			util.QueryParam: qParam,
-			util.PageParam: page + 1,
+			util.PageParam:  page + 1,
 		},
 	}.Render(c, http.StatusOK)
 }
 
 func RespondWithBrowse(c echo.Context) error {
-	tmpl,err := util.GetHeaderTemplate(c)
+	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
 		return respondWithBrowsePage(c)
 	}
 	switch tmpl {
-	case util.ResearchType: return respondWithBrowseRs(c)
-	case util.BpsType: return respondWithBrowseBps(c)
+	case util.ResearchType:
+		return respondWithBrowseRs(c)
+	case util.BpsType:
+		return respondWithBrowseBps(c)
 	default:
-		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
+		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
 }
