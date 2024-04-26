@@ -1,14 +1,15 @@
 package util
 
-const(
+const (
 	BrowsePath = "/browse"
 
-	BrowseTagPath = BrowsePath+"/tag/:"+TagParam
-	BrowseAllPath = BrowsePath +"/all"
-	BrowseLatestPath = BrowsePath +"/latest"
+	BrowseTagPath    = BrowsePath + "/tag/:" + TagParam
+	BrowseAuthorPath = BrowsePath + "/author/:" + AuthorParam
+	BrowseAllPath    = BrowsePath + "/all"
+	BrowseLatestPath = BrowsePath + "/latest"
 
-	BookPath = "/book/:"+IsbnParam
-	BookCoverPath = BookPath+"/cover"
+	BookPath      = "/book/:" + IsbnParam
+	BookCoverPath = BookPath + "/cover"
 
-	SeriePath = "serie/:"+SerieParam
+	SeriePath = "serie/:" + SerieParam
 )

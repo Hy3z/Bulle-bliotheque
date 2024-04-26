@@ -49,6 +49,7 @@ func Setup(e *echo.Echo) {
 	e.GET(util.BrowseLatestPath, browse.RespondWithLatest)
 	e.GET(util.BrowseAllPath, browse.RespondWithAll)
 	e.GET(util.BrowseTagPath, browse.RespondWithTag)
+	e.GET(util.BrowseAuthorPath, browse.RespondWithAuthor)
 
 	e.GET(util.BookPath, book.RespondWithBook)
 	e.GET(util.BookCoverPath, book.RespondWithCover)
