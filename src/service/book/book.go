@@ -15,7 +15,8 @@ func getBookByISBN(isbn13 string) (model.Book,error) {
 		"MATCH (b:Book {ISBN_13: $isbn13})" +
 			"OPTIONAL MATCH (a:Author)-[:WROTE]->(b) " +
 			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
-			"RETURN b.title, b.ISBN_13, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags " +
+			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
+			"RETURN b.title, b.ISBN_13, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags, s.name " +
 			"LIMIT 1"
 	res, err := database.Query(context.Background(), query, map[string]any {
 		"isbn13": isbn13,
@@ -41,15 +42,16 @@ func getBookByISBN(isbn13 string) (model.Book,error) {
 	pageCount, okP := values[6].(int64)
 	authorsI, okAsI := values[7].([]interface{})
 	tagsI,okTsI := values[8].([]interface{})
+	serie, okS := values[9].(string)
 
 	if okT {book.Title = title}
 	if okI {book.ISBN = isbn13}
 	if okDe {book.Description = description}
-
 	if okPubd {book.PublishedDate = pubdate}
 	if okPub {book.Publisher = pub}
 	if okC {book.Cote = cote}
 	if okP {book.PageCount = pageCount}
+	if okS {book.Serie = serie}
 
 	if okAsI {
 		authors := make([]string, len(authorsI))

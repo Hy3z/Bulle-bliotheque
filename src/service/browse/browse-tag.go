@@ -8,6 +8,7 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -57,9 +58,9 @@ func getTaggedRs(tag string) model.Research {
 }
 
 func respondWithTagPage(c echo.Context) error {
-	tag := c.Param(util.TagParam)
+	tag,err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
-	if tag=="" {
+	if err!=nil || tag=="" {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -67,9 +68,9 @@ func respondWithTagPage(c echo.Context) error {
 }
 
 func respondWithTagRs(c echo.Context) error {
-	tag := c.Param(util.TagParam)
+	tag,err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
-	if tag=="" {
+	if err!=nil || tag=="" {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -77,9 +78,9 @@ func respondWithTagRs(c echo.Context) error {
 }
 
 func respondWithTagBps(c echo.Context) error {
-	tag := c.Param(util.TagParam)
+	tag,err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render nothing
-	if tag=="" {
+	if err!=nil || tag=="" {
 		logger.WarningLogger.Println("Missing or invalid tag argument")
 		return c.NoContent(http.StatusBadRequest)
 	}

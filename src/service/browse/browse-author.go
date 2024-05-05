@@ -8,11 +8,12 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
 func getWroteByBps(author string, page int, limit int) model.BookPreviewSet {
-	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
+	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.ISBN_13, b.title ORDER BY b.title SKIP $skip LIMIT $limit"
 	skip := (page - 1) * limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip":   skip,
@@ -57,9 +58,9 @@ func getWroteByRs(author string) model.Research {
 }
 
 func respondWithAuthorPage(c echo.Context) error {
-	author := c.Param(util.AuthorParam)
+	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
-	if author == "" {
+	if err!=nil || author == "" {
 		logger.WarningLogger.Println("No author specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -67,9 +68,9 @@ func respondWithAuthorPage(c echo.Context) error {
 }
 
 func respondWithAuthorRs(c echo.Context) error {
-	author := c.Param(util.AuthorParam)
+	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
-	if author == "" {
+	if err!=nil || author == "" {
 		logger.WarningLogger.Println("No author specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -77,9 +78,9 @@ func respondWithAuthorRs(c echo.Context) error {
 }
 
 func respondWithAuthorBps(c echo.Context) error {
-	author := c.Param(util.AuthorParam)
+	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render nothing
-	if author == "" {
+	if err !=nil || author == "" {
 		logger.WarningLogger.Println("Missing or invalid author argument")
 		return c.NoContent(http.StatusBadRequest)
 	}

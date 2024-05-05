@@ -8,11 +8,12 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"net/url"
 )
 
 func getSerieByName(name string) (model.Serie, error) {
 	query :=
-		"MATCH (:Serie {name: $name})<-[:PART_OF]-(b:Book) RETURN b.title, b.ISBN_13"
+		"MATCH (:Serie {name: $name})<-[r:PART_OF]-(b:Book) RETURN b.title, b.ISBN_13 ORDER BY r.opus ASC"
 	serie := model.Serie{Name: name,}
 	res, err := database.Query(context.Background(), query, map[string]any {
 		"name": name,
@@ -36,7 +37,12 @@ func getSerieByName(name string) (model.Serie, error) {
 }
 
 func respondWithSerieMain(c echo.Context) error {
-	serie,err := getSerieByName(c.Param(util.SerieParam))
+	sname, err := url.QueryUnescape(c.Param(util.SerieParam))
+	if err != nil {
+		logger.WarningLogger.Printf("Error %s \n",err)
+		return c.NoContent(http.StatusNotFound)
+	}
+	serie,err := getSerieByName(sname)
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n",err)
 		return c.NoContent(http.StatusNotFound)
@@ -45,7 +51,12 @@ func respondWithSerieMain(c echo.Context) error {
 }
 
 func respondWithSeriePage(c echo.Context) error {
-	serie,err := getSerieByName(c.Param(util.SerieParam))
+	sname, err := url.QueryUnescape(c.Param(util.SerieParam))
+	if err != nil {
+		logger.WarningLogger.Printf("Error %s \n",err)
+		return c.NoContent(http.StatusNotFound)
+	}
+	serie,err := getSerieByName(sname)
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n",err)
 		return c.NoContent(http.StatusNotFound)

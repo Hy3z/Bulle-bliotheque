@@ -7,11 +7,11 @@
            hx-boost="true"
            hx-headers='{"Tmpl":"b"}'
            hx-target=".main"
-           hx-swap="innerHTML">
+           hx-swap="innerHTML show:window:top">
 
             <div class="book-image">
 
-                <!--BOOK IMAGE HERE-->
+
                 <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book">
 
             </div>
@@ -20,7 +20,7 @@
                 <!--BOOK TITLE HERE-->
                 {{.Title}}
 
-            </div>
-        </a>
+        </div>
+    </a>
     </div>
 {{end}}

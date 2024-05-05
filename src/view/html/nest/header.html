@@ -1,31 +1,59 @@
 {{define "header"}}
-    <div class="header">
+    <nav class="header
+    sticky
+    bg-[#111111]
+    font-header
+    top-0
+    left-0
+    right-0
+    z-50
+    transition-shadow
+    flex
+    flex-row
+    items-center
+    mx-auto
+    px-4
+    py-2
+    gap-2">
         <!--HEADER HERE-->
-        <label>
+        <a href="http://localhost:42069/browse"
+           hx-boost="true"
+           hx-headers='{"Tmpl":"rs"}'
+           hx-target=".main"
+           hx-swap="innerHTML show:window:top"
+           class="header-main
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-sm
+                    transition-colors
+                    px-2.5
+                    relative
+                    inline-block
+                    h-full">
+            <img src="http://localhost:42069/logo" alt="logo" class="logo
+                    hidden
+                    dark:block
+                    h-12
+                    cursor-pointer">
+        </a>
 
-            <input type="text" name="q" class="search-box"
-                   hx-trigger="keyup changed delay:0.4s"
-                   hx-get="http://localhost:42069/browse"
-                   hx-headers='{"Tmpl":"rs"}'
-                   hx-include="this"
-                   hx-target=".main"
-                   hx-swap="innerHTML">
-        </label>
         <div class="browse-button">
-            <a href="http://localhost:42069/browse"
-                    hx-boost="true"
-                    hx-headers='{"Tmpl":"rs"}'
-                    hx-target=".main"
-                    hx-swap="innerHTML"
-                    class="header-main">
-                Acceuil
-            </a>
             <a href="http://localhost:42069/browse/latest"
                     hx-boost="true"
                     hx-headers='{"Tmpl":"rs"}'
                     hx-target=".main"
-                    hx-swap="innerHTML"
-                    class="header-latest">
+                    hx-swap="innerHTML show:window:top"
+                    class="header-latest
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
                 Nouveautés
             </a>
 
@@ -35,8 +63,17 @@
                hx-vals='{"myTag":"Manga"}'
                hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML"
-               class="header-manga">
+               hx-swap="innerHTML show:window:top"
+               class="header-manga
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
                 Manga
             </a>
             <a href="http://localhost:42069/browse/tag/{tag}"
@@ -45,11 +82,47 @@
                hx-vals='{"tag":"BD"}'
                hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML"
-               class="header-bd">
+               hx-swap="innerHTML show:window:top"
+               class="header-bd
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
                 BD
             </a>
-
         </div>
-    </div>
+
+
+        <label class ="
+        flex-grow">
+            <input type="search" name="q" class="search-box
+                w-full
+                rounded-full
+                text-black
+
+                
+                pl-5
+
+"
+                placeholder="Livre, saga, genre, auteur, ..."
+                   hx-trigger="input changed delay:0.4s, search"
+                   hx-get="http://localhost:42069/browse"
+                   hx-headers='{"Tmpl":"rs"}'
+                   hx-include="this"
+                   hx-target=".main"
+                   hx-swap="innerHTML show:window:top">
+
+        </label>
+
+
+        <div class="test
+        text-white">TEST</div>
+        <div class="user
+        text-white">ACCOUT HERE</div>
+    </nav>
 {{end}}

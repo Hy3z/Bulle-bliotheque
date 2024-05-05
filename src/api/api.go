@@ -40,6 +40,15 @@ func newTemplate() *Templates {
 
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
+	e.GET("/css", func (c echo.Context) error {
+		return c.File("view/style/output.css")
+	})
+	e.GET("/logo", func (c echo.Context) error {
+		return c.File("view/image/logo.png")
+	})
+	e.GET("/icon", func (c echo.Context) error {
+		return c.File("view/image/icon.png")
+	})
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)

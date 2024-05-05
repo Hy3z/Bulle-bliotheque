@@ -12,6 +12,7 @@ type Book struct {
 	Publisher string
 	Cote string
 	PageCount int64
+	Serie string
 }
 
 const (
