@@ -9,3 +9,7 @@ html {
 body {
     color: rgb(243, 244, 246);
 }
+
+.book-container {
+    gap: 0.5rem;
+}

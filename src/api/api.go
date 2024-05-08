@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bb/dbconvert"
 	"bb/service/book"
 	"bb/service/browse"
 	"bb/service/serie"
@@ -40,13 +41,19 @@ func newTemplate() *Templates {
 
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
-	e.GET("/css", func (c echo.Context) error {
+
+	e.GET("/update", func(c echo.Context) error {
+		dbconvert.FillCSV("D:/Code/Bulle-bliotheque/src/input.csv", "D:/Code/Bulle-bliotheque/src/missingBDs.csv")
+		return c.HTML(http.StatusOK, "Job done")
+	})
+
+	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
 	})
-	e.GET("/logo", func (c echo.Context) error {
+	e.GET("/logo", func(c echo.Context) error {
 		return c.File("view/image/logo.png")
 	})
-	e.GET("/icon", func (c echo.Context) error {
+	e.GET("/icon", func(c echo.Context) error {
 		return c.File("view/image/icon.png")
 	})
 

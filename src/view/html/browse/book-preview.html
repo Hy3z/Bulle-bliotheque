@@ -2,17 +2,18 @@
     {Id, Cover, Title}
 -->
 {{define "book-preview"}}
-    <div class="book-preview">
+
         <a href="http://localhost:42069/book/{{.ISBN}}"
            hx-boost="true"
            hx-headers='{"Tmpl":"b"}'
            hx-target=".main"
-           hx-swap="innerHTML show:window:top">
+           hx-swap="innerHTML show:window:top"
+           class="">
 
             <div class="book-image">
 
 
-                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book">
+                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book" class="">
 
             </div>
             <div class="book-title">
@@ -20,7 +21,7 @@
                 <!--BOOK TITLE HERE-->
                 {{.Title}}
 
-        </div>
+            </div>
     </a>
-    </div>
+
 {{end}}
