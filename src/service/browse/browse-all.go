@@ -11,9 +11,15 @@ import (
 	"strconv"
 )
 
-// Return a BookPreviewSet of all books, with skip and limit
-func fetchBooks(page int, limit int) model.PreviewSet {
-	query := "MATCH (b:Book) RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
+// Return a PreviewSet of all books or series, with skip and limit
+func fetchPreviews(page int, limit int) model.PreviewSet {
+	query :=
+		"MATCH (b:Book) " +
+			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
+			"RETURN distinct s.name, count(b), " +
+			"CASE WHEN s IS null THEN b.ISBN_13 ELSE null END AS isbn13, " +
+			"CASE WHEN s IS null THEN b.title ELSE null END AS title " +
+			"SKIP $skip LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"skip":  (page - 1) * limit,
 		"limit": limit,
@@ -24,31 +30,38 @@ func fetchBooks(page int, limit int) model.PreviewSet {
 		return model.PreviewSet{}
 	}
 
-	books := make([]model.Preview, len(res.Records))
+	previews := make([]model.Preview, len(res.Records))
 	for i, record := range res.Records {
-		isbn13, _ := record.Values[0].(string)
-		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, ISBN: isbn13}
-		books[i] = model.Preview{BookPreview: book}
+		name, _ := record.Values[0].(string)
+		count, _ := record.Values[1].(int64)
+		isbn13, _ := record.Values[2].(string)
+		title, _ := record.Values[3].(string)
+		if name == "" {
+			book := model.BookPreview{Title: title, ISBN: isbn13}
+			previews[i] = model.Preview{BookPreview: book}
+			continue
+		}
+		serie := model.SeriePreview{Name: name, BookCount: int(count)}
+		previews[i] = model.Preview{SeriePreview: serie}
 	}
 
-	return books
+	return previews
 }
 
 // Return an empty infinite search, linking to first page
 func allBooksResearch() model.Research {
 	page := 1
-	books := fetchBooks(page, MaxBatchSize)
-	if len(books) < MaxBatchSize {
+	previews := fetchPreviews(page, MaxBatchSize)
+	if len(previews) < MaxBatchSize {
 		return model.Research{
 			Name:       "Tous les livres",
-			PreviewSet: books,
+			PreviewSet: previews,
 		}
 	}
 	return model.Research{
 		Name: "Tous les livres",
 		InfinitePreviewSet: model.InfinitePreviewSet{
-			PreviewSet: books,
+			PreviewSet: previews,
 			Url:        util.BrowseAllPath,
 			Params: map[string]any{
 				util.PageParam: page + 1,
@@ -66,14 +79,14 @@ func respondWithAllBps(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	books := fetchBooks(page, MaxBatchSize)
+	previews := fetchPreviews(page, MaxBatchSize)
 
 	//If this is the last page, return a finite set
-	if len(books) < MaxBatchSize {
-		return books.Render(c, http.StatusOK)
+	if len(previews) < MaxBatchSize {
+		return previews.Render(c, http.StatusOK)
 	} else {
 		return model.InfinitePreviewSet{
-			PreviewSet: books,
+			PreviewSet: previews,
 			Url:        util.BrowseAllPath,
 			Params: map[string]any{
 				util.PageParam: page + 1,
@@ -92,7 +105,7 @@ func RespondWithAll(c echo.Context) error {
 	case util.BpsType:
 		return respondWithAllBps(c)
 	default:
-		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
+		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
 }
