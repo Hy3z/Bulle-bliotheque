@@ -2,6 +2,7 @@ package database
 
 import (
 	"bb/logger"
+	"bb/util"
 	"context"
 	"github.com/joho/godotenv"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
@@ -9,7 +10,6 @@ import (
 )
 
 const (
-	ENV_PATH     = ".env"
 	ENV_DB_URI   = "DB_URI"
 	ENV_USERNAME = "DB_CLIENT_USERNAME"
 	ENV_PASSWORD = "DB_CLIENT_PASSWORD"
@@ -20,10 +20,8 @@ var (
 	//QueryError = errors.New("Error on query")
 )
 
-
-
 func Connect() {
-	err := godotenv.Load(ENV_PATH)
+	err := godotenv.Load(util.ENV_PATH)
 	if err != nil {
 		logger.ErrorLogger.Fatalf("Error loading .env file %w", err)
 	}
@@ -38,7 +36,7 @@ func Connect() {
 	logger.InfoLogger.Println("Successfully connected to database")
 }
 
-func Query(ctx context.Context, query string, param map[string]any) (*neo4j.EagerResult,error) {
+func Query(ctx context.Context, query string, param map[string]any) (*neo4j.EagerResult, error) {
 	res, err := neo4j.ExecuteQuery(
 		ctx,
 		driver,
@@ -49,7 +47,7 @@ func Query(ctx context.Context, query string, param map[string]any) (*neo4j.Eage
 	if err != nil {
 		logger.WarningLogger.Println(err)
 	}
-	return res,err
+	return res, err
 }
 
 func Disconnect() {

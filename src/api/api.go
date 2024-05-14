@@ -4,12 +4,14 @@ import (
 	"bb/dbconvert"
 	"bb/service/book"
 	"bb/service/browse"
+	"bb/service/contact"
 	"bb/service/serie"
 	"bb/util"
 	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
 	"net/http"
+	"reflect"
 )
 
 type Templates struct {
@@ -31,9 +33,24 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 	})
 }*/
 
+func hasField(v interface{}, name string) bool {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return false
+	}
+
+	field := rv.FieldByName(name)
+	return field.IsValid() && !field.IsZero()
+}
+
 func newTemplate() *Templates {
 	return &Templates{
-		templates: template.Must(template.ParseGlob("view/html/*/*.html")),
+		templates: template.Must(template.New("").Funcs(map[string]any{
+			"hasField": hasField,
+		}).ParseGlob("view/html/*/*.html")),
 	}
 }
 
@@ -71,4 +88,7 @@ func Setup(e *echo.Echo) {
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.SeriePath, serie.RespondWithSerie)
+
+	e.GET(util.ContactPath, contact.RespondWithContact)
+	e.POST(util.ContactTicketPath, contact.ProcessContactTicket)
 }

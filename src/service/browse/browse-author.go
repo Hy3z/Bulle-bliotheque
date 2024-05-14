@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-func getWroteByBps(author string, page int, limit int) model.BookPreviewSet {
+func getWroteByBps(author string, page int, limit int) model.PreviewSet {
 	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.ISBN_13, b.title ORDER BY b.title SKIP $skip LIMIT $limit"
 	skip := (page - 1) * limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
@@ -22,14 +22,14 @@ func getWroteByBps(author string, page int, limit int) model.BookPreviewSet {
 	})
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
-		return model.BookPreviewSet{}
+		return model.PreviewSet{}
 	}
-	books := make(model.BookPreviewSet, len(res.Records))
+	books := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
 		isbn13, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
 		book := model.BookPreview{Title: title, ISBN: isbn13}
-		books[i] = book
+		books[i] = model.Preview{BookPreview: book}
 	}
 	return books
 }
@@ -39,17 +39,15 @@ func getWroteByRs(author string) model.Research {
 	bps1 := getWroteByBps(author, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
 		return model.Research{
-			Name:           author,
-			IsInfinite:     false,
-			BookPreviewSet: bps1,
+			Name:       author,
+			PreviewSet: bps1,
 		}
 	}
 	return model.Research{
-		Name:       author,
-		IsInfinite: true,
-		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
-			BookPreviewSet: bps1,
-			Url:            util.BrowsePath + "/author/" + author,
+		Name: author,
+		InfinitePreviewSet: model.InfinitePreviewSet{
+			PreviewSet: bps1,
+			Url:        util.BrowsePath + "/author/" + author,
 			Params: map[string]any{
 				util.PageParam: page + 1,
 			},
@@ -58,9 +56,9 @@ func getWroteByRs(author string) model.Research {
 }
 
 func respondWithAuthorPage(c echo.Context) error {
-	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
+	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
-	if err!=nil || author == "" {
+	if err != nil || author == "" {
 		logger.WarningLogger.Println("No author specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -68,9 +66,9 @@ func respondWithAuthorPage(c echo.Context) error {
 }
 
 func respondWithAuthorRs(c echo.Context) error {
-	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
+	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
-	if err!=nil || author == "" {
+	if err != nil || author == "" {
 		logger.WarningLogger.Println("No author specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -78,9 +76,9 @@ func respondWithAuthorRs(c echo.Context) error {
 }
 
 func respondWithAuthorBps(c echo.Context) error {
-	author,err := url.QueryUnescape(c.Param(util.AuthorParam))
+	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render nothing
-	if err !=nil || author == "" {
+	if err != nil || author == "" {
 		logger.WarningLogger.Println("Missing or invalid author argument")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -98,9 +96,9 @@ func respondWithAuthorBps(c echo.Context) error {
 		return books.Render(c, http.StatusOK)
 	}
 
-	return model.InfiniteBookPreviewSet{
-		BookPreviewSet: books,
-		Url:            util.BrowsePath + "/author/" + author,
+	return model.InfinitePreviewSet{
+		PreviewSet: books,
+		Url:        util.BrowsePath + "/author/" + author,
 		Params: map[string]any{
 			util.PageParam: page + 1,
 		},

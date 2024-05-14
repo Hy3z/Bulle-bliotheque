@@ -12,4 +12,7 @@ const (
 	BookCoverPath = BookPath + "/cover"
 
 	SeriePath = "serie/:" + SerieParam
+
+	ContactPath       = "/contact"
+	ContactTicketPath = ContactPath + "/ticket"
 )

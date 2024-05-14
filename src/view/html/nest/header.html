@@ -104,11 +104,9 @@
                 w-full
                 rounded-full
                 text-black
+                pl-5"
 
-                
-                pl-5
 
-"
                 placeholder="Livre, saga, genre, auteur, ..."
                    hx-trigger="input changed delay:0.4s, search"
                    hx-get="http://localhost:42069/browse"
@@ -120,8 +118,23 @@
         </label>
 
 
-        <div class="test
-        text-white">TEST</div>
+        <a href="http://localhost:42069/contact"
+           hx-boost="true"
+           hx-headers='{"Tmpl":"c"}'
+           hx-target=".main"
+           hx-swap="innerHTML show:window:top"
+           class="header-contact
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
+            Contact
+        </a>
         <div class="user
         text-white">ACCOUT HERE</div>
     </nav>

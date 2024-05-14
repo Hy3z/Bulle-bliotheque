@@ -25,7 +25,7 @@ func rootResearches() []model.Research {
 	return researches
 }
 
-func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet {
+func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 	cypherQuery :=
 		"MATCH (b:Book) " +
 			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
@@ -65,14 +65,14 @@ func executeBrowseQuery(qParam string, page int, limit int) model.BookPreviewSet
 	})
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
-		return model.BookPreviewSet{}
+		return model.PreviewSet{}
 	}
-	books := make(model.BookPreviewSet, len(res.Records))
+	books := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
 		isbn13, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
 		book := model.BookPreview{Title: title, ISBN: isbn13}
-		books[i] = book
+		books[i] = model.Preview{BookPreview: book}
 	}
 	return books
 }
@@ -82,17 +82,15 @@ func getBrowseResearch(qParam string) model.Research {
 	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
 		return model.Research{
-			Name:           qParam,
-			IsInfinite:     false,
-			BookPreviewSet: bps1,
+			Name:       qParam,
+			PreviewSet: bps1,
 		}
 	}
 	return model.Research{
-		Name:       qParam,
-		IsInfinite: true,
-		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
-			BookPreviewSet: bps1,
-			Url:            util.BrowsePath,
+		Name: qParam,
+		InfinitePreviewSet: model.InfinitePreviewSet{
+			PreviewSet: bps1,
+			Url:        util.BrowsePath,
 			Params: map[string]any{
 				util.QueryParam: qParam,
 				util.PageParam:  page + 1,
@@ -142,9 +140,9 @@ func respondWithBrowseBps(c echo.Context) error {
 		return books.Render(c, http.StatusOK)
 	}
 
-	return model.InfiniteBookPreviewSet{
-		BookPreviewSet: books,
-		Url:            util.BrowsePath,
+	return model.InfinitePreviewSet{
+		PreviewSet: books,
+		Url:        util.BrowsePath,
 		Params: map[string]any{
 			util.QueryParam: qParam,
 			util.PageParam:  page + 1,

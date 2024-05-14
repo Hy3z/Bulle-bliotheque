@@ -3,12 +3,12 @@ package model
 import "github.com/labstack/echo/v4"
 
 type Serie struct {
-	Name string
-	Books BookPreviewSet
+	Name  string
+	Books PreviewSet
 }
 
 const (
-	serieTemplate = "serie"
+	serieTemplate      = "serie"
 	serieIndexTemplate = "serie-index"
 )
 

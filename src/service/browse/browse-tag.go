@@ -12,24 +12,24 @@ import (
 	"strconv"
 )
 
-func getTaggedBps(tag string, page int, limit int) model.BookPreviewSet {
+func getTaggedBps(tag string, page int, limit int) model.PreviewSet {
 	cypherQuery := "MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag}) RETURN b.ISBN_13, b.title SKIP $skip LIMIT $limit"
-	skip := (page-1)*limit
+	skip := (page - 1) * limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
-		"skip": skip,
+		"skip":  skip,
 		"limit": limit,
-		"tag": tag,
+		"tag":   tag,
 	})
 	if err != nil {
 		logger.WarningLogger.Println("Error when fetching books")
-		return model.BookPreviewSet{}
+		return model.PreviewSet{}
 	}
-	books := make(model.BookPreviewSet, len(res.Records))
-	for i,record := range res.Records {
-		isbn13,_ := record.Values[0].(string)
-		title,_ := record.Values[1].(string)
+	books := make(model.PreviewSet, len(res.Records))
+	for i, record := range res.Records {
+		isbn13, _ := record.Values[0].(string)
+		title, _ := record.Values[1].(string)
 		book := model.BookPreview{Title: title, ISBN: isbn13}
-		books[i] = book
+		books[i] = model.Preview{BookPreview: book}
 	}
 	return books
 }
@@ -38,29 +38,29 @@ func getTaggedRs(tag string) model.Research {
 	page := 1
 	bps1 := getTaggedBps(tag, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
+		logger.InfoLogger.Println("SIMPLE BPS")
 		return model.Research{
-			Name: tag,
-			IsInfinite: false,
-			BookPreviewSet: bps1,
+			Name:       tag,
+			PreviewSet: bps1,
 		}
 	}
+	logger.InfoLogger.Println("INFINITE BPS")
 	return model.Research{
 		Name: tag,
-		IsInfinite: true,
-		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
-			BookPreviewSet: bps1,
-			Url:            util.BrowsePath+"/tag/"+tag,
+		InfinitePreviewSet: model.InfinitePreviewSet{
+			PreviewSet: bps1,
+			Url:        util.BrowsePath + "/tag/" + tag,
 			Params: map[string]any{
-				util.PageParam: page+1,
+				util.PageParam: page + 1,
 			},
 		},
 	}
 }
 
 func respondWithTagPage(c echo.Context) error {
-	tag,err := url.QueryUnescape(c.Param(util.TagParam))
+	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
-	if err!=nil || tag=="" {
+	if err != nil || tag == "" {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -68,9 +68,9 @@ func respondWithTagPage(c echo.Context) error {
 }
 
 func respondWithTagRs(c echo.Context) error {
-	tag,err := url.QueryUnescape(c.Param(util.TagParam))
+	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
-	if err!=nil || tag=="" {
+	if err != nil || tag == "" {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -78,13 +78,13 @@ func respondWithTagRs(c echo.Context) error {
 }
 
 func respondWithTagBps(c echo.Context) error {
-	tag,err := url.QueryUnescape(c.Param(util.TagParam))
+	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render nothing
-	if err!=nil || tag=="" {
+	if err != nil || tag == "" {
 		logger.WarningLogger.Println("Missing or invalid tag argument")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
+	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
 	//If page argument is incorrect, render nothing
 	if err != nil || page < 1 {
 		logger.WarningLogger.Println("Missing or invalid page argument")
@@ -98,9 +98,9 @@ func respondWithTagBps(c echo.Context) error {
 		return books.Render(c, http.StatusOK)
 	}
 
-	return model.InfiniteBookPreviewSet{
-		BookPreviewSet: books,
-		Url:            util.BrowsePath+"/tag/"+tag,
+	return model.InfinitePreviewSet{
+		PreviewSet: books,
+		Url:        util.BrowsePath + "/tag/" + tag,
 		Params: map[string]any{
 			util.PageParam: page + 1,
 		},
@@ -108,15 +108,17 @@ func respondWithTagBps(c echo.Context) error {
 }
 
 func RespondWithTag(c echo.Context) error {
-	tmpl,err := util.GetHeaderTemplate(c)
+	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
 		return respondWithTagPage(c)
 	}
 	switch tmpl {
-	case util.ResearchType: return respondWithTagRs(c)
-	case util.BpsType: return respondWithTagBps(c)
+	case util.ResearchType:
+		return respondWithTagRs(c)
+	case util.BpsType:
+		return respondWithTagBps(c)
 	default:
-		logger.ErrorLogger.Printf("Wrong template requested: %s \n",tmpl)
+		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
 }

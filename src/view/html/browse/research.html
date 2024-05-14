@@ -12,10 +12,10 @@
         <div class="book-container grid grid-cols-5">
 
             <!--BOOK TEMPLATES HERE-->
-            {{if .IsInfinite}}
-                {{template "infinite-book-set" .InfiniteBookPreviewSet}}
-            {{else}}
-                {{template "book-set" .BookPreviewSet}}
+            {{if hasField . "InfinitePreviewSet"}}
+                {{template "infinite-preview-set" .InfinitePreviewSet}}
+            {{else if hasField . "PreviewSet"}}
+                {{template "preview-set" .PreviewSet}}
             {{end}}
 
         </div>

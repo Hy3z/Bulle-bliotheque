@@ -1,0 +1,24 @@
+{{define "serie-preview"}}
+
+    <a href="http://localhost:42069/serie/{{.Name}}"
+       hx-boost="true"
+       hx-headers='{"Tmpl":"s"}'
+       hx-target=".main"
+       hx-swap="innerHTML show:window:top"
+       class="">
+
+        <div class="serie-image">
+
+
+            <img src="http://localhost:42069/serie/{{.Name}}/cover" alt="serie" class="">
+
+        </div>
+        <div class="serie-name">
+
+            <!--BOOK TITLE HERE-->
+            {{.Name}}
+
+        </div>
+    </a>
+
+{{end}}
