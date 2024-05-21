@@ -32,7 +32,7 @@
             <div class="book-author-container">
                 {{range .Authors}}
                     <div class="book-author">
-                        <a href="http://localhost:42069/browse/author/{{.}}"
+                        <a href="http://localhost:42069/browse/author/{{escape .}}"
                            hx-boost="true"
                            hx-headers='{"Tmpl":"rs"}'
                            hx-target=".main"
@@ -50,7 +50,7 @@
             <div class="book-tag-container">
                 {{range .Tags}}
                     <div class="book-tag">
-                        <a href="http://localhost:42069/browse/tag/{{.}}"
+                        <a href="http://localhost:42069/browse/tag/{{escape .}}"
                            hx-boost="true"
                            hx-headers='{"Tmpl":"rs"}'
                            hx-target=".main"
@@ -94,7 +94,7 @@
 
         {{if .Serie}}
             <div class="book-serie">
-                <a href="http://localhost:42069/serie/{{.Serie}}"
+                <a href="http://localhost:42069/serie/{{escape .Serie}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"s"}'
                    hx-target=".main"

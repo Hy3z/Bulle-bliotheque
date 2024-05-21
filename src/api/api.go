@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"net/url"
 	"reflect"
 )
 
@@ -46,10 +47,15 @@ func hasField(v interface{}, name string) bool {
 	return field.IsValid() && !field.IsZero()
 }
 
+func escape(s string) string {
+	return url.QueryEscape(s)
+}
+
 func newTemplate() *Templates {
 	return &Templates{
 		templates: template.Must(template.New("").Funcs(map[string]any{
 			"hasField": hasField,
+			"escape":   escape,
 		}).ParseGlob("view/html/*/*.html")),
 	}
 }

@@ -5,11 +5,10 @@
   <!--BOOK TEMPLATES HERE-->
   {{template "preview-set" .PreviewSet}}
   <!--INFINITE SEARCH HERE-->
-  <div
+  <br
           hx-swap="outerHTML"
           hx-trigger="revealed"
           hx-get="{{.Url}}"
           hx-headers='{"Tmpl":"bps"}'
-          hx-vals='{ {{range $key, $value := .Params}}"{{$key}}": "{{$value}}", {{end}} "": ""}'>BOTTOM
-  </div>
+          hx-vals='{ {{range $key, $value := .Params}}"{{$key}}": "{{$value}}", {{end}} "": ""}'>
 {{end}}
