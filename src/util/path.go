@@ -15,4 +15,6 @@ const (
 
 	ContactPath       = "/contact"
 	ContactTicketPath = ContactPath + "/ticket"
+
+	AuthPath = "/auth"
 )

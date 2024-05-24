@@ -70,6 +70,11 @@ func Setup(e *echo.Echo) {
 		return c.HTML(http.StatusOK, "Job done")
 	})
 
+	e.GET("/update2", func(c echo.Context) error {
+		dbconvert.FillCSV("D:/Code/Bulle-bliotheque/src/MangaImport.csv", "D:/Code/Bulle-bliotheque/src/MangaExport.csv")
+		return c.HTML(http.StatusOK, "Job done")
+	})
+
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
 	})

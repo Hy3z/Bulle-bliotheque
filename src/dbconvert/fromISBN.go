@@ -58,6 +58,7 @@ func FillCSV(inpath, outpath string) {
 		//logger.InfoLogger.Println(5)
 		isbn := row[0]
 		if isbn == "" {
+			writer.Write([]string{})
 			continue
 		}
 

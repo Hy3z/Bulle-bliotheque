@@ -12,6 +12,7 @@ const (
 	BookType          = "b"
 	SerieType         = "s"
 	ContactType       = "c"
+	AuthType          = "a"
 )
 
 var (
