@@ -1,5 +1,6 @@
 {{define "serie"}}
     <div class="serie">
+        <img src="http://localhost:42069/serie/{{.UUID}}/cover" alt="cover" class="">
         {{.Name}}
         {{template "preview-set" .Books}}
     </div>

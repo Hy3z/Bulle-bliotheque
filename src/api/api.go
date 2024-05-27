@@ -66,12 +66,10 @@ func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
 	e.GET("/update", func(c echo.Context) error {
-		dbconvert.FillCSV("D:/Code/Bulle-bliotheque/src/input.csv", "D:/Code/Bulle-bliotheque/src/missingBDs.csv")
-		return c.HTML(http.StatusOK, "Job done")
-	})
-
-	e.GET("/update2", func(c echo.Context) error {
-		dbconvert.FillCSV("D:/Code/Bulle-bliotheque/src/MangaImport.csv", "D:/Code/Bulle-bliotheque/src/MangaExport.csv")
+		dbconvert.SerieCoverFromBook()
+		//dbconvert.PrintMissingCovers()
+		//dbconvert.DownloadCovers()
+		//dbconvert.CreateMangas("D:/Code/Bulle-bliotheque/src/input.csv")
 		return c.HTML(http.StatusOK, "Job done")
 	})
 
@@ -99,6 +97,7 @@ func Setup(e *echo.Echo) {
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.SeriePath, serie.RespondWithSerie)
+	e.GET(util.SerieCoverPath, serie.RespondWithCover)
 
 	e.GET(util.ContactPath, contact.RespondWithContact)
 	e.POST(util.ContactTicketPath, contact.ProcessContactTicket)

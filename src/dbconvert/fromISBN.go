@@ -97,6 +97,7 @@ func FillCSV(inpath, outpath string) {
 		totalItems, _ := m["totalItems"]
 		if totalItems.(float64) == 0 {
 			logger.ErrorLogger.Printf("Found 0 books for %s\n", isbn)
+			writer.Write([]string{isbn})
 			continue
 		}
 

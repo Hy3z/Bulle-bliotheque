@@ -11,7 +11,7 @@ import (
 	"net/url"
 )
 
-func getSerieByName(name string) (model.Serie, error) {
+/*func getSerieByName(name string) (model.Serie, error) {
 	query :=
 		"MATCH (:Serie {name: $name})<-[r:PART_OF]-(b:Book) RETURN b.title, b.ISBN_13 ORDER BY r.opus ASC"
 	serie := model.Serie{Name: name}
@@ -40,15 +40,53 @@ func getSerieByName(name string) (model.Serie, error) {
 
 	serie.Books = books
 	return serie, nil
+}*/
+
+func getSerieByUUID(uuid string) (model.Serie, error) {
+	query :=
+		"MATCH (s:Serie {UUID: $uuid})<-[r:PART_OF]-(b:Book) RETURN s.name, b.title, b.ISBN_13 ORDER BY r.opus ASC"
+
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"uuid": uuid,
+	})
+
+	serie := model.Serie{UUID: uuid}
+	if err != nil {
+		return serie, err
+	}
+
+	books := model.PreviewSet{}
+	for i, rec := range res.Records {
+		if i == 0 {
+			name, _ := rec.Values[0].(string)
+			serie.Name = name
+		}
+
+		book := model.BookPreview{}
+		title, okT := rec.Values[1].(string)
+		isbn13, okI := rec.Values[2].(string)
+		if okT {
+			book.Title = title
+		}
+		if okI {
+			book.ISBN = isbn13
+		}
+		books = append(books, model.Preview{
+			BookPreview: book,
+		})
+	}
+
+	serie.Books = books
+	return serie, nil
 }
 
 func respondWithSerieMain(c echo.Context) error {
-	sname, err := url.QueryUnescape(c.Param(util.SerieParam))
+	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
 	}
-	serie, err := getSerieByName(sname)
+	serie, err := getSerieByUUID(suuid)
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -57,12 +95,12 @@ func respondWithSerieMain(c echo.Context) error {
 }
 
 func respondWithSeriePage(c echo.Context) error {
-	sname, err := url.QueryUnescape(c.Param(util.SerieParam))
+	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
 	}
-	serie, err := getSerieByName(sname)
+	serie, err := getSerieByUUID(suuid)
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -82,4 +120,14 @@ func RespondWithSerie(c echo.Context) error {
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
+}
+
+func RespondWithCover(c echo.Context) error {
+	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
+	if err != nil {
+		logger.ErrorLogger.Printf("Error escaping serie's uuid: %s\n", err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	return c.File("./data/serie/" + suuid + "/cover.jpg")
 }

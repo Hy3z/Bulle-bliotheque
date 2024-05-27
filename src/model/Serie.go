@@ -5,6 +5,7 @@ import "github.com/labstack/echo/v4"
 type Serie struct {
 	Name  string
 	Books PreviewSet
+	UUID  string
 }
 
 const (

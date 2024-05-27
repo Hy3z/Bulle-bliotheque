@@ -3,20 +3,21 @@ package model
 import "github.com/labstack/echo/v4"
 
 type Book struct {
-	Title string
-	ISBN string
-	Description string
-	Authors []string
-	Tags []string
+	Title         string
+	ISBN          string
+	Description   string
+	Authors       []string
+	Tags          []string
 	PublishedDate string
-	Publisher string
-	Cote string
-	PageCount int64
-	Serie string
+	Publisher     string
+	Cote          string
+	PageCount     int64
+	SerieName     string
+	SerieUUID     string
 }
 
 const (
-	bookTemplate = "book"
+	bookTemplate      = "book"
 	bookIndexTemplate = "book-index"
 )
 

@@ -92,18 +92,21 @@
         {{else}}
             NO PAGE COUNT {{end}}
 
-        {{if .Serie}}
+        {{if and .SerieName .SerieUUID}}
             <div class="book-serie">
-                <a href="http://localhost:42069/serie/{{escape .Serie}}"
+                <a href="http://localhost:42069/serie/{{.SerieUUID}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"s"}'
                    hx-target=".main"
                    hx-swap="innerHTML show:window:top"
                    class="header-main">
-                    {{.Serie}}
+                    {{.SerieName}}
                 </a>
             </div>
+        {{else if or .SerieName .SerieUUID}}
+            SERIE EITHER MISSING NAME OR UUID
         {{else}}
-            NO SERIE {{end}}
+            NO SERIE
+        {{end}}
     </div>
 {{end}}
