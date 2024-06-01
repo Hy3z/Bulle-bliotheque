@@ -16,14 +16,12 @@ func DataBookISBNtoUUID() {
 	}
 
 	for _, e := range entries {
-
 		query := "MATCH (b:Book {ISBN_13: $isbn}) return b.UUID"
-		res, err2 := database.Query(context.Background(), query, map[string]any{
-			"isbn": (e.Name),
+		res, err := database.Query(context.Background(), query, map[string]any{
+			"isbn": e.Name(),
 		})
-		if err2 != nil {
-			msg := err.Error()
-			logger.ErrorLogger.Printf("Error: %s\n", msg)
+		if err != nil {
+			logger.ErrorLogger.Printf("Error: %s\n", err)
 			continue
 		}
 
