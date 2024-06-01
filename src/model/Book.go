@@ -4,7 +4,7 @@ import "github.com/labstack/echo/v4"
 
 type Book struct {
 	Title         string
-	ISBN          string
+	UUID          string
 	Description   string
 	Authors       []string
 	Tags          []string

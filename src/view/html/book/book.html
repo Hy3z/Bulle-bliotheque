@@ -11,12 +11,12 @@
         {{else}}
             NO TITLE {{end}}
 
-        {{if .ISBN}}
-            <div class="book-isbn">
-                {{.ISBN}}
+        {{if .UUID}}
+            <div class="book-uuid">
+                {{.UUID}}
             </div>
             <div class="book-cover">
-                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book">
+                <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book">
             </div>
         {{else}}
             NO COVER {{end}}

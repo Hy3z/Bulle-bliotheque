@@ -13,7 +13,7 @@ import (
 
 const (
 	API_URL    = "http://bookcover.longitood.com/bookcover/"
-	ISBN_PATH  = "D:/Code/Bulle-bliotheque/src/data/isbn"
+	ISBN_PATH  = "D:/Code/Bulle-bliotheque/src/data/book"
 	SERIE_PATH = "D:/Code/Bulle-bliotheque/src/data/serie"
 	URL_KEY    = "url"
 )

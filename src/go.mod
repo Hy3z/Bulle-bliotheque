@@ -6,7 +6,7 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
-	github.com/neo4j/neo4j-go-driver/v5 v5.18.0
+	github.com/neo4j/neo4j-go-driver/v5 v5.20.0
 )
 
 require (

@@ -12,18 +12,17 @@ import (
 
 //This package is responsible for database convertion from the old .cvs files to neo4j
 
-const(
-	PATH = "D:/Code/Bulle-bliotheque/src/"
-	RESPATH = "dbconvert/resources/"
-	OUTPATH = "out/"
-	BD = "oldinv_BDs.csv"
-	COMICS = "oldinv_Comics.csv"
-	MANGAS = "oldinv_Mangas.csv"
-	ISBN_FOLDER_PATH = PATH+"data/isbn"
-	UTF8_ZERO = 48
-	LOGPATH = PATH+RESPATH
+const (
+	PATH             = "D:/Code/Bulle-bliotheque/src/"
+	RESPATH          = "dbconvert/resources/"
+	OUTPATH          = "out/"
+	BD               = "oldinv_BDs.csv"
+	COMICS           = "oldinv_Comics.csv"
+	MANGAS           = "oldinv_Mangas.csv"
+	ISBN_FOLDER_PATH = PATH + "data/book"
+	UTF8_ZERO        = 48
+	LOGPATH          = PATH + RESPATH
 )
-
 
 func CreateBDs() {
 	err := os.MkdirAll(OUTPATH, os.ModePerm)
@@ -31,12 +30,12 @@ func CreateBDs() {
 		logger.ErrorLogger.Panicf("Error creating output directory: %s\n", err)
 	}
 
-	inpF, err := os.Open(RESPATH+BD)
+	inpF, err := os.Open(RESPATH + BD)
 	if err != nil {
 		logger.ErrorLogger.Panicf("Error opening BDs: %s\n", err)
 	}
 
-	outF, err := os.Create(OUTPATH+"BD.cypher")
+	outF, err := os.Create(OUTPATH + "BD.cypher")
 	if err != nil {
 		logger.ErrorLogger.Panicf("Error creating output file: %s\n", err)
 	}
@@ -67,26 +66,24 @@ func CreateBDs() {
 		}
 
 		if serie != "" && num != "" {
-			title = serie+" T."+num+": "+title
+			title = serie + " T." + num + ": " + title
 		}
 
-		var isbn10,description,publisher,publishedDate string
+		var isbn10, description, publisher, publishedDate string
 		var pageCount float64
-		res,err := http.Get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+isbn13+"&key=AIzaSyDrmo1yjzUx7-LsnI42itmHi76ElpIgVps")
+		res, err := http.Get("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn13 + "&key=AIzaSyDrmo1yjzUx7-LsnI42itmHi76ElpIgVps")
 		if err != nil {
-			logger.ErrorLogger.Printf("Couldn't open url for %s\n",isbn13)
-		}else {
+			logger.ErrorLogger.Printf("Couldn't open url for %s\n", isbn13)
+		} else {
 			var m map[string]any
 			err := json.NewDecoder(res.Body).Decode(&m)
 			if err != nil {
-				logger.ErrorLogger.Printf("Couldn't decode json: %s\n",err)
-			}else {
+				logger.ErrorLogger.Printf("Couldn't decode json: %s\n", err)
+			} else {
 
-
-
-				totalItems,ok := m["totalItems"]
+				totalItems, ok := m["totalItems"]
 				if !ok {
-					logger.ErrorLogger.Printf("No totalItems field on %s\n",isbn13)
+					logger.ErrorLogger.Printf("No totalItems field on %s\n", isbn13)
 				} else {
 					if totalItems.(float64) == 1 {
 						items := m["items"].([]any)
@@ -94,7 +91,7 @@ func CreateBDs() {
 						infos := item["volumeInfo"].(map[string]any)
 
 						idents := infos["industryIdentifiers"].([]any)
-						for _,indet := range idents {
+						for _, indet := range idents {
 							ind := indet.(map[string]any)
 							t := ind["type"].(string)
 							if t == "ISBN_10" {
@@ -122,13 +119,10 @@ func CreateBDs() {
 							pageCount = pagc.(float64)
 						}
 
-
-					}else {
-						logger.WarningLogger.Printf("Found 0 or multiple books with isbn: %s\n",isbn13)
+					} else {
+						logger.WarningLogger.Printf("Found 0 or multiple books with book: %s\n", isbn13)
 					}
 				}
-
-
 
 			}
 
@@ -137,26 +131,26 @@ func CreateBDs() {
 
 		query := fmt.Sprintf("CREATE (:Book {ISBN_13: %q, title: %q, cote: %q,", isbn13, title, cote)
 		if isbn10 != "" {
-			query += fmt.Sprintf(" ISBN_10: %q,",isbn10)
+			query += fmt.Sprintf(" ISBN_10: %q,", isbn10)
 		}
 		if description != "" {
-			query += fmt.Sprintf(" description: %q,",description)
+			query += fmt.Sprintf(" description: %q,", description)
 		}
 		if publisher != "" {
-			query += fmt.Sprintf(" publisher: %q,",publisher)
+			query += fmt.Sprintf(" publisher: %q,", publisher)
 		}
 		if publishedDate != "" {
-			query += fmt.Sprintf(" publishedDate: %q,",publishedDate)
+			query += fmt.Sprintf(" publishedDate: %q,", publishedDate)
 		}
 		if pageCount != 0 {
-			query += fmt.Sprintf(" pageCount: %g,",pageCount)
+			query += fmt.Sprintf(" pageCount: %g,", pageCount)
 		}
-		query = query[:len(query) - 1]
+		query = query[:len(query)-1]
 		query += "})\n"
 
 		outF.WriteString(query)
 
-		if cover == ""{
+		if cover == "" {
 			logger.WarningLogger.Printf("Row %d had no cover\n", j)
 			continue
 		}
@@ -173,13 +167,13 @@ func CreateBDs() {
 			continue
 		}
 
-		outI, err := os.Create(OUTPATH+isbn13+"/cover.jpg")
+		outI, err := os.Create(OUTPATH + isbn13 + "/cover.jpg")
 		if err != nil {
 			logger.ErrorLogger.Printf("Error creating cover file for row %d: %s\n", j, err)
 			continue
 		}
 
-		_,err = io.Copy(outI, res.Body)
+		_, err = io.Copy(outI, res.Body)
 		if err != nil {
 			logger.ErrorLogger.Printf("Error copying cover file for row %d: %s\n", j, err)
 			continue
@@ -196,14 +190,14 @@ func CreateBDs() {
 func RenameIsbnFolders() {
 	entries, err := os.ReadDir(ISBN_FOLDER_PATH)
 	if err != nil {
-		logger.ErrorLogger.Panicf("Could read directory: %s\n",err)
+		logger.ErrorLogger.Panicf("Could read directory: %s\n", err)
 	}
 	for _, e := range entries {
-		if e.IsDir() && len(e.Name()) == 10{
+		if e.IsDir() && len(e.Name()) == 10 {
 			isbn13 := ISBN10to13(e.Name())
 			err := os.Rename(ISBN_FOLDER_PATH+"/"+e.Name(), ISBN_FOLDER_PATH+"/"+isbn13)
 			if err != nil {
-				logger.ErrorLogger.Printf("Couldn't rename %s: %s \n",e.Name(), err)
+				logger.ErrorLogger.Printf("Couldn't rename %s: %s \n", e.Name(), err)
 			}
 		}
 	}
@@ -212,24 +206,23 @@ func RenameIsbnFolders() {
 
 func ISBN10to13(isbn10 string) string {
 	isbn10 = isbn10[:len(isbn10)-1]
-	isbn13 := "978"+isbn10
+	isbn13 := "978" + isbn10
 
 	var sum uint8 = 0
-	for i,_ := range isbn13 {
+	for i, _ := range isbn13 {
 		c := isbn13[i]
 		n := c - UTF8_ZERO
-		if i%2==1{
-			sum += 3*n
-		}else {
+		if i%2 == 1 {
+			sum += 3 * n
+		} else {
 			sum += n
 		}
 	}
 	check := sum % 10
 
 	if check == 0 {
-		return isbn13+"0"
+		return isbn13 + "0"
 	}
 
-
-	return isbn13+string(UTF8_ZERO + (10 - check))
+	return isbn13 + string(UTF8_ZERO+(10-check))
 }

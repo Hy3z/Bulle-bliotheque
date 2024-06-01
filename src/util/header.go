@@ -8,11 +8,12 @@ import (
 const (
 	headerTemplateKey = "Tmpl"
 	BpsType           = "bps"
-	ResearchType      = "rs"
-	BookType          = "b"
-	SerieType         = "s"
-	ContactType       = "c"
-	AuthType          = "a"
+	//PreviewSetType    = "ps"
+	ResearchType = "rs"
+	BookType     = "b"
+	SerieType    = "s"
+	ContactType  = "c"
+	AuthType     = "a"
 )
 
 var (

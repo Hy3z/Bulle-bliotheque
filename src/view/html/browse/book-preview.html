@@ -2,18 +2,19 @@
     {Id, Cover, Title}
 -->
 {{define "book-preview"}}
-
-        <a href="http://localhost:42069/book/{{.ISBN}}"
+        <a href="http://localhost:42069/book/{{.UUID}}"
            hx-boost="true"
            hx-headers='{"Tmpl":"b"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
-           class="">
+           {{if and (hasField . "Hidable") .Hidable}}
+                class="hidable-book-preview"
+           {{end}}>
 
             <div class="book-image">
 
 
-                <img src="http://localhost:42069/book/{{.ISBN}}/cover" alt="book" class="">
+                <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book" class="">
 
             </div>
             <div class="book-title">

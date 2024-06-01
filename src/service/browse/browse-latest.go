@@ -16,7 +16,7 @@ const (
 
 func latestBooksResearch() model.Research {
 	query :=
-		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN b.ISBN_13, b.title ORDER BY b.date DESC LIMIT $limit"
+		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN b.UUID, b.title ORDER BY b.date DESC LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"limit": MaxLatestBatchSize,
 	})
@@ -31,10 +31,9 @@ func latestBooksResearch() model.Research {
 
 	books := make([]model.Preview, len(res.Records))
 	for i, record := range res.Records {
-
-		isbn13, _ := record.Values[0].(string)
+		uuid, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, ISBN: isbn13}
+		book := model.BookPreview{Title: title, UUID: uuid}
 		books[i] = model.Preview{BookPreview: book}
 	}
 

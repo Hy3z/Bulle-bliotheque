@@ -44,7 +44,7 @@ import (
 
 func getSerieByUUID(uuid string) (model.Serie, error) {
 	query :=
-		"MATCH (s:Serie {UUID: $uuid})<-[r:PART_OF]-(b:Book) RETURN s.name, b.title, b.ISBN_13 ORDER BY r.opus ASC"
+		"MATCH (s:Serie {UUID: $uuid})<-[r:PART_OF]-(b:Book) RETURN s.name, b.title, b.UUID ORDER BY r.opus ASC"
 
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"uuid": uuid,
@@ -61,18 +61,10 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 			name, _ := rec.Values[0].(string)
 			serie.Name = name
 		}
-
-		book := model.BookPreview{}
-		title, okT := rec.Values[1].(string)
-		isbn13, okI := rec.Values[2].(string)
-		if okT {
-			book.Title = title
-		}
-		if okI {
-			book.ISBN = isbn13
-		}
+		title, _ := rec.Values[1].(string)
+		uuid, _ := rec.Values[2].(string)
 		books = append(books, model.Preview{
-			BookPreview: book,
+			BookPreview: model.BookPreview{Title: title, UUID: uuid},
 		})
 	}
 

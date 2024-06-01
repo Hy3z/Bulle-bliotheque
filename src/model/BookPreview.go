@@ -4,7 +4,9 @@ import "github.com/labstack/echo/v4"
 
 type BookPreview struct {
 	Title string
-	ISBN  string
+	//ISBN    string
+	Hidable bool
+	UUID    string
 }
 
 const (

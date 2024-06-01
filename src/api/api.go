@@ -66,7 +66,8 @@ func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
 	e.GET("/update", func(c echo.Context) error {
-		dbconvert.SerieCoverFromBook()
+
+		dbconvert.DataBookISBNtoUUID()
 		//dbconvert.PrintMissingCovers()
 		//dbconvert.DownloadCovers()
 		//dbconvert.CreateMangas("D:/Code/Bulle-bliotheque/src/input.csv")
@@ -75,6 +76,9 @@ func Setup(e *echo.Echo) {
 
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
+	})
+	e.GET("/js", func(c echo.Context) error {
+		return c.File("view/script/script.js")
 	})
 	e.GET("/logo", func(c echo.Context) error {
 		return c.File("view/image/logo.png")

@@ -8,7 +8,7 @@ const (
 	BrowseAllPath    = BrowsePath + "/all"
 	BrowseLatestPath = BrowsePath + "/latest"
 
-	BookPath      = "/book/:" + IsbnParam
+	BookPath      = "/book/:" + BookParam
 	BookCoverPath = BookPath + "/cover"
 
 	SeriePath      = "serie/:" + SerieParam

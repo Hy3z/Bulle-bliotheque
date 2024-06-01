@@ -57,10 +57,10 @@
                 Nouveautés
             </a>
 
-            <a href="http://localhost:42069/browse/tag/{myTag}"
+            <a href="http://localhost:42069/browse/tag/{tag}"
                hx-boost="true"
                hx-headers='{"Tmpl":"rs"}'
-               hx-vals='{"myTag":"Manga"}'
+               hx-vals='{"tag":"Manga"}'
                hx-ext="path-params"
                hx-target=".main"
                hx-swap="innerHTML show:window:top"
@@ -97,10 +97,9 @@
             </a>
         </div>
 
-
         <label class ="
         flex-grow">
-            <input type="search" name="q" class="search-box
+            <input type="search" name="q" id="search-box" oninput="update_search_history()" class="
                 w-full
                 rounded-full
                 text-black
@@ -115,6 +114,10 @@
                    hx-target=".main"
                    hx-swap="innerHTML show:window:top">
 
+        </label>
+
+        <label id="toggle_serie_mode_label">
+            <input type="checkbox" id="toggle_serie_mode" onclick="toggle_serie_switch()">
         </label>
 
 

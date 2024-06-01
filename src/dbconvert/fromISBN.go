@@ -67,7 +67,7 @@ func FillCSV(inpath, outpath string) {
 		//logger.InfoLogger.Println(6)
 
 		for {
-			//str := "START " + isbn
+			//str := "START " + book
 			//logger.InfoLogger.Println(str)
 			res, err := http.Get("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn + "&key=" + "AIzaSyCK7dm6xgSKTPmyonFjuC6U_0fY3QTZPpw")
 			//logger.InfoLogger.Println("END")
@@ -149,12 +149,12 @@ func FillCSV(inpath, outpath string) {
 
 		//logger.InfoLogger.Println(8)
 
-		c.Visit("https://www.justbooks.fr/search/?keywords=" + isbn + "&currency=EUR&destination=fr&mode=isbn&classic=off&lang=fr&st=sh&ac=qr&submit=")
+		c.Visit("https://www.justbooks.fr/search/?keywords=" + isbn + "&currency=EUR&destination=fr&mode=book&classic=off&lang=fr&st=sh&ac=qr&submit=")
 		c.OnHTML("#coverImage", func(e *colly.HTMLElement) {
 			filledRow[8] = e.Attr("src")
 		})
 
-		c.OnHTML("#describe-isbn-title", func(e *colly.HTMLElement) {
+		c.OnHTML("#describe-book-title", func(e *colly.HTMLElement) {
 			filledRow[9] = e.Text
 		})
 
@@ -172,6 +172,6 @@ func FillCSV(inpath, outpath string) {
 			logger.ErrorLogger.Printf("Error writing for %s: %s\n", isbn, err)
 			continue
 		}
-		//logger.InfoLogger.Printf("Done %s\n", isbn)
+		//logger.InfoLogger.Printf("Done %s\n", book)
 	}
 }

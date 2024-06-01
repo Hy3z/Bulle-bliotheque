@@ -45,7 +45,7 @@ func Query(ctx context.Context, query string, param map[string]any) (*neo4j.Eage
 		neo4j.EagerResultTransformer,
 		neo4j.ExecuteQueryWithDatabase("neo4j"))
 	if err != nil {
-		logger.WarningLogger.Println(err)
+		logger.WarningLogger.Printf("Error on query %s: %s\n", query, err)
 	}
 	return res, err
 }

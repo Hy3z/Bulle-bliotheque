@@ -17,7 +17,7 @@ func fetchPreviews(page int, limit int) model.PreviewSet {
 		"MATCH (b:Book) " +
 			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
 			"RETURN distinct s.name, s.UUID, count(b), " +
-			"CASE WHEN s IS null THEN b.ISBN_13 ELSE null END AS isbn13, " +
+			"CASE WHEN s IS null THEN b.UUID ELSE null END AS uuid, " +
 			"CASE WHEN s IS null THEN b.title ELSE null END AS title " +
 			"SKIP $skip LIMIT $limit"
 	res, err := database.Query(context.Background(), query, map[string]any{
@@ -33,16 +33,16 @@ func fetchPreviews(page int, limit int) model.PreviewSet {
 	previews := make([]model.Preview, len(res.Records))
 	for i, record := range res.Records {
 		name, _ := record.Values[0].(string)
-		uuid, _ := record.Values[1].(string)
+		serieUUID, _ := record.Values[1].(string)
 		count, _ := record.Values[2].(int64)
-		isbn13, _ := record.Values[3].(string)
+		bookUUID, _ := record.Values[3].(string)
 		title, _ := record.Values[4].(string)
 		if name == "" {
-			book := model.BookPreview{Title: title, ISBN: isbn13}
+			book := model.BookPreview{Title: title, UUID: bookUUID}
 			previews[i] = model.Preview{BookPreview: book}
 			continue
 		}
-		serie := model.SeriePreview{Name: name, BookCount: int(count), UUID: uuid}
+		serie := model.SeriePreview{Name: name, BookCount: int(count), UUID: serieUUID}
 		previews[i] = model.Preview{SeriePreview: serie}
 	}
 

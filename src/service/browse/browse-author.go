@@ -13,7 +13,7 @@ import (
 )
 
 func getWroteByBps(author string, page int, limit int) model.PreviewSet {
-	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.ISBN_13, b.title ORDER BY b.title SKIP $skip LIMIT $limit"
+	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.UUID, b.title ORDER BY b.title SKIP $skip LIMIT $limit"
 	skip := (page - 1) * limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip":   skip,
@@ -26,9 +26,9 @@ func getWroteByBps(author string, page int, limit int) model.PreviewSet {
 	}
 	books := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
-		isbn13, _ := record.Values[0].(string)
+		uuid, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, ISBN: isbn13}
+		book := model.BookPreview{Title: title, UUID: uuid}
 		books[i] = model.Preview{BookPreview: book}
 	}
 	return books

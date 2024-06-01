@@ -2,7 +2,7 @@ package util
 
 const (
 	PageParam   = "p"
-	IsbnParam   = "isbn"
+	BookParam   = "b"
 	QueryParam  = "q"
 	TagParam    = "tag"
 	SerieParam  = "s"

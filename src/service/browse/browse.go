@@ -38,7 +38,7 @@ func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 			"$tagCoeff * CASE WHEN t IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(t.name, $expr) ELSE 0 END" +
 			") AS rank " +
 			"WHERE rank > $minRank " +
-			"RETURN b.ISBN_13, b.title, max(rank) " +
+			"RETURN b.UUID, b.title" +
 			"ORDER BY max(rank) DESC, b.title " +
 			"SKIP $skip LIMIT $limit "
 	skip := (page - 1) * limit
@@ -69,9 +69,9 @@ func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 	}
 	books := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
-		isbn13, _ := record.Values[0].(string)
+		uuid, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, ISBN: isbn13}
+		book := model.BookPreview{Title: title, UUID: uuid}
 		books[i] = model.Preview{BookPreview: book}
 	}
 	return books

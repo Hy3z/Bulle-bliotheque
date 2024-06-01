@@ -10,16 +10,16 @@ import (
 	"net/http"
 )
 
-func getBookByISBN(isbn13 string) (model.Book, error) {
+func getBookByUUID(uuid string) (model.Book, error) {
 	query :=
-		"MATCH (b:Book {ISBN_13: $isbn13})" +
+		"MATCH (b:Book {UUID: $uuid})" +
 			"OPTIONAL MATCH (a:Author)-[:WROTE]->(b) " +
 			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
 			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
-			"RETURN b.title, b.ISBN_13, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags, s.name, s.UUID " +
+			"RETURN b.title, b.UUID, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags, s.name, s.UUID " +
 			"LIMIT 1"
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"isbn13": isbn13,
+		"uuid": uuid,
 	})
 
 	if err != nil {
@@ -34,7 +34,7 @@ func getBookByISBN(isbn13 string) (model.Book, error) {
 	values := res.Records[0].Values
 
 	title, okT := values[0].(string)
-	isbn13, okI := values[1].(string)
+	uuid, okU := values[1].(string)
 	description, okDe := values[2].(string)
 	pubdate, okPubd := values[3].(string)
 	pub, okPub := values[4].(string)
@@ -48,8 +48,8 @@ func getBookByISBN(isbn13 string) (model.Book, error) {
 	if okT {
 		book.Title = title
 	}
-	if okI {
-		book.ISBN = isbn13
+	if okU {
+		book.UUID = uuid
 	}
 	if okDe {
 		book.Description = description
@@ -101,7 +101,7 @@ func getBookByISBN(isbn13 string) (model.Book, error) {
 }
 
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByISBN(c.Param(util.IsbnParam))
+	book, err := getBookByUUID(c.Param(util.BookParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -110,7 +110,7 @@ func respondWithBookMain(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByISBN(c.Param(util.IsbnParam))
+	book, err := getBookByUUID(c.Param(util.BookParam))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -133,6 +133,6 @@ func RespondWithBook(c echo.Context) error {
 }
 
 func RespondWithCover(c echo.Context) error {
-	isbn := c.Param(util.IsbnParam)
-	return c.File("./data/isbn/" + isbn + "/cover.jpg")
+	uuid := c.Param(util.BookParam)
+	return c.File("./data/book/" + uuid + "/cover.jpg")
 }
