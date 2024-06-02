@@ -72,13 +72,20 @@ func ProcessContactTicket(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	query := "CREATE (t:Ticket {message: $message, author: $author, date:$date})"
+	var query string
+	var err error
 	author := c.FormValue("author")
 	if author == "" {
-		query = "CREATE (t:Ticket {message: $message, date:$date})"
+		query, err = util.ReadCypherScript(util.CypherScriptDirectory + "/contact/createTicket.cypher")
+	} else {
+		query, err = util.ReadCypherScript(util.CypherScriptDirectory + "/contact/createTicketWithAuthor.cypher")
+	}
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.NoContent(http.StatusBadRequest)
 	}
 
-	_, err := database.Query(context.Background(), query, map[string]any{
+	_, err = database.Query(context.Background(), query, map[string]any{
 		"author":  author,
 		"message": message,
 		"date":    time.Now().Format(time.DateTime),
