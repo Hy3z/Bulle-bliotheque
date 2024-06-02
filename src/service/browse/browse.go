@@ -38,7 +38,7 @@ func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 			"$tagCoeff * CASE WHEN t IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(t.name, $expr) ELSE 0 END" +
 			") AS rank " +
 			"WHERE rank > $minRank " +
-			"RETURN b.UUID, b.title" +
+			"RETURN b.UUID, b.title, max(rank) " +
 			"ORDER BY max(rank) DESC, b.title " +
 			"SKIP $skip LIMIT $limit "
 	skip := (page - 1) * limit

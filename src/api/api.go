@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bb/dbconvert"
 	"bb/service/book"
 	"bb/service/browse"
 	"bb/service/contact"
@@ -65,14 +64,15 @@ func newTemplate() *Templates {
 func Setup(e *echo.Echo) {
 	e.Renderer = newTemplate()
 
-	e.GET("/update", func(c echo.Context) error {
+	/*e.GET("/update", func(c echo.Context) error {
 
-		dbconvert.DataBookISBNtoUUID()
-		//dbconvert.PrintMissingCovers()
-		//dbconvert.DownloadCovers()
+		//dbconvert.AddRemainingBooks("D:/Code/Bulle-bliotheque/src/input.csv")
+		//dbconvert.DataBookISBNtoUUID()
+		dbconvert.PrintMissingCovers()
+		//dbconvert.SerieCoverFromBook()
 		//dbconvert.CreateMangas("D:/Code/Bulle-bliotheque/src/input.csv")
 		return c.HTML(http.StatusOK, "Job done")
-	})
+	})*/
 
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")

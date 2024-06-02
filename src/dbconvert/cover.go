@@ -19,22 +19,33 @@ const (
 )
 
 func DownloadCovers() {
-	res, _ := database.Query(context.Background(), "MATCH (b:Book) return b.ISBN_13", map[string]any{})
+	res, _ := database.Query(context.Background(), "MATCH (b:Book) return b.ISBN_13, b.ISBN_10, b.EAN, b.UUID", map[string]any{})
 	for _, rec := range res.Records {
+
 		isbn13, _ := rec.Values[0].(string)
-		_, err := os.Stat(ISBN_PATH + "/" + isbn13)
-		_, err2 := os.Stat(ISBN_PATH + "/" + isbn13 + "/cover.jpg")
-		if os.IsExist(err) && os.IsExist(err2) {
+		isbn10, _ := rec.Values[1].(string)
+		ean, _ := rec.Values[2].(string)
+		uuid, _ := rec.Values[3].(string)
+		_, err := os.Stat(ISBN_PATH + "/" + uuid)
+		_, err2 := os.Stat(ISBN_PATH + "/" + uuid + "/cover.jpg")
+		if !(errors.Is(err, os.ErrNotExist) || errors.Is(err2, os.ErrNotExist)) {
 			continue
 		}
 
-		err = os.MkdirAll(ISBN_PATH+"/"+isbn13, os.ModePerm)
+		err = os.MkdirAll(ISBN_PATH+"/"+uuid, os.ModePerm)
 		if err != nil {
 			logger.ErrorLogger.Printf("Error creating directory: %s\n", err)
 			continue
 		}
 
-		res, err := http.Get(API_URL + isbn13)
+		ident := isbn13
+		if ident == "" {
+			ident = ISBN10to13(isbn10)
+		}
+		if ident == "" {
+			ident = ean
+		}
+		res, err := http.Get(API_URL + ident)
 		if err != nil {
 			logger.ErrorLogger.Printf("HTTP error: %s\n", err)
 			continue
@@ -60,7 +71,7 @@ func DownloadCovers() {
 		}
 		defer res.Body.Close()
 
-		outI, err := os.Create(ISBN_PATH + "/" + isbn13 + "/cover.jpg")
+		outI, err := os.Create(ISBN_PATH + "/" + uuid + "/cover.jpg")
 		if err != nil {
 			logger.ErrorLogger.Printf("Error creating cover file for %s: %s\n", isbn13, err)
 			continue
@@ -72,14 +83,14 @@ func DownloadCovers() {
 	}
 }
 
-func GetMissingCovers() (isbns []string) {
-	res, _ := database.Query(context.Background(), "MATCH (b:Book) return b.ISBN_13", map[string]any{})
+func GetMissingCovers() (uuids []string) {
+	res, _ := database.Query(context.Background(), "MATCH (b:Book) return b.UUID", map[string]any{})
 	for _, rec := range res.Records {
-		isbn13, _ := rec.Values[0].(string)
-		_, err1 := os.Stat(ISBN_PATH + "/" + isbn13)
-		_, err2 := os.Stat(ISBN_PATH + "/" + isbn13 + "/cover.jpg")
+		uuid, _ := rec.Values[0].(string)
+		_, err1 := os.Stat(ISBN_PATH + "/" + uuid)
+		_, err2 := os.Stat(ISBN_PATH + "/" + uuid + "/cover.jpg")
 		if errors.Is(err1, os.ErrNotExist) || errors.Is(err2, os.ErrNotExist) {
-			isbns = append(isbns, isbn13)
+			uuids = append(uuids, uuid)
 		}
 	}
 	return
@@ -99,7 +110,7 @@ func SerieCoverFromBook() {
 		"match(s:Serie)<-[r:PART_OF]-(b:Book) "+
 		"with s,min(r.opus) as minopus "+
 		"match (s:Serie)<-[rp:PART_OF{opus:minopus}]-(bp:Book) "+
-		"return s.UUID,bp.ISBN_13", map[string]any{})
+		"return s.UUID,bp.UUID", map[string]any{})
 	if err != nil {
 		logger.ErrorLogger.Printf("Couldn't query database: %s\n", err)
 		return
@@ -107,8 +118,8 @@ func SerieCoverFromBook() {
 
 	for _, rec := range res.Records {
 		uuid, _ := rec.Values[0].(string)
-		isbn13, _ := rec.Values[1].(string)
-		from, err := os.Open(ISBN_PATH + "/" + isbn13 + "/cover.jpg")
+		bookUUID, _ := rec.Values[1].(string)
+		from, err := os.Open(ISBN_PATH + "/" + bookUUID + "/cover.jpg")
 		if err != nil {
 			logger.ErrorLogger.Printf("Couldn't open from: %s\n", err)
 			continue

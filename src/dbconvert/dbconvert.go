@@ -205,6 +205,9 @@ func RenameIsbnFolders() {
 }
 
 func ISBN10to13(isbn10 string) string {
+	if isbn10 == "" {
+		return ""
+	}
 	isbn10 = isbn10[:len(isbn10)-1]
 	isbn13 := "978" + isbn10
 

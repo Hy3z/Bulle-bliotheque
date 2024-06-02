@@ -21,6 +21,7 @@
            hx-headers='{"Tmpl":"rs"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
+           onclick="clear_browse_bar()"
            class="header-main
                     color-gray-200
                     hover:text-blue-600
@@ -40,11 +41,12 @@
 
         <div class="browse-button">
             <a href="http://localhost:42069/browse/latest"
-                    hx-boost="true"
-                    hx-headers='{"Tmpl":"rs"}'
-                    hx-target=".main"
-                    hx-swap="innerHTML show:window:top"
-                    class="header-latest
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"rs"}'
+               hx-target=".main"
+               hx-swap="innerHTML show:window:top"
+               class="header-latest
                     color-gray-200
                     hover:text-blue-600
                     dark:hover:text-blue-400
@@ -58,6 +60,7 @@
             </a>
 
             <a href="http://localhost:42069/browse/tag/{tag}"
+               onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"rs"}'
                hx-vals='{"tag":"Manga"}'
@@ -77,6 +80,7 @@
                 Manga
             </a>
             <a href="http://localhost:42069/browse/tag/{tag}"
+               onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"rs"}'
                hx-vals='{"tag":"BD"}'
@@ -99,7 +103,7 @@
 
         <label class ="
         flex-grow">
-            <input type="search" name="q" id="search-box" oninput="update_search_history()" class="
+            <input type="search" name="q" id="browse-bar" oninput="update_search_history()" class="
                 w-full
                 rounded-full
                 text-black
@@ -122,6 +126,7 @@
 
 
         <a href="http://localhost:42069/contact"
+           onclick="clear_browse_bar()"
            hx-boost="true"
            hx-headers='{"Tmpl":"c"}'
            hx-target=".main"
@@ -140,6 +145,7 @@
         </a>
 
         <a href="http://localhost:42069/auth"
+           onclick="clear_browse_bar()"
            hx-boost="true"
            hx-headers='{"Tmpl":"a"}'
            hx-target=".main"

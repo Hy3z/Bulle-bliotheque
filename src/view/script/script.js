@@ -1,23 +1,29 @@
-var SearchBoxState;
-(function (SearchBoxState) {
-    SearchBoxState[SearchBoxState["Ilde"] = 0] = "Ilde";
-    SearchBoxState[SearchBoxState["Writing"] = 1] = "Writing";
-})(SearchBoxState || (SearchBoxState = {}));
-var search_box_state = SearchBoxState.Ilde;
+//Browse bar ---------------------
+var BrowseBarState;
+(function (BrowseBarState) {
+    BrowseBarState[BrowseBarState["Ilde"] = 0] = "Ilde";
+    BrowseBarState[BrowseBarState["Writing"] = 1] = "Writing";
+})(BrowseBarState || (BrowseBarState = {}));
+var search_box_state = BrowseBarState.Ilde;
 function update_search_history() {
-    var search_box = document.getElementById("search-box");
-    if (search_box_state == SearchBoxState.Ilde && search_box.value.length > 0) {
-        history.pushState({}, "", "http://localhost:42069/browse?q=" + search_box.value);
-        search_box_state = SearchBoxState.Writing;
+    var browse_bar = document.getElementById("browse-bar");
+    if (search_box_state == BrowseBarState.Ilde && browse_bar.value.length > 0) {
+        history.pushState({}, "", "http://localhost:42069/browse?q=" + browse_bar.value);
+        search_box_state = BrowseBarState.Writing;
     }
-    else if (search_box_state == SearchBoxState.Writing && search_box.value.length > 0) {
-        history.replaceState({}, "", "http://localhost:42069/browse?q=" + search_box.value);
+    else if (search_box_state == BrowseBarState.Writing && browse_bar.value.length > 0) {
+        history.replaceState({}, "", "http://localhost:42069/browse?q=" + browse_bar.value);
     }
-    else if (search_box_state == SearchBoxState.Writing && search_box.value.length == 0) {
+    else if (search_box_state == BrowseBarState.Writing && browse_bar.value.length == 0) {
         history.pushState({}, "", "http://localhost:42069/browse");
-        search_box_state = SearchBoxState.Ilde;
+        search_box_state = BrowseBarState.Ilde;
     }
 }
+function clear_browse_bar() {
+    var browse_bar = document.getElementById("browse-bar");
+    browse_bar.value = '';
+}
+//SerieSwitch ---------------------
 function toggle_serie_switch() {
     var serie_switch = document.getElementById("toggle_serie_mode");
     var series = document.getElementsByClassName("serie-preview");
@@ -29,6 +35,3 @@ function toggle_serie_switch() {
         books_with_serie[i].style.display = serie_switch.checked ? 'none' : 'block';
     }
 }
-window.addEventListener('unload', function (e) {
-    console.log("jhggfgbh");
-});
