@@ -43,14 +43,16 @@ import (
 }*/
 
 func getSerieByUUID(uuid string) (model.Serie, error) {
-	query :=
-		"MATCH (s:Serie {UUID: $uuid})<-[r:PART_OF]-(b:Book) RETURN s.name, b.title, b.UUID ORDER BY r.opus ASC"
+	serie := model.Serie{UUID: uuid}
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/serie/getSerieByUUID.cypher")
+	if err != nil {
+		return serie, err
+	}
 
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"uuid": uuid,
 	})
 
-	serie := model.Serie{UUID: uuid}
 	if err != nil {
 		return serie, err
 	}
@@ -106,7 +108,7 @@ func RespondWithSerie(c echo.Context) error {
 		return respondWithSeriePage(c)
 	}
 	switch tmpl {
-	case util.SerieType:
+	case util.MainContentType:
 		return respondWithSerieMain(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)

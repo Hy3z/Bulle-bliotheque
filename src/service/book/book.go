@@ -11,13 +11,11 @@ import (
 )
 
 func getBookByUUID(uuid string) (model.Book, error) {
-	query :=
-		"MATCH (b:Book {UUID: $uuid})" +
-			"OPTIONAL MATCH (a:Author)-[:WROTE]->(b) " +
-			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
-			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
-			"RETURN b.title, b.UUID, b.description, b.publishedDate, b.publisher, b.cote, b.pageCount, collect(distinct(a.name)) as authors, collect(distinct(t.name)) as tags, s.name, s.UUID " +
-			"LIMIT 1"
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
+	if err != nil {
+		return model.Book{}, err
+	}
+
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"uuid": uuid,
 	})
@@ -124,7 +122,7 @@ func RespondWithBook(c echo.Context) error {
 		return respondWithBookPage(c)
 	}
 	switch tmpl {
-	case util.BookType:
+	case util.MainContentType:
 		return respondWithBookMain(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)

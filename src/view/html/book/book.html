@@ -34,7 +34,7 @@
                     <div class="book-author">
                         <a href="http://localhost:42069/browse/author/{{escape .}}"
                            hx-boost="true"
-                           hx-headers='{"Tmpl":"rs"}'
+                           hx-headers='{"Tmpl":"main"}'
                            hx-target=".main"
                            hx-swap="innerHTML show:window:top"
                            class="header-main">
@@ -52,7 +52,7 @@
                     <div class="book-tag">
                         <a href="http://localhost:42069/browse/tag/{{escape .}}"
                            hx-boost="true"
-                           hx-headers='{"Tmpl":"rs"}'
+                           hx-headers='{"Tmpl":"research"}'
                            hx-target=".main"
                            hx-swap="innerHTML show:window:top"
                            class="header-main">
@@ -96,7 +96,7 @@
             <div class="book-serie">
                 <a href="http://localhost:42069/serie/{{.SerieUUID}}"
                    hx-boost="true"
-                   hx-headers='{"Tmpl":"s"}'
+                   hx-headers='{"Tmpl":"main"}'
                    hx-target=".main"
                    hx-swap="innerHTML show:window:top"
                    class="header-main">

@@ -13,13 +13,11 @@ import (
 
 // Return a PreviewSet of all books or series, with skip and limit
 func fetchPreviews(page int, limit int) model.PreviewSet {
-	query :=
-		"MATCH (b:Book) " +
-			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
-			"RETURN distinct s.name, s.UUID, count(b), " +
-			"CASE WHEN s IS null THEN b.UUID ELSE null END AS uuid, " +
-			"CASE WHEN s IS null THEN b.title ELSE null END AS title " +
-			"SKIP $skip LIMIT $limit"
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-all.cypher")
+	if err != nil {
+		logger.WarningLogger.Printf("Error reading script: %s\n", err)
+		return model.PreviewSet{}
+	}
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"skip":  (page - 1) * limit,
 		"limit": limit,
@@ -72,7 +70,7 @@ func allBooksResearch() model.Research {
 }
 
 // Return a (infinite) book-set from all books, takes a page argument
-func respondWithAllBps(c echo.Context) error {
+func respondWithAllPs(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
 	//If no page is precised, return nothing
 	if err != nil || page < 1 {
@@ -103,8 +101,8 @@ func RespondWithAll(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	switch tmpl {
-	case util.BpsType:
-		return respondWithAllBps(c)
+	case util.PreviewSetContentType:
+		return respondWithAllPs(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)
 		return c.NoContent(http.StatusBadRequest)

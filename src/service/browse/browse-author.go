@@ -13,15 +13,20 @@ import (
 )
 
 func getWroteByBps(author string, page int, limit int) model.PreviewSet {
-	cypherQuery := "MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author}) RETURN b.UUID, b.title ORDER BY b.title SKIP $skip LIMIT $limit"
 	skip := (page - 1) * limit
+	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-author.cypher")
+	if err != nil {
+		logger.WarningLogger.Println("Error reading script: %s\n", err)
+		return model.PreviewSet{}
+	}
+
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip":   skip,
 		"limit":  limit,
 		"author": author,
 	})
 	if err != nil {
-		logger.WarningLogger.Println("Error when fetching books")
+		logger.WarningLogger.Printf("Error when fetching books: %s\n", err)
 		return model.PreviewSet{}
 	}
 	books := make(model.PreviewSet, len(res.Records))
@@ -77,7 +82,7 @@ func respondWithAuthorRs(c echo.Context) error {
 	return getWroteByRs(author).Render(c, http.StatusOK)
 }
 
-func respondWithAuthorBps(c echo.Context) error {
+func respondWithAuthorPs(c echo.Context) error {
 	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render nothing
 	if err != nil || author == "" {
@@ -113,10 +118,10 @@ func RespondWithAuthor(c echo.Context) error {
 		return respondWithAuthorPage(c)
 	}
 	switch tmpl {
-	case util.ResearchType:
+	case util.MainContentType:
 		return respondWithAuthorRs(c)
-	case util.BpsType:
-		return respondWithAuthorBps(c)
+	case util.PreviewSetContentType:
+		return respondWithAuthorPs(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)

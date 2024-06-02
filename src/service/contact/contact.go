@@ -35,7 +35,7 @@ func RespondWithContact(c echo.Context) error {
 		return respondWithContactPage(c)
 	}
 	switch tmpl {
-	case util.ContactType:
+	case util.MainContentType:
 		return respondWithContactMain(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)

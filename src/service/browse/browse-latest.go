@@ -15,14 +15,21 @@ const (
 )
 
 func latestBooksResearch() model.Research {
-	query :=
-		"MATCH (b:Book) WHERE b.date IS NOT NULL RETURN b.UUID, b.title ORDER BY b.date DESC LIMIT $limit"
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-latest.cypher")
+	if err != nil {
+		logger.WarningLogger.Printf("Error reading script: %s\n", err)
+		return model.Research{
+			Name:       "Nouveautés",
+			PreviewSet: model.PreviewSet{},
+		}
+	}
+
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"limit": MaxLatestBatchSize,
 	})
 
 	if err != nil {
-		logger.WarningLogger.Println("Error when fetching latest books")
+		logger.WarningLogger.Printf("Error when fetching latest books: %s\n", err)
 		return model.Research{
 			Name:       "Nouveautés",
 			PreviewSet: model.PreviewSet{},
@@ -61,7 +68,7 @@ func RespondWithLatest(c echo.Context) error {
 		return respondWithLatestPage(c)
 	}
 	switch tmpl {
-	case util.ResearchType:
+	case util.MainContentType:
 		return respondWithLatestRs(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)

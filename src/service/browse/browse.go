@@ -26,33 +26,12 @@ func rootResearches() []model.Research {
 }
 
 func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
-	cypherQuery :=
-		"MATCH (b:Book) " +
-			"OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie) " +
-			"OPTIONAL MATCH (b)<-[:WROTE]-(a:Author) " +
-			"OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag) " +
-			"WITH *,( " +
-			"$titleCoeff * apoc.text.sorensenDiceSimilarity(b.title, $expr) + " +
-			"$serieCoeff * CASE WHEN s IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(s.name, $expr) ELSE 0 END + " +
-			"$authorCoeff * CASE WHEN a IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(a.name, $expr) ELSE 0 END + " +
-			"$tagCoeff * CASE WHEN t IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(t.name, $expr) ELSE 0 END" +
-			") AS rank " +
-			"WHERE rank > $minRank " +
-			"RETURN b.UUID, b.title, max(rank) " +
-			"ORDER BY max(rank) DESC, b.title " +
-			"SKIP $skip LIMIT $limit "
-	skip := (page - 1) * limit
-	/*terms := strings.Fields(qParam)
-	regex := "(?i).*("
-	for i,term := range terms {
-		if i == len(terms)-1 {
-			regex += term
-		} else{
-			regex += term+" | "
-		}
+	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse.cypher")
+	if err != nil {
+		logger.WarningLogger.Printf("Error reading script: %s\n", err)
+		return model.PreviewSet{}
 	}
-	regex += ").*"
-	logger.InfoLogger.Println(regex)*/
+	skip := (page - 1) * limit
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip":        skip,
 		"limit":       limit,
@@ -64,9 +43,10 @@ func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 		"minRank":     0.75,
 	})
 	if err != nil {
-		logger.WarningLogger.Println("Error when fetching books")
+		logger.WarningLogger.Printf("Error when fetching books: %s\n", err)
 		return model.PreviewSet{}
 	}
+
 	books := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
 		uuid, _ := record.Values[0].(string)
@@ -128,7 +108,7 @@ func respondWithBrowseRs(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
-func respondWithBrowseBps(c echo.Context) error {
+func respondWithBrowsePs(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render nothing
 	if qParam == "" {
@@ -165,10 +145,10 @@ func RespondWithBrowse(c echo.Context) error {
 		return respondWithBrowsePage(c)
 	}
 	switch tmpl {
-	case util.ResearchType:
+	case util.MainContentType:
 		return respondWithBrowseRs(c)
-	case util.BpsType:
-		return respondWithBrowseBps(c)
+	case util.PreviewSetContentType:
+		return respondWithBrowsePs(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)

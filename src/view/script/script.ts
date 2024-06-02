@@ -32,6 +32,7 @@ function update_search_history() {
 }*/
 
 //SerieSwitch ---------------------
+/*
 function toggle_serie_switch() {
     let serie_switch = <HTMLInputElement>document.getElementById("toggle_serie_mode");
     let series = document.getElementsByClassName("serie-preview");
@@ -42,6 +43,17 @@ function toggle_serie_switch() {
     for (let i = 0; i < books_with_serie.length; i++) {
         (books_with_serie[i] as HTMLElement).style.display = serie_switch.checked ? 'none' : 'block';
     }
+}*/
+function toggle_serie_switch() {
+    let serie_switch = <HTMLInputElement>document.getElementById("toggle_serie_mode");
+    let url = window.location.href
+    serie_switch.setAttribute("hx-get", url)
+    serie_switch.setAttribute("hx-headers", `{"Tmpl":"main", "SerieMode":"${serie_switch.checked}"`)
+    console.log("EYO")
+    // @ts-ignore
+    htmx.process(serie_switch)
+    // @ts-ignore
+    htmx.trigger("#toggle_serie_mode","toggle_serie_switch")
 }
 
 

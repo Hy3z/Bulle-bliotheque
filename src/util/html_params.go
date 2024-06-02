@@ -7,5 +7,4 @@ const (
 	TagParam    = "tag"
 	SerieParam  = "s"
 	AuthorParam = "author"
-	ENV_PATH    = ".env"
 )

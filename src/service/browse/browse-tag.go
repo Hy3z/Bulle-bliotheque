@@ -13,15 +13,19 @@ import (
 )
 
 func getTaggedBps(tag string, page int, limit int) model.PreviewSet {
-	cypherQuery := "MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag}) RETURN b.UUID, b.title SKIP $skip LIMIT $limit"
 	skip := (page - 1) * limit
+	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-tag.cypher")
+	if err != nil {
+		logger.WarningLogger.Printf("Error reading script: %s\n", err)
+		return model.PreviewSet{}
+	}
 	res, err := database.Query(context.Background(), cypherQuery, map[string]any{
 		"skip":  skip,
 		"limit": limit,
 		"tag":   tag,
 	})
 	if err != nil {
-		logger.WarningLogger.Println("Error when fetching books")
+		logger.WarningLogger.Printf("Error when fetching books: %s\n", err)
 		return model.PreviewSet{}
 	}
 	books := make(model.PreviewSet, len(res.Records))
@@ -38,13 +42,12 @@ func getTaggedRs(tag string) model.Research {
 	page := 1
 	bps1 := getTaggedBps(tag, page, MaxBatchSize)
 	if len(bps1) < MaxBatchSize {
-		logger.InfoLogger.Println("SIMPLE BPS")
 		return model.Research{
 			Name:       tag,
 			PreviewSet: bps1,
 		}
 	}
-	logger.InfoLogger.Println("INFINITE BPS")
+
 	return model.Research{
 		Name: tag,
 		InfinitePreviewSet: model.InfinitePreviewSet{
@@ -80,7 +83,7 @@ func respondWithTagRs(c echo.Context) error {
 	return getTaggedRs(tag).Render(c, http.StatusOK)
 }
 
-func respondWithTagBps(c echo.Context) error {
+func respondWithTagPs(c echo.Context) error {
 	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render nothing
 	if err != nil || tag == "" {
@@ -116,10 +119,10 @@ func RespondWithTag(c echo.Context) error {
 		return respondWithTagPage(c)
 	}
 	switch tmpl {
-	case util.ResearchType:
+	case util.MainContentType:
 		return respondWithTagRs(c)
-	case util.BpsType:
-		return respondWithTagBps(c)
+	case util.PreviewSetContentType:
+		return respondWithTagPs(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)

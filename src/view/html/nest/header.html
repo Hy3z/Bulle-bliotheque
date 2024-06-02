@@ -18,7 +18,7 @@
         <!--HEADER HERE-->
         <a href="http://localhost:42069/browse"
            hx-boost="true"
-           hx-headers='{"Tmpl":"rs"}'
+           hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
            onclick="clear_browse_bar()"
@@ -43,7 +43,7 @@
             <a href="http://localhost:42069/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
-               hx-headers='{"Tmpl":"rs"}'
+               hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
                hx-swap="innerHTML show:window:top"
                class="header-latest
@@ -62,7 +62,7 @@
             <a href="http://localhost:42069/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
-               hx-headers='{"Tmpl":"rs"}'
+               hx-headers='{"Tmpl":"main"}'
                hx-vals='{"tag":"Manga"}'
                hx-ext="path-params"
                hx-target=".main"
@@ -82,7 +82,7 @@
             <a href="http://localhost:42069/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
-               hx-headers='{"Tmpl":"rs"}'
+               hx-headers='{"Tmpl":"main"}'
                hx-vals='{"tag":"BD"}'
                hx-ext="path-params"
                hx-target=".main"
@@ -114,7 +114,7 @@
                    hx-get="http://localhost:42069/browse"
                    hx-push-url="true"
                    hx-on::after-request="cleanURL()"
-                   hx-headers='{"Tmpl":"rs"}'
+                   hx-headers='{"Tmpl":"main"}'
                    hx-include="this"
                    hx-target=".main"
                    hx-swap="innerHTML show:window:top">
@@ -122,14 +122,18 @@
         </label>
 
         <label id="toggle_serie_mode_label">
-            <input type="checkbox" id="toggle_serie_mode" onclick="toggle_serie_switch()">
+            <input type="checkbox" id="toggle_serie_mode"
+                   onclick="toggle_serie_switch()"
+                   hx-target=".main"
+
+                   hx-trigger="toggle_serie_switch">
         </label>
 
 
         <a href="http://localhost:42069/contact"
            onclick="clear_browse_bar()"
            hx-boost="true"
-           hx-headers='{"Tmpl":"c"}'
+           hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
            class="header-contact
@@ -148,7 +152,7 @@
         <a href="http://localhost:42069/auth"
            onclick="clear_browse_bar()"
            hx-boost="true"
-           hx-headers='{"Tmpl":"a"}'
+           hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
            class="header-auth

@@ -5,7 +5,7 @@
         <a href="http://localhost:42069/book/{{.UUID}}"
            onclick="clear_browse_bar()"
            hx-boost="true"
-           hx-headers='{"Tmpl":"b"}'
+           hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
            {{if and (hasField . "Hidable") .Hidable}}
