@@ -62,7 +62,9 @@ func respondWithAuthorPage(c echo.Context) error {
 		logger.WarningLogger.Println("No author specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	return model.Browse{getWroteByRs(author)}.RenderIndex(c, http.StatusOK)
+	return model.Browse{
+		Researches: []model.Research{getWroteByRs(author)},
+	}.RenderIndex(c, http.StatusOK)
 }
 
 func respondWithAuthorRs(c echo.Context) error {

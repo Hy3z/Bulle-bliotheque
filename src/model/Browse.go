@@ -2,10 +2,13 @@ package model
 
 import "github.com/labstack/echo/v4"
 
-type Browse []Research
+type Browse struct {
+	Researches []Research
+	Query      string
+}
 
 const (
-	browseTemplate = "browse"
+	browseTemplate      = "browse"
 	browseIndexTemplate = "browse-index"
 )
 

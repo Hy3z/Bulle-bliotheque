@@ -45,7 +45,9 @@ func latestBooksResearch() model.Research {
 
 // Return a page with only the latest books as research
 func respondWithLatestPage(c echo.Context) error {
-	return model.Browse{latestBooksResearch()}.RenderIndex(c, http.StatusOK)
+	return model.Browse{
+		Researches: []model.Research{latestBooksResearch()},
+	}.RenderIndex(c, http.StatusOK)
 }
 
 // Return a research containing all the latest books

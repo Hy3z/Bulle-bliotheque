@@ -108,9 +108,8 @@
                 rounded-full
                 text-black
                 pl-5"
-
-
-                placeholder="Livre, saga, genre, auteur, ..."
+                   placeholder="Livre, saga, genre, auteur, ..."
+                   value="{{.}}"
                    hx-trigger="input changed delay:0.4s, search"
                    hx-get="http://localhost:42069/browse"
                    hx-headers='{"Tmpl":"rs"}'
