@@ -12,8 +12,14 @@ import (
 )
 
 // Return a PreviewSet of all books or series, with skip and limit
-func fetchPreviews(page int, limit int) model.PreviewSet {
-	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-all.cypher")
+func fetchPreviews(page int, limit int, isSerieMode bool) model.PreviewSet {
+	qfile := util.CypherScriptDirectory + "/browse/all/"
+	if isSerieMode {
+		qfile += "browse-all_SM.cypher"
+	} else {
+		qfile += "browse-all.cypher"
+	}
+	query, err := util.ReadCypherScript(qfile)
 	if err != nil {
 		logger.WarningLogger.Printf("Error reading script: %s\n", err)
 		return model.PreviewSet{}
@@ -48,9 +54,9 @@ func fetchPreviews(page int, limit int) model.PreviewSet {
 }
 
 // Return an empty infinite search, linking to first page
-func allBooksResearch() model.Research {
+func allBooksResearch(isSerieMode bool) model.Research {
 	page := 1
-	previews := fetchPreviews(page, MaxBatchSize)
+	previews := fetchPreviews(page, MaxBatchSize, isSerieMode)
 	if len(previews) < MaxBatchSize {
 		return model.Research{
 			Name:       "Tous les livres",
@@ -78,7 +84,7 @@ func respondWithAllPs(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	previews := fetchPreviews(page, MaxBatchSize)
+	previews := fetchPreviews(page, MaxBatchSize, util.IsSerieMode(c))
 
 	//If this is the last page, return a finite set
 	if len(previews) < MaxBatchSize {

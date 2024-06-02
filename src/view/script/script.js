@@ -46,10 +46,13 @@ function toggle_serie_switch() {
     var serie_switch = document.getElementById("toggle_serie_mode");
     var url = window.location.href;
     serie_switch.setAttribute("hx-get", url);
-    serie_switch.setAttribute("hx-headers", "{\"Tmpl\":\"main\", \"SerieMode\":\"".concat(serie_switch.checked, "\""));
-    console.log("EYO");
     // @ts-ignore
     htmx.process(serie_switch);
     // @ts-ignore
     htmx.trigger("#toggle_serie_mode", "toggle_serie_switch");
 }
+document.addEventListener("htmx:configRequest", function (configEvent) {
+    var serie_switch = document.getElementById("toggle_serie_mode");
+    // @ts-ignore
+    configEvent.detail.headers['Smode'] = serie_switch.checked;
+});

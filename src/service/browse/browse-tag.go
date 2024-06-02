@@ -12,9 +12,15 @@ import (
 	"strconv"
 )
 
-func getTaggedBps(tag string, page int, limit int) model.PreviewSet {
+func getTaggedPs(tag string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	skip := (page - 1) * limit
-	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-tag.cypher")
+	qfile := util.CypherScriptDirectory + "/browse/tag/"
+	if isSerieMode {
+		qfile += "browse-tag_SM.cypher"
+	} else {
+		qfile += "browse-tag.cypher"
+	}
+	cypherQuery, err := util.ReadCypherScript(qfile)
 	if err != nil {
 		logger.WarningLogger.Printf("Error reading script: %s\n", err)
 		return model.PreviewSet{}
@@ -28,30 +34,38 @@ func getTaggedBps(tag string, page int, limit int) model.PreviewSet {
 		logger.WarningLogger.Printf("Error when fetching books: %s\n", err)
 		return model.PreviewSet{}
 	}
-	books := make(model.PreviewSet, len(res.Records))
+	previews := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
-		uuid, _ := record.Values[0].(string)
-		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, UUID: uuid}
-		books[i] = model.Preview{BookPreview: book}
+		sname, _ := record.Values[0].(string)
+		suuid, _ := record.Values[1].(string)
+		bcount, _ := record.Values[2].(int64)
+		buuid, _ := record.Values[3].(string)
+		btitle, _ := record.Values[4].(string)
+		if sname == "" {
+			book := model.BookPreview{Title: btitle, UUID: buuid}
+			previews[i] = model.Preview{BookPreview: book}
+			continue
+		}
+		serie := model.SeriePreview{Name: sname, BookCount: int(bcount), UUID: suuid}
+		previews[i] = model.Preview{SeriePreview: serie}
 	}
-	return books
+	return previews
 }
 
-func getTaggedRs(tag string) model.Research {
+func getTaggedRs(tag string, isSerieMode bool) model.Research {
 	page := 1
-	bps1 := getTaggedBps(tag, page, MaxBatchSize)
-	if len(bps1) < MaxBatchSize {
+	ps1 := getTaggedPs(tag, page, MaxBatchSize, isSerieMode)
+	if len(ps1) < MaxBatchSize {
 		return model.Research{
 			Name:       tag,
-			PreviewSet: bps1,
+			PreviewSet: ps1,
 		}
 	}
 
 	return model.Research{
 		Name: tag,
 		InfinitePreviewSet: model.InfinitePreviewSet{
-			PreviewSet: bps1,
+			PreviewSet: ps1,
 			Url:        util.BrowsePath + "/tag/" + tag,
 			Params: map[string]any{
 				util.PageParam: page + 1,
@@ -69,7 +83,7 @@ func respondWithTagPage(c echo.Context) error {
 	}
 
 	return model.Browse{
-		Researches: []model.Research{getTaggedRs(tag)},
+		Researches: []model.Research{getTaggedRs(tag, util.IsSerieMode(c))},
 	}.RenderIndex(c, http.StatusOK)
 }
 
@@ -80,7 +94,7 @@ func respondWithTagRs(c echo.Context) error {
 		logger.WarningLogger.Println("No tag specified")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	return getTaggedRs(tag).Render(c, http.StatusOK)
+	return getTaggedRs(tag, util.IsSerieMode(c)).Render(c, http.StatusOK)
 }
 
 func respondWithTagPs(c echo.Context) error {
@@ -97,7 +111,7 @@ func respondWithTagPs(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	books := getTaggedBps(tag, page, MaxBatchSize)
+	books := getTaggedPs(tag, page, MaxBatchSize, util.IsSerieMode(c))
 
 	//If these are the last books, render only a book-set, else render an infinite one
 	if len(books) < MaxBatchSize {

@@ -21,7 +21,7 @@ func rootResearches() []model.Research {
 	var researches []model.Research
 
 	researches = append(researches, latestBooksResearch())
-	researches = append(researches, allBooksResearch())
+	researches = append(researches, allBooksResearch(false))
 	return researches
 }
 

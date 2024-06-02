@@ -48,13 +48,17 @@ function toggle_serie_switch() {
     let serie_switch = <HTMLInputElement>document.getElementById("toggle_serie_mode");
     let url = window.location.href
     serie_switch.setAttribute("hx-get", url)
-    serie_switch.setAttribute("hx-headers", `{"Tmpl":"main", "SerieMode":"${serie_switch.checked}"`)
-    console.log("EYO")
     // @ts-ignore
-    htmx.process(serie_switch)
+    htmx.process(serie_switch);
     // @ts-ignore
-    htmx.trigger("#toggle_serie_mode","toggle_serie_switch")
+    htmx.trigger("#toggle_serie_mode","toggle_serie_switch");
 }
+
+document.addEventListener("htmx:configRequest", function(configEvent){
+    let serie_switch = <HTMLInputElement>document.getElementById("toggle_serie_mode");
+    // @ts-ignore
+    configEvent.detail.headers['Smode'] = serie_switch.checked
+})
 
 
 

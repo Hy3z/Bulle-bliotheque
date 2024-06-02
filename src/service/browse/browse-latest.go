@@ -15,7 +15,7 @@ const (
 )
 
 func latestBooksResearch() model.Research {
-	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-latest.cypher")
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/latest/browse-latest.cypher")
 	if err != nil {
 		logger.WarningLogger.Printf("Error reading script: %s\n", err)
 		return model.Research{

@@ -125,7 +125,8 @@
             <input type="checkbox" id="toggle_serie_mode"
                    onclick="toggle_serie_switch()"
                    hx-target=".main"
-
+                   hx-headers='{"Tmpl":"main"}'
+                   hx-swap="innerHTML show:window:top"
                    hx-trigger="toggle_serie_switch">
         </label>
 

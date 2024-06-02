@@ -14,7 +14,7 @@ import (
 
 func getWroteByBps(author string, page int, limit int) model.PreviewSet {
 	skip := (page - 1) * limit
-	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse-author.cypher")
+	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/author/browse-author.cypher")
 	if err != nil {
 		logger.WarningLogger.Println("Error reading script: %s\n", err)
 		return model.PreviewSet{}
