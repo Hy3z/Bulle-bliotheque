@@ -1,4 +1,16 @@
 //Browse bar ---------------------
+function clear_browse_bar() {
+    let browse_bar = <HTMLInputElement>document.getElementById("browse-bar");
+    browse_bar.value = '';
+}
+
+function cleanURL() {
+    let splitURL = window.location.href.split("?q=");
+    if (splitURL.length == 2 && splitURL[1] == '') {
+        history.replaceState(null, null, splitURL[0])
+    }
+}
+/*
 enum BrowseBarState {
     Ilde,
     Writing,
@@ -17,13 +29,7 @@ function update_search_history() {
         history.pushState({}, "", "http://localhost:42069/browse");
         search_box_state = BrowseBarState.Ilde;
     }
-}
-
-function clear_browse_bar() {
-    let browse_bar = <HTMLInputElement>document.getElementById("browse-bar");
-    browse_bar.value = '';
-}
-
+}*/
 
 //SerieSwitch ---------------------
 function toggle_serie_switch() {
@@ -37,4 +43,6 @@ function toggle_serie_switch() {
         (books_with_serie[i] as HTMLElement).style.display = serie_switch.checked ? 'none' : 'block';
     }
 }
+
+
 

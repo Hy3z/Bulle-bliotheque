@@ -107,7 +107,7 @@ func respondWithBrowsePage(c echo.Context) error {
 			Researches: rootResearches(),
 		}.RenderIndex(c, http.StatusOK)
 	}
-	logger.InfoLogger.Printf("%s\n", qParam)
+
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam)},
 		Query:      qParam,

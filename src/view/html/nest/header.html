@@ -103,7 +103,7 @@
 
         <label class ="
         flex-grow">
-            <input type="search" name="q" id="browse-bar" oninput="update_search_history()" class="
+            <input type="search" name="q" id="browse-bar"  class="
                 w-full
                 rounded-full
                 text-black
@@ -112,6 +112,8 @@
                    value="{{.}}"
                    hx-trigger="input changed delay:0.4s, search"
                    hx-get="http://localhost:42069/browse"
+                   hx-push-url="true"
+                   hx-on::after-request="cleanURL()"
                    hx-headers='{"Tmpl":"rs"}'
                    hx-include="this"
                    hx-target=".main"
