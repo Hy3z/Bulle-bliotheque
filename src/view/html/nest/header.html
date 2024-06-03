@@ -40,6 +40,25 @@
         </a>
 
         <div class="browse-button">
+            <a href="http://localhost:42069/browse/all"
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML show:window:top"
+               class="header-latest
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
+                Tous les livres
+            </a>
+<!--
             <a href="http://localhost:42069/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
@@ -58,7 +77,7 @@
                     h-full">
                 Nouveautés
             </a>
-
+-->
             <a href="http://localhost:42069/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"

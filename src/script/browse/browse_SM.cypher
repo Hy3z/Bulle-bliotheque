@@ -1,6 +1,6 @@
 MATCH (b:Book)
-OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie)
-OPTIONAL MATCH (b)<-[:WROTE]-(a:Author)  
+OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie)<-[:PART_OF]-(ob:Book)
+OPTIONAL MATCH (b)<-[:WROTE]-(a:Author)
 OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag)
 WITH *,(
        $titleCoeff * apoc.text.sorensenDiceSimilarity(b.title, $expr) +
@@ -9,7 +9,9 @@ WITH *,(
        $tagCoeff * CASE WHEN t IS NOT NULL THEN apoc.text.sorensenDiceSimilarity(t.name, $expr) ELSE 0 END
        ) AS rank
   WHERE rank > $minRank
-RETURN null as f1, null as f2, null as f3, max(rank), b.UUID, b.title
-  ORDER BY max(rank) DESC, b.title
+RETURN distinct s.name, s.UUID, count(ob), max(rank),
+                CASE WHEN s IS null THEN b.UUID ELSE null END AS uuid,
+                CASE WHEN s IS null THEN b.title ELSE null END AS title
+  ORDER BY max(rank) DESC
   SKIP $skip
   LIMIT $limit

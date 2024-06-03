@@ -75,6 +75,16 @@ func allBooksResearch(isSerieMode bool) model.Research {
 	}
 }
 
+func respondWithAllPage(c echo.Context) error {
+	return model.Browse{
+		Researches: []model.Research{allBooksResearch(util.IsSerieMode(c))},
+	}.RenderIndex(c, http.StatusOK)
+}
+
+func respondWithAllMain(c echo.Context) error {
+	return allBooksResearch(util.IsSerieMode(c)).Render(c, http.StatusOK)
+}
+
 // Return a (infinite) book-set from all books, takes a page argument
 func respondWithAllPs(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
@@ -103,10 +113,11 @@ func respondWithAllPs(c echo.Context) error {
 func RespondWithAll(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
-		logger.ErrorLogger.Println("No or invalid template requested")
-		return c.NoContent(http.StatusBadRequest)
+		return respondWithAllPage(c)
 	}
 	switch tmpl {
+	case util.MainContentType:
+		return respondWithAllMain(c)
 	case util.PreviewSetContentType:
 		return respondWithAllPs(c)
 	default:

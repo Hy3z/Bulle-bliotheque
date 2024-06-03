@@ -17,16 +17,22 @@ const (
 	MaxBatchSize = 100
 )
 
-func rootResearches() []model.Research {
+/*func rootResearches() []model.Research {
 	var researches []model.Research
 
 	researches = append(researches, latestBooksResearch())
 	researches = append(researches, allBooksResearch(false))
 	return researches
-}
+}*/
 
-func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
-	cypherQuery, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/browse.cypher")
+func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) model.PreviewSet {
+	qfile := util.CypherScriptDirectory + "/browse"
+	if isSerieMode {
+		qfile += "/browse_SM.cypher"
+	} else {
+		qfile += "/browse.cypher"
+	}
+	cypherQuery, err := util.ReadCypherScript(qfile)
 	if err != nil {
 		logger.WarningLogger.Printf("Error reading script: %s\n", err)
 		return model.PreviewSet{}
@@ -47,19 +53,27 @@ func executeBrowseQuery(qParam string, page int, limit int) model.PreviewSet {
 		return model.PreviewSet{}
 	}
 
-	books := make(model.PreviewSet, len(res.Records))
+	previews := make(model.PreviewSet, len(res.Records))
 	for i, record := range res.Records {
-		uuid, _ := record.Values[0].(string)
-		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, UUID: uuid}
-		books[i] = model.Preview{BookPreview: book}
+		sname, _ := record.Values[0].(string)
+		suuid, _ := record.Values[1].(string)
+		bcount, _ := record.Values[2].(int64)
+		buuid, _ := record.Values[4].(string)
+		btitle, _ := record.Values[5].(string)
+		if sname != "" {
+			serie := model.SeriePreview{Name: sname, UUID: suuid, BookCount: int(bcount)}
+			previews[i] = model.Preview{SeriePreview: serie}
+			continue
+		}
+		book := model.BookPreview{Title: btitle, UUID: buuid}
+		previews[i] = model.Preview{BookPreview: book}
 	}
-	return books
+	return previews
 }
 
-func getBrowseResearch(qParam string) model.Research {
+func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 	page := 1
-	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize)
+	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize, isSerieMode)
 	if len(bps1) < MaxBatchSize {
 		return model.Research{
 			Name:       qParam,
@@ -84,26 +98,26 @@ func respondWithBrowsePage(c echo.Context) error {
 	//If not filter applied, render default view
 	if qParam == "" {
 		return model.Browse{
-			Researches: rootResearches(),
+			//Researches: rootResearches(),
 		}.RenderIndex(c, http.StatusOK)
 	}
 
 	return model.Browse{
-		Researches: []model.Research{getBrowseResearch(qParam)},
+		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
 		Query:      qParam,
 	}.RenderIndex(c, http.StatusOK)
 }
 
-func respondWithBrowseRs(c echo.Context) error {
+func respondWithBrowseMain(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, return default view
 	if qParam == "" {
 		return model.Browse{
-			Researches: rootResearches(),
+			//Researches: rootResearches(),
 		}.Render(c, http.StatusOK)
 	}
 	return model.Browse{
-		Researches: []model.Research{getBrowseResearch(qParam)},
+		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
 		Query:      qParam,
 	}.Render(c, http.StatusOK)
 }
@@ -122,7 +136,7 @@ func respondWithBrowsePs(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	books := executeBrowseQuery(qParam, page, MaxBatchSize)
+	books := executeBrowseQuery(qParam, page, MaxBatchSize, util.IsSerieMode(c))
 
 	//If these are the last books, render only a book-set, else render an infinite one
 	if len(books) < MaxBatchSize {
@@ -146,7 +160,7 @@ func RespondWithBrowse(c echo.Context) error {
 	}
 	switch tmpl {
 	case util.MainContentType:
-		return respondWithBrowseRs(c)
+		return respondWithBrowseMain(c)
 	case util.PreviewSetContentType:
 		return respondWithBrowsePs(c)
 	default:

@@ -2,8 +2,13 @@
 {[]Research}
 -->
 {{define "browse"}}
-    <!--RESEARCHES HERE-->
-    {{range .Researches}}
-        {{template "research" .}}
+    <!--We assume having "Researches" field mean you are not on the main page-->
+    {{if hasField . "Researches"}}
+        {{range .Researches}}
+            {{template "research" .}}
+        {{end}}
+    {{else}}
+        Bienvenue sur le site de la bulle
+            Ca arrive fort!
     {{end}}
 {{end}}

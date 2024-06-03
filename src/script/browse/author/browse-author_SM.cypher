@@ -1,6 +1,8 @@
-MATCH (b:Book)-[:HAS_TAG]->(t:Tag{name:$tag})
+MATCH (b:Book)<-[:WROTE]-(a:Author{name:$author})
 OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie)<-[:PART_OF]-(ob:Book)
 RETURN distinct s.name, s.UUID, count(ob),
                 CASE WHEN s IS null THEN b.UUID ELSE null END AS uuid,
                 CASE WHEN s IS null THEN b.title ELSE null END AS title
-  SKIP $skip LIMIT $limit
+  ORDER BY s.name
+  SKIP $skip
+  LIMIT $limit
