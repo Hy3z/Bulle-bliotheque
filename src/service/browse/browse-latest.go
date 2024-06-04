@@ -40,7 +40,8 @@ func latestBooksResearch() model.Research {
 	for i, record := range res.Records {
 		uuid, _ := record.Values[0].(string)
 		title, _ := record.Values[1].(string)
-		book := model.BookPreview{Title: title, UUID: uuid}
+		status, _ := record.Values[2].(int64)
+		book := model.BookPreview{Title: title, UUID: uuid, Status: int(status)}
 		books[i] = model.Preview{BookPreview: book}
 	}
 

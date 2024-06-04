@@ -41,8 +41,9 @@ func getTaggedPs(tag string, page int, limit int, isSerieMode bool) model.Previe
 		bcount, _ := record.Values[2].(int64)
 		buuid, _ := record.Values[3].(string)
 		btitle, _ := record.Values[4].(string)
+		bstatus, _ := record.Values[5].(int64)
 		if sname == "" {
-			book := model.BookPreview{Title: btitle, UUID: buuid}
+			book := model.BookPreview{Title: btitle, UUID: buuid, Status: int(bstatus)}
 			previews[i] = model.Preview{BookPreview: book}
 			continue
 		}

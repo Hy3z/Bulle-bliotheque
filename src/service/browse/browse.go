@@ -60,12 +60,13 @@ func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) mo
 		bcount, _ := record.Values[2].(int64)
 		buuid, _ := record.Values[4].(string)
 		btitle, _ := record.Values[5].(string)
+		bstatus, _ := record.Values[6].(int64)
 		if sname != "" {
 			serie := model.SeriePreview{Name: sname, UUID: suuid, BookCount: int(bcount)}
 			previews[i] = model.Preview{SeriePreview: serie}
 			continue
 		}
-		book := model.BookPreview{Title: btitle, UUID: buuid}
+		book := model.BookPreview{Title: btitle, UUID: buuid, Status: int(bstatus)}
 		previews[i] = model.Preview{BookPreview: book}
 	}
 	return previews

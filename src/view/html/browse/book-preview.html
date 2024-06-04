@@ -7,11 +7,7 @@
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
-           hx-swap="innerHTML show:window:top"
-           {{if and (hasField . "Hidable") .Hidable}}
-                class="hidable-book-preview"
-           {{end}}>
-
+           hx-swap="innerHTML show:window:top">
             <div class="book-image">
 
 
@@ -19,9 +15,21 @@
 
             </div>
             <div class="book-title">
-
                 <!--BOOK TITLE HERE-->
                 {{.Title}}
+            </div>
+
+            <div class="book-status">
+
+                {{if eq .Status 1}}
+                    Emprunté
+                {{else if eq .Status 2}}
+                    Perdu
+                {{else if eq .Status 3}}
+                    Disponible
+                {{else}}
+                    NO STATUS. HOW?
+                {{end}}
 
             </div>
     </a>

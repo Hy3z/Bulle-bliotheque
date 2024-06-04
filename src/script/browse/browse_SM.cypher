@@ -1,4 +1,4 @@
-MATCH (b:Book)
+MATCH (b:Book)-[:HAS_STATUS]->(bs:BookStatus)
 OPTIONAL MATCH (b)-[:PART_OF]->(s:Serie)<-[:PART_OF]-(ob:Book)
 OPTIONAL MATCH (b)<-[:WROTE]-(a:Author)
 OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag)
@@ -11,7 +11,7 @@ WITH *,(
   WHERE rank > $minRank
 RETURN distinct s.name, s.UUID, count(ob), max(rank),
                 CASE WHEN s IS null THEN b.UUID ELSE null END AS uuid,
-                CASE WHEN s IS null THEN b.title ELSE null END AS title
+                CASE WHEN s IS null THEN b.title ELSE null END AS title, bs.ID
   ORDER BY max(rank) DESC
   SKIP $skip
   LIMIT $limit

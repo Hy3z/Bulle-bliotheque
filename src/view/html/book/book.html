@@ -108,5 +108,16 @@
         {{else}}
             NO SERIE
         {{end}}
+
+        {{if eq .Status 1}}
+            Emprunté
+        {{else if eq .Status 2}}
+            Perdu
+        {{else if eq .Status 3}}
+            Disponible
+        {{else}}
+            NO STATUS. HOW?
+        {{end}}
+
     </div>
 {{end}}

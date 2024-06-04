@@ -14,6 +14,7 @@ type Book struct {
 	PageCount     int64
 	SerieName     string
 	SerieUUID     string
+	Status        int
 }
 
 const (

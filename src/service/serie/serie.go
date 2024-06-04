@@ -65,8 +65,9 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 		}
 		title, _ := rec.Values[1].(string)
 		uuid, _ := rec.Values[2].(string)
+		status, _ := rec.Values[3].(int64)
 		books = append(books, model.Preview{
-			BookPreview: model.BookPreview{Title: title, UUID: uuid},
+			BookPreview: model.BookPreview{Title: title, UUID: uuid, Status: int(status)},
 		})
 	}
 

@@ -42,6 +42,7 @@ func getBookByUUID(uuid string) (model.Book, error) {
 	tagsI, okTsI := values[8].([]interface{})
 	sname, okSn := values[9].(string)
 	suuid, okSu := values[10].(string)
+	bstatus, okB := values[11].(int64)
 
 	if okT {
 		book.Title = title
@@ -69,6 +70,9 @@ func getBookByUUID(uuid string) (model.Book, error) {
 	}
 	if okSu {
 		book.SerieUUID = suuid
+	}
+	if okB {
+		book.Status = int(bstatus)
 	}
 
 	if okAsI {

@@ -41,8 +41,9 @@ func fetchPreviews(page int, limit int, isSerieMode bool) model.PreviewSet {
 		count, _ := record.Values[2].(int64)
 		bookUUID, _ := record.Values[3].(string)
 		title, _ := record.Values[4].(string)
+		bstatus, _ := record.Values[5].(int64)
 		if name == "" {
-			book := model.BookPreview{Title: title, UUID: bookUUID}
+			book := model.BookPreview{Title: title, UUID: bookUUID, Status: int(bstatus)}
 			previews[i] = model.Preview{BookPreview: book}
 			continue
 		}
