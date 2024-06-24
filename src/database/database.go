@@ -2,9 +2,7 @@ package database
 
 import (
 	"bb/logger"
-	"bb/util"
 	"context"
-	"github.com/joho/godotenv"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"os"
 	"time"
@@ -22,18 +20,12 @@ var (
 )
 
 func Connect() {
-	err := godotenv.Load(util.ENV_PATH)
-	if err != nil {
-		logger.ErrorLogger.Fatalf("Error loading .env file %w", err)
-	}
-
 	uri, username, password := os.Getenv(ENV_DB_URI), os.Getenv(ENV_USERNAME), os.Getenv(ENV_PASSWORD)
-	driver, err = neo4j.NewDriverWithContext(uri, neo4j.BasicAuth(username, password, ""))
-	err = driver.VerifyConnectivity(context.Background())
+	driver, _ = neo4j.NewDriverWithContext(uri, neo4j.BasicAuth(username, password, ""))
+	err := driver.VerifyConnectivity(context.Background())
 	if err != nil {
 		logger.ErrorLogger.Fatalf("Error connecting do database %s", err)
 	}
-
 	logger.InfoLogger.Println("Successfully connected to database")
 }
 

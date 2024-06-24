@@ -120,8 +120,7 @@
             </a>
         </div>
 
-        <label class ="
-        flex-grow">
+        <label class ="flex-grow">
             <input type="search" name="q" id="browse-bar"  class="
                 w-full
                 rounded-full
@@ -169,12 +168,7 @@
             Contact
         </a>
 
-        <a href="http://localhost:42069/auth"
-           onclick="clear_browse_bar()"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top"
+        <a href="http://localhost:42069/login"
            class="header-auth
                     color-gray-200
                     hover:text-blue-600
@@ -186,5 +180,18 @@
                     inline-block
                     h-full">
         ACCOUT HERE</a>
+
+        <a href="http://localhost:42069/logout"
+           class="header-auth
+                    color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block
+                    h-full">
+            LOGOUT HERE</a>
     </nav>
 {{end}}

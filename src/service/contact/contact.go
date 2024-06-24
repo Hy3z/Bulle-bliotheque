@@ -5,7 +5,6 @@ import (
 	"bb/logger"
 	"bb/model"
 	"bb/util"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/net/context"
 	"net/http"
@@ -44,12 +43,6 @@ func RespondWithContact(c echo.Context) error {
 }
 
 func sendEmailNotification() {
-	err := godotenv.Load(util.ENV_PATH)
-	if err != nil {
-		logger.ErrorLogger.Printf("Error loading .env file %s\n", err)
-		return
-	}
-
 	email, password, smtpHost, smtpPort := os.Getenv(ENV_NOTIFICATION_EMAIL), os.Getenv(ENV_NOTIFICATION_PASSWORD), os.Getenv(ENV_NOTIFICATION_SMTP_HOST), os.Getenv(ENV_NOTIFICATION_SMTP_PORT)
 
 	message := []byte("This is a test email message.")
@@ -57,7 +50,7 @@ func sendEmailNotification() {
 	auth := smtp.PlainAuth("", email, password, smtpHost)
 
 	// Sending email.
-	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, email, []string{"hy3z@outlook.fr"}, message)
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, email, []string{"hy3z@outlook.fr"}, message)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error sending email: %s\n", err)
 		return

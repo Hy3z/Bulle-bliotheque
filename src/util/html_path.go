@@ -17,5 +17,7 @@ const (
 	ContactPath       = "/contact"
 	ContactTicketPath = ContactPath + "/ticket"
 
-	AuthPath = "/auth"
+	LoginPath         = "/login"
+	CallbackLoginPath = LoginPath + "/callback"
+	LogoutPath        = "/logout"
 )

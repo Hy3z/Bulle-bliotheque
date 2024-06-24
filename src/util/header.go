@@ -9,6 +9,7 @@ import (
 const (
 	headerTemplateKey  = "Tmpl"
 	headerSerieModeKey = "Smode"
+	//headerOriginKey    = "Origin"
 	//PageType          = "page"
 	MainContentType = "main"
 	//ResearchContentType   = "research"
@@ -25,21 +26,15 @@ const (
 )
 
 var (
-	NoTemplateHeader       = errors.New("No template header was given")
-	MultipleTemplateHeader = errors.New("Multiple template were given in header")
+	NoTemplateHeader = errors.New("No template header was given")
 )
 
 func GetHeaderTemplate(c echo.Context) (string, error) {
-	for key, values := range c.Request().Header {
-		if key != headerTemplateKey {
-			continue
-		}
-		if len(values) == 1 {
-			return values[0], nil
-		}
-		return "", MultipleTemplateHeader
+	header := c.Request().Header.Get(headerTemplateKey)
+	if header == "" {
+		return "", NoTemplateHeader
 	}
-	return "", NoTemplateHeader
+	return header, nil
 }
 
 func IsSerieMode(c echo.Context) bool {
@@ -57,3 +52,11 @@ func IsSerieMode(c echo.Context) bool {
 	}
 	return false
 }
+
+/* GetOrigin(c echo.Context) (string, error) {
+	header := c.Request().Header.Get(headerOriginKey)
+	if header == "" {
+		return "", NoTemplateHeader
+	}
+	return header, nil
+}*/

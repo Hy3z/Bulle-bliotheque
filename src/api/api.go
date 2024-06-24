@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bb/auth"
 	"bb/service/book"
 	"bb/service/browse"
 	"bb/service/contact"
@@ -21,17 +22,6 @@ type Templates struct {
 func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
-
-/*func ParseHTML(dir string) (*template.Template, error){
-	files := []string{}
-	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if filepath.Ext(path) == "html" {
-			template.ParseFiles(path)
-			files = append(files, path)
-		}
-		return nil
-	})
-}*/
 
 func hasField(v interface{}, name string) bool {
 	rv := reflect.ValueOf(v)
@@ -61,19 +51,8 @@ func newTemplate() *Templates {
 
 //
 
-func Setup(e *echo.Echo) {
+func SetupNoAuth(e *echo.Echo) {
 	e.Renderer = newTemplate()
-
-	/*e.GET("/update", func(c echo.Context) error {
-
-		//dbconvert.AddRemainingBooks("D:/Code/Bulle-bliotheque/src/input.csv")
-		//dbconvert.DataBookISBNtoUUID()
-		dbconvert.PrintMissingCovers()
-		//dbconvert.SerieCoverFromBook()
-		//dbconvert.CreateMangas("D:/Code/Bulle-bliotheque/src/input.csv")
-		return c.HTML(http.StatusOK, "Job done")
-	})*/
-
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
 	})
@@ -105,4 +84,21 @@ func Setup(e *echo.Echo) {
 
 	e.GET(util.ContactPath, contact.RespondWithContact)
 	e.POST(util.ContactTicketPath, contact.ProcessContactTicket)
+
+	e.GET(util.LoginPath, auth.Login)
+	e.GET(util.CallbackLoginPath, auth.LoginCallback)
+
+}
+
+func SetupAuth(e *echo.Echo) {
+	e.GET("/auth", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, "HELLO LOGGED")
+	}, auth.HasTokenMiddleware)
+	e.GET(util.LogoutPath, auth.Logout, auth.HasTokenMiddleware)
+}
+
+func SetupRestricted(e *echo.Echo) {
+	e.GET("/restricted", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, "HELLO RESTRICTED")
+	}, auth.HasRoleMiddleware)
 }

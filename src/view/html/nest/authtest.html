@@ -1,0 +1,19 @@
+{{define "authtest"}}
+    <a href="http://localhost:42069/user/test" hx-headers='{"auth ":"{{.}}"}'>
+        CLIQUE MOI
+    </a>
+
+        <div id="authbutton">
+            CLIQUE MOI 2
+        </div>
+        <script>
+            document.getElementById("authbutton").addEventListener("click", (event) => {
+                let req = new XMLHttpRequest();
+                req.open('GET', "http://localhost:42069/user/test", true);
+                //req.setRequestHeader('Accept', 'application/json');
+                req.setRequestHeader('auth', '{{.}}');
+
+                req.send();
+            })
+        </script>
+{{end}}

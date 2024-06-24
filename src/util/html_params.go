@@ -7,4 +7,5 @@ const (
 	TagParam    = "tag"
 	SerieParam  = "s"
 	AuthorParam = "author"
+	//OriginParam = "origin"
 )

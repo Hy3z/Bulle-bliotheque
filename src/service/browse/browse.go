@@ -99,6 +99,7 @@ func respondWithBrowsePage(c echo.Context) error {
 	//If not filter applied, render default view
 	if qParam == "" {
 		return model.Browse{
+			IsHome: true,
 			//Researches: rootResearches(),
 		}.RenderIndex(c, http.StatusOK)
 	}
@@ -114,6 +115,7 @@ func respondWithBrowseMain(c echo.Context) error {
 	//If not filter applied, return default view
 	if qParam == "" {
 		return model.Browse{
+			IsHome: true,
 			//Researches: rootResearches(),
 		}.Render(c, http.StatusOK)
 	}
