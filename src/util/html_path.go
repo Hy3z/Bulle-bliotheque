@@ -10,6 +10,7 @@ const (
 
 	BookPath      = "/book/:" + BookParam
 	BookCoverPath = BookPath + "/cover"
+	BookEditPath  = BookPath + "/edit"
 
 	SeriePath      = "serie/:" + SerieParam
 	SerieCoverPath = SeriePath + "/cover"

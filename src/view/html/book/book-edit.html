@@ -1,25 +1,19 @@
-{{define "book"}}
+{{define "book-edit"}}
     <div>
         {{.UUID}}
         <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book">
     </div>
 
+    <form hx-post="http://localhost:42069/book/{{.UUID}}">
     <div>
-        {{if .Title}}
-            {{.Title}}
-        {{else}}
-            NO TITLE
-        {{end}}
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="{{.Title}}">
     </div>
 
     <div>
-        {{if .Description}}
-            {{.Description}}
-        {{else}}
-            NO DESCRIPTION
-        {{end}}
+        <label for="description">Description</label>
+        <input type="text" id="description" name="description" value="{{.Description}}">
     </div>
-
     <div>
         {{if .Authors}}
             {{range .Authors}}
@@ -35,7 +29,6 @@
         {{else}}
             NO AUTHORS {{end}}
     </div>
-
     <div>
         {{if .Tags}}
             {{range .Tags}}
@@ -51,36 +44,29 @@
         {{else}}
             NO TAGS {{end}}
     </div>
-
     <div>
-        {{if .PublishedDate}}
-            {{.PublishedDate}}
-        {{else}}
-            NO PUBLISHED DATE {{end}}
+        <label for="publishedDate">Date de publication</label>
+        <input type="text" id="publishedDate" name="publishedDate" value="{{.PublishedDate}}">
     </div>
-
     <div>
-        {{if .Publisher}}
-            {{.Publisher}}
-        {{else}}
-            NO PUBLISHER {{end}}
+        <label for="publisher">Editeur</label>
+        <input type="text" id="publisher" name="publisher" value="{{.Publisher}}">
     </div>
-
     <div>
-        {{if .Cote}}
-            {{.Cote}}
-        {{else}}
-            NO COTE {{end}}
+        <label for="cote">Cote</label>
+        <input type="text" id="cote" name="cote" value="{{.Cote}}">
     </div>
-
     <div>
-        {{if .PageCount}}
-            {{.PageCount}}
-        {{else}}
-            NO PAGE COUNT {{end}}
+        <label for="pageCount">Nombre de pages</label>
+        <input type="text" id="pageCount" name="pageCount" value="{{.PageCount}}">
     </div>
-
     <div>
+        <label for="serieSelect">SerieSelect</label>
+        <select id="serieSelect" name="serieSelect">
+        </select>
+        <label for="serieInput">SerieInput</label>
+        <input type="text" id="serieInput" name="serieInput">
+
         {{if and .SerieName .SerieUUID}}
             <a href="http://localhost:42069/serie/{{.SerieUUID}}"
                hx-boost="true"
@@ -96,6 +82,7 @@
             NO SERIE
         {{end}}
     </div>
+    </form>
 
     <div>
         {{if eq .Status 1}}

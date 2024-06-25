@@ -77,6 +77,7 @@ func SetupNoAuth(e *echo.Echo) {
 	e.GET(util.BrowseAuthorPath, browse.RespondWithAuthor)
 
 	e.GET(util.BookPath, book.RespondWithBook)
+	//e.POST(util.BookPath, book.)
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.SeriePath, serie.RespondWithSerie)
