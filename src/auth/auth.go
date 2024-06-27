@@ -58,7 +58,7 @@ func Setup() {
 			"\n-----END PUBLIC KEY-----\n"
 	client = gocloak.NewClient(kcUrl)
 	ctx = context.Background()
-	provider, err = oidc.NewProvider(ctx, kcUrl+"/auth/realms/"+realm)
+	provider, err = oidc.NewProvider(ctx, kcUrl+"/realms/"+realm)
 	if err != nil {
 		logger.ErrorLogger.Panicf("Couldn't create provider: %s\n", err)
 	}
@@ -291,7 +291,7 @@ func Logout(c echo.Context) error {
 	}
 	redirectUrl := "http://localhost:42069" + path
 
-	url := kcUrl + "/auth/realms/" + realm + "/protocol/openid-connect/logout"
+	url := kcUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
 	url += "?post_logout_redirect_uri=" + redirectUrl
 	url += "&client_id=" + clientID
 	return c.Redirect(http.StatusTemporaryRedirect, url)
