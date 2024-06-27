@@ -23,6 +23,7 @@ const (
 	ENV_KEYCLOAK_CLIENT_ID     = "KEYCLOAK_CLIENT_ID"
 	ENV_KEYCLOAK_CLIENT_SECRET = "KEYCLOAK_CLIENT_SECRET"
 	ENV_KEYCLOAK_REALM         = "KEYCLOAK_REALM"
+	ENV_KEYCLOAK_PUBLIC_KEY    = "KEYCLOACK_PUBLIC_KEY"
 	access_token_cookie        = "access-token"
 	refresh_token_cookie       = "refresh-token"
 	admin_role_name            = "my.role.dev"
@@ -35,13 +36,14 @@ var (
 )
 
 var (
-	client       *gocloak.GoCloak
-	clientID     string
-	clientSecret string
-	realm        string
-	kcUrl        string
-	ctx          context.Context
-	provider     *oidc.Provider
+	client         *gocloak.GoCloak
+	clientID       string
+	clientSecret   string
+	realm          string
+	kcUrl          string
+	ctx            context.Context
+	provider       *oidc.Provider
+	realmPublicKey string
 )
 
 func Setup() {
@@ -50,9 +52,13 @@ func Setup() {
 	clientID = os.Getenv(ENV_KEYCLOAK_CLIENT_ID)
 	realm = os.Getenv(ENV_KEYCLOAK_REALM)
 	clientSecret = os.Getenv(ENV_KEYCLOAK_CLIENT_SECRET)
+	realmPublicKey =
+		"-----BEGIN PUBLIC KEY-----\n" +
+			os.Getenv(ENV_KEYCLOAK_PUBLIC_KEY) +
+			"\n-----END PUBLIC KEY-----\n"
 	client = gocloak.NewClient(kcUrl)
 	ctx = context.Background()
-	provider, err = oidc.NewProvider(ctx, kcUrl+"/realms/"+realm)
+	provider, err = oidc.NewProvider(ctx, kcUrl+"/auth/realms/"+realm)
 	if err != nil {
 		logger.ErrorLogger.Panicf("Couldn't create provider: %s\n", err)
 	}
@@ -130,12 +136,7 @@ func hasRoles(c echo.Context, req_roles []string) bool {
 		return false
 	}
 
-	key :=
-		"-----BEGIN PUBLIC KEY-----\n" +
-			"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0nJP/hPocUHoginR37MwpF35vhl+icQjMvdLeQ78RYG5tV9TJb2pxowPe6CIxty3pvfMjrCfUJTY8gx/9GLm8qiqdVRmw0FEUVho58gg/+3wVjcJf3As08Y4wbtIa4rHoQH3VDC5O42rq8q/elH457vY8E0BeNpKy8W5VGrwELYP6FPpO8eTx6EFwsg6E6R4R5z8bouwQg4sudS8MN5bqt9FgYO/QahNQStMNoB8NVQ/EccCZWbadZApsTXz/0Sxe7LGnaOPc50CTMv4HvXaQdv4d5U+qug+6t7oqj0VqL0ZX9SE1TmoAIlCsclQui5RYx+r5MAGoXchnZ/TwgoKHwIDAQAB" +
-			"\n-----END PUBLIC KEY-----\n"
-
-	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(key))
+	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(realmPublicKey))
 	if err != nil {
 		logger.InfoLogger.Printf("Error parsing public key: %s\n", err)
 		return false
@@ -237,8 +238,9 @@ func Login(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  "http://localhost:42069" + util.CallbackLoginPath,
-		Endpoint:     provider.Endpoint(),
-		Scopes:       []string{oidc.ScopeOpenID},
+		//RedirectURL: "https://bulle.rezel.net" + util.CallbackLoginPath,
+		Endpoint: provider.Endpoint(),
+		Scopes:   []string{oidc.ScopeOpenID},
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 }
@@ -289,7 +291,7 @@ func Logout(c echo.Context) error {
 	}
 	redirectUrl := "http://localhost:42069" + path
 
-	url := kcUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
+	url := kcUrl + "/auth/realms/" + realm + "/protocol/openid-connect/logout"
 	url += "?post_logout_redirect_uri=" + redirectUrl
 	url += "&client_id=" + clientID
 	return c.Redirect(http.StatusTemporaryRedirect, url)

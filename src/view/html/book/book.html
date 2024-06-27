@@ -5,22 +5,21 @@
     </div>
 
     <div>
+        <label>Title</label>
         {{if .Title}}
             {{.Title}}
-        {{else}}
-            NO TITLE
         {{end}}
     </div>
 
     <div>
+        <label>Description</label>
         {{if .Description}}
             {{.Description}}
-        {{else}}
-            NO DESCRIPTION
         {{end}}
     </div>
 
     <div>
+        <label>Authors</label>
         {{if .Authors}}
             {{range .Authors}}
                 <a href="http://localhost:42069/browse/author/{{escape .}}"
@@ -32,11 +31,11 @@
                     {{.}}
                 </a>
             {{end}}
-        {{else}}
-            NO AUTHORS {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>Tags</label>
         {{if .Tags}}
             {{range .Tags}}
                 <a href="http://localhost:42069/browse/tag/{{escape .}}"
@@ -48,39 +47,39 @@
                     {{.}}
                 </a>
             {{end}}
-        {{else}}
-            NO TAGS {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>PublishedDate</label>
         {{if .PublishedDate}}
             {{.PublishedDate}}
-        {{else}}
-            NO PUBLISHED DATE {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>Publisher</label>
         {{if .Publisher}}
             {{.Publisher}}
-        {{else}}
-            NO PUBLISHER {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>Cote</label>
         {{if .Cote}}
             {{.Cote}}
-        {{else}}
-            NO COTE {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>PageCount</label>
         {{if .PageCount}}
             {{.PageCount}}
-        {{else}}
-            NO PAGE COUNT {{end}}
+        {{end}}
     </div>
 
     <div>
+        <label>Serie</label>
         {{if and .SerieName .SerieUUID}}
             <a href="http://localhost:42069/serie/{{.SerieUUID}}"
                hx-boost="true"
@@ -92,12 +91,11 @@
             </a>
         {{else if or .SerieName .SerieUUID}}
             SERIE EITHER MISSING NAME OR UUID
-        {{else}}
-            NO SERIE
         {{end}}
     </div>
 
     <div>
+        <label>Status</label>
         {{if eq .Status 1}}
             Emprunté
         {{else if eq .Status 2}}
