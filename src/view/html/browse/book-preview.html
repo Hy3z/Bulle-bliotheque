@@ -2,7 +2,7 @@
     {Id, Cover, Title}
 -->
 {{define "book-preview"}}
-        <a href="http://localhost:42069/book/{{.UUID}}"
+        <a href="https://bulle.rezel.net/book/{{.UUID}}"
            onclick="clear_browse_bar()"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
@@ -11,7 +11,7 @@
             <div class="book-image">
 
 
-                <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book" class="">
+                <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book" class="">
 
             </div>
             <div class="book-title">

@@ -1,10 +1,10 @@
 {{define "book-edit"}}
     <div>
         {{.UUID}}
-        <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book">
+        <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book">
     </div>
 
-    <form hx-post="http://localhost:42069/book/{{.UUID}}">
+    <form hx-post="https://bulle.rezel.net/book/{{.UUID}}">
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" value="{{.Title}}">
@@ -17,7 +17,7 @@
     <div>
         {{if .Authors}}
             {{range .Authors}}
-                <a href="http://localhost:42069/browse/author/{{escape .}}"
+                <a href="https://bulle.rezel.net/browse/author/{{escape .}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"main"}'
                    hx-target=".main"
@@ -32,7 +32,7 @@
     <div>
         {{if .Tags}}
             {{range .Tags}}
-                <a href="http://localhost:42069/browse/tag/{{escape .}}"
+                <a href="https://bulle.rezel.net/browse/tag/{{escape .}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"main"}'
                    hx-target=".main"
@@ -68,7 +68,7 @@
         <input type="text" id="serieInput" name="serieInput">
 
         {{if and .SerieName .SerieUUID}}
-            <a href="http://localhost:42069/serie/{{.SerieUUID}}"
+            <a href="https://bulle.rezel.net/serie/{{.SerieUUID}}"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"

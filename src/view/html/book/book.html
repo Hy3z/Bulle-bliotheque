@@ -1,7 +1,7 @@
 {{define "book"}}
     <div>
         {{.UUID}}
-        <img src="http://localhost:42069/book/{{.UUID}}/cover" alt="book">
+        <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book">
     </div>
 
     <div>
@@ -22,7 +22,7 @@
         <label>Authors</label>
         {{if .Authors}}
             {{range .Authors}}
-                <a href="http://localhost:42069/browse/author/{{escape .}}"
+                <a href="https://bulle.rezel.net/browse/author/{{escape .}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"main"}'
                    hx-target=".main"
@@ -38,7 +38,7 @@
         <label>Tags</label>
         {{if .Tags}}
             {{range .Tags}}
-                <a href="http://localhost:42069/browse/tag/{{escape .}}"
+                <a href="https://bulle.rezel.net/browse/tag/{{escape .}}"
                    hx-boost="true"
                    hx-headers='{"Tmpl":"main"}'
                    hx-target=".main"
@@ -81,7 +81,7 @@
     <div>
         <label>Serie</label>
         {{if and .SerieName .SerieUUID}}
-            <a href="http://localhost:42069/serie/{{.SerieUUID}}"
+            <a href="https://bulle.rezel.net/serie/{{.SerieUUID}}"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"

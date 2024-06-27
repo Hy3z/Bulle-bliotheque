@@ -16,7 +16,7 @@
     py-2
     gap-2">
         <!--HEADER HERE-->
-        <a href="http://localhost:42069/browse"
+        <a href="https://bulle.rezel.net/browse"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
@@ -32,7 +32,7 @@
                     relative
                     inline-block
                     h-full">
-            <img src="http://localhost:42069/logo" alt="logo" class="logo
+            <img src="https://bulle.rezel.net/logo" alt="logo" class="logo
                     hidden
                     dark:block
                     h-12
@@ -40,7 +40,7 @@
         </a>
 
         <div class="browse-button">
-            <a href="http://localhost:42069/browse/all"
+            <a href="https://bulle.rezel.net/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -59,7 +59,7 @@
                 Tous les livres
             </a>
 <!--
-            <a href="http://localhost:42069/browse/latest"
+            <a href="https://bulle.rezel.net/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -78,7 +78,7 @@
                 Nouveautés
             </a>
 -->
-            <a href="http://localhost:42069/browse/tag/{tag}"
+            <a href="https://bulle.rezel.net/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -98,7 +98,7 @@
                     h-full">
                 Manga
             </a>
-            <a href="http://localhost:42069/browse/tag/{tag}"
+            <a href="https://bulle.rezel.net/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -129,7 +129,7 @@
                    placeholder="Livre, saga, genre, auteur, ..."
                    value="{{.}}"
                    hx-trigger="input changed delay:0.4s, search"
-                   hx-get="http://localhost:42069/browse"
+                   hx-get="https://bulle.rezel.net/browse"
                    hx-push-url="true"
                    hx-on::after-request="cleanURL()"
                    hx-headers='{"Tmpl":"main"}'
@@ -149,7 +149,7 @@
         </label>
 
 
-        <a href="http://localhost:42069/contact"
+        <a href="https://bulle.rezel.net/contact"
            onclick="clear_browse_bar()"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
@@ -168,7 +168,7 @@
             Contact
         </a>
 
-        <a href="http://localhost:42069/login"
+        <a href="https://bulle.rezel.net/login"
            class="header-auth
                     color-gray-200
                     hover:text-blue-600
@@ -181,7 +181,7 @@
                     h-full">
         ACCOUT HERE</a>
 
-        <a href="http://localhost:42069/logout"
+        <a href="https://bulle.rezel.net/logout"
            class="header-auth
                     color-gray-200
                     hover:text-blue-600
