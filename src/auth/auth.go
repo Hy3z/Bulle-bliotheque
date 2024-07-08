@@ -40,7 +40,7 @@ var (
 	clientID       string
 	clientSecret   string
 	realm          string
-	kcUrl          string
+	authUrl        string
 	ctx            context.Context
 	provider       *oidc.Provider
 	realmPublicKey string
@@ -48,7 +48,7 @@ var (
 
 func Setup() {
 	var err error
-	kcUrl = os.Getenv(ENV_KEYCLOAK_URL)
+	authUrl = os.Getenv(ENV_KEYCLOAK_URL) + "/auth"
 	clientID = os.Getenv(ENV_KEYCLOAK_CLIENT_ID)
 	realm = os.Getenv(ENV_KEYCLOAK_REALM)
 	clientSecret = os.Getenv(ENV_KEYCLOAK_CLIENT_SECRET)
@@ -56,9 +56,9 @@ func Setup() {
 		"-----BEGIN PUBLIC KEY-----\n" +
 			os.Getenv(ENV_KEYCLOAK_PUBLIC_KEY) +
 			"\n-----END PUBLIC KEY-----\n"
-	client = gocloak.NewClient(kcUrl)
+	client = gocloak.NewClient(authUrl)
 	ctx = context.Background()
-	provider, err = oidc.NewProvider(ctx, kcUrl+"/auth/realms/"+realm)
+	provider, err = oidc.NewProvider(ctx, authUrl+"/realms/"+realm)
 	if err != nil {
 		logger.ErrorLogger.Panicf("Couldn't create provider: %s\n", err)
 	}
@@ -69,6 +69,8 @@ func getTokens(c echo.Context) (string, string, bool) {
 	access_token, err1 := c.Request().Cookie(access_token_cookie)
 	refresh_token, err2 := c.Request().Cookie(refresh_token_cookie)
 	if err1 != nil || err2 != nil {
+		//logger.InfoLogger.Println(access_token)
+		//logger.InfoLogger.Println(refresh_token)
 		return "", "", false
 	}
 	return access_token.Value, refresh_token.Value, true
@@ -77,11 +79,13 @@ func getTokens(c echo.Context) (string, string, bool) {
 func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	access_token, refresh_token, ok := getTokens(c)
 	if !ok {
+		//logger.InfoLogger.Println("Not ok")
 		return false, nil
 	}
 
 	result, err := client.RetrospectToken(ctx, access_token, clientID, clientSecret, realm)
 	if err != nil {
+		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
 		return false, nil
 	}
 
@@ -238,9 +242,8 @@ func Login(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
-		//RedirectURL: "https://bulle.rezel.net" + util.CallbackLoginPath,
-		Endpoint: provider.Endpoint(),
-		Scopes:   []string{oidc.ScopeOpenID},
+		Endpoint:     provider.Endpoint(),
+		Scopes:       []string{oidc.ScopeOpenID},
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 }
@@ -291,7 +294,7 @@ func Logout(c echo.Context) error {
 	}
 	redirectUrl := "https://bulle.rezel.net" + path
 
-	url := kcUrl + "/auth/realms/" + realm + "/protocol/openid-connect/logout"
+	url := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
 	url += "?post_logout_redirect_uri=" + redirectUrl
 	url += "&client_id=" + clientID
 	return c.Redirect(http.StatusTemporaryRedirect, url)
