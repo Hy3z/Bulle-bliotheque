@@ -69,8 +69,8 @@ func getTokens(c echo.Context) (string, string, bool) {
 	access_token, err1 := c.Request().Cookie(access_token_cookie)
 	refresh_token, err2 := c.Request().Cookie(refresh_token_cookie)
 	if err1 != nil || err2 != nil {
-		logger.InfoLogger.Println(access_token)
-		logger.InfoLogger.Println(refresh_token)
+		//logger.InfoLogger.Println(access_token)
+		//logger.InfoLogger.Println(refresh_token)
 		return "", "", false
 	}
 	return access_token.Value, refresh_token.Value, true
@@ -79,13 +79,13 @@ func getTokens(c echo.Context) (string, string, bool) {
 func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	access_token, refresh_token, ok := getTokens(c)
 	if !ok {
-		logger.InfoLogger.Println("Not ok")
+		//logger.InfoLogger.Println("Not ok")
 		return false, nil
 	}
 
 	result, err := client.RetrospectToken(ctx, access_token, clientID, clientSecret, realm)
 	if err != nil {
-		logger.ErrorLogger.Printf("%s\n", err)
+		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
 		return false, nil
 	}
 
@@ -242,9 +242,8 @@ func Login(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
-		//RedirectURL: "https://bulle.rezel.net" + util.CallbackLoginPath,
-		Endpoint: provider.Endpoint(),
-		Scopes:   []string{oidc.ScopeOpenID},
+		Endpoint:     provider.Endpoint(),
+		Scopes:       []string{oidc.ScopeOpenID},
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 }
