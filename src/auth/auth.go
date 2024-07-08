@@ -5,7 +5,6 @@ import (
 	"bb/util"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/coreos/go-oidc"
 	"github.com/golang-jwt/jwt/v5"
@@ -134,8 +133,16 @@ func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
 	return next, nil
 }
 
-func hasRoles(c echo.Context, req_roles []string) bool {
-	access_token, _, ok := getTokens(c)
+func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
+	userInfo, err := client.GetUserInfo(context.Background(), access_token, realm)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
+		return false
+	}
+	logger.InfoLogger.Println(userInfo.Sub)
+	logger.InfoLogger.Println(userInfo.Name)
+	//logger.InfoLogger.Println(userInfo.)
+	/*access_token, _, ok := getTokens(c)
 	if !ok {
 		return false
 	}
@@ -179,7 +186,8 @@ func hasRoles(c echo.Context, req_roles []string) bool {
 			return false
 		}
 	}
-	return true
+	return true*/
+	return false
 }
 
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
