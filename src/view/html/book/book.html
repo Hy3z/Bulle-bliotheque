@@ -1,0 +1,109 @@
+{{define "book"}}
+    <div>
+        {{.UUID}}
+        <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book">
+    </div>
+
+    <div>
+        <label>Title</label>
+        {{if .Title}}
+            {{.Title}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Description</label>
+        {{if .Description}}
+            {{.Description}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Authors</label>
+        {{if .Authors}}
+            {{range .Authors}}
+                <a href="https://bulle.rezel.net/browse/author/{{escape .}}"
+                   hx-boost="true"
+                   hx-headers='{"Tmpl":"main"}'
+                   hx-target=".main"
+                   hx-swap="innerHTML show:window:top"
+                   class="header-main">
+                    {{.}}
+                </a>
+            {{end}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Tags</label>
+        {{if .Tags}}
+            {{range .Tags}}
+                <a href="https://bulle.rezel.net/browse/tag/{{escape .}}"
+                   hx-boost="true"
+                   hx-headers='{"Tmpl":"main"}'
+                   hx-target=".main"
+                   hx-swap="innerHTML show:window:top"
+                   class="header-main">
+                    {{.}}
+                </a>
+            {{end}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>PublishedDate</label>
+        {{if .PublishedDate}}
+            {{.PublishedDate}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Publisher</label>
+        {{if .Publisher}}
+            {{.Publisher}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Cote</label>
+        {{if .Cote}}
+            {{.Cote}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>PageCount</label>
+        {{if .PageCount}}
+            {{.PageCount}}
+        {{end}}
+    </div>
+
+    <div>
+        <label>Serie</label>
+        {{if and .SerieName .SerieUUID}}
+            <a href="https://bulle.rezel.net/serie/{{.SerieUUID}}"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML show:window:top"
+               class="header-main">
+                {{.SerieName}}
+            </a>
+        {{else if or .SerieName .SerieUUID}}
+            SERIE EITHER MISSING NAME OR UUID
+        {{end}}
+    </div>
+
+    <div>
+        <label>Status</label>
+        {{if eq .Status 1}}
+            Emprunté
+        {{else if eq .Status 2}}
+            Perdu
+        {{else if eq .Status 3}}
+            Disponible
+        {{else}}
+            NO STATUS. HOW?
+        {{end}}
+    </div>
+{{end}}

@@ -1,0 +1,7 @@
+{{define "serie"}}
+    <div class="serie">
+        <img src="https://bulle.rezel.net/serie/{{.UUID}}/cover" alt="cover" class="">
+        {{.Name}}
+        {{template "preview-set" .Books}}
+    </div>
+{{end}}

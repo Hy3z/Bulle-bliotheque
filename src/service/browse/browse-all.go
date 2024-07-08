@@ -11,78 +11,118 @@ import (
 	"strconv"
 )
 
-const BrowseAllPath= BrowsePath +"/all"
-
-//Return a BookPreviewSet of all books, with skip and limit
-func fetchBooks(skip int, limit int) (model.BookPreviewSet,error) {
-	query := "MATCH (b:Book) RETURN elementId(b), b.title, b.cover SKIP $skip LIMIT $limit"
+// Return a PreviewSet of all books or series, with skip and limit
+func fetchPreviews(page int, limit int, isSerieMode bool) model.PreviewSet {
+	qfile := util.CypherScriptDirectory + "/browse/all/"
+	if isSerieMode {
+		qfile += "browse-all_SM.cypher"
+	} else {
+		qfile += "browse-all.cypher"
+	}
+	query, err := util.ReadCypherScript(qfile)
+	if err != nil {
+		logger.WarningLogger.Printf("Error reading script: %s\n", err)
+		return model.PreviewSet{}
+	}
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"skip": skip,
+		"skip":  (page - 1) * limit,
 		"limit": limit,
 	})
 
 	if err != nil {
-		logger.WarningLogger.Println("Error when fetching books")
-		return nil, err
+		logger.WarningLogger.Printf("Error when fetching books: %s \n", err)
+		return model.PreviewSet{}
 	}
 
-	books := make([]model.BookPreview, len(res.Records))
-	for i,record := range res.Records {
-		id,_ := record.Values[0].(string)
-		title,_ := record.Values[1].(string)
-		cover, _ := record.Values[2].(string)
-		book := model.BookPreview{Title: title, Cover: cover, Id: id}
-		books[i] = book
+	previews := make([]model.Preview, len(res.Records))
+	for i, record := range res.Records {
+		name, _ := record.Values[0].(string)
+		serieUUID, _ := record.Values[1].(string)
+		count, _ := record.Values[2].(int64)
+		bookUUID, _ := record.Values[3].(string)
+		title, _ := record.Values[4].(string)
+		bstatus, _ := record.Values[5].(int64)
+		if name == "" {
+			book := model.BookPreview{Title: title, UUID: bookUUID, Status: int(bstatus)}
+			previews[i] = model.Preview{BookPreview: book}
+			continue
+		}
+		serie := model.SeriePreview{Name: name, BookCount: int(count), UUID: serieUUID}
+		previews[i] = model.Preview{SeriePreview: serie}
 	}
 
-	return books,nil
+	return previews
 }
 
-//sub-fonction of
-//|
-//v
-
-//Return a (infinite) book-set from all books, takes a page argument
-func RespondWithAllBooks(c echo.Context) error {
-	page,err := strconv.Atoi(c.QueryParam(util.PageParam))
-	if err != nil || page < 1{
-		logger.InfoLogger.Printf("Page argument missing or invalid, redirecting to page 1")
-		page = 1
+// Return an empty infinite search, linking to first page
+func allBooksResearch(isSerieMode bool) model.Research {
+	page := 1
+	previews := fetchPreviews(page, MaxBatchSize, isSerieMode)
+	if len(previews) < MaxBatchSize {
+		return model.Research{
+			Name:       "Tous les livres",
+			PreviewSet: previews,
+		}
 	}
-
-	skip,limit := (page-1)*MaxBatchSize, MaxBatchSize
-	books, err := fetchBooks(skip,limit)
-	if err != nil {
-		logger.WarningLogger.Printf("Error on fetching page %d: %s \n",page,err.Error())
-		return c.Render(http.StatusOK, model.BookPreviewSetTemplate, nil)
-	}
-
-	//If this is the last page, return a finite set
-	if len(books) < MaxBatchSize {
-		return c.Render(http.StatusOK, model.BookPreviewSetTemplate, books)
-	} else {
-		return c.Render(http.StatusOK, model.InfiniteBookPreviewSetTemplate, model.InfiniteBookPreviewSet{
-			BookPreviewSet: books,
-			Url:            BrowseAllPath,
-			Params: []model.PathParameter {
-				{Key: util.PageParam, Value: page+1},
-			},
-		})
-	}
-}
-
-//Return an empty infinite search, linking to first page
-func allBooksResearch() model.Research {
 	return model.Research{
 		Name: "Tous les livres",
-		IsInfinite: true,
-		InfiniteBookPreviewSet: model.InfiniteBookPreviewSet{
-			BookPreviewSet: nil,
-			Url:            BrowseAllPath,
-			Params: []model.PathParameter{
-				{Key: util.PageParam, Value: 1},
+		InfinitePreviewSet: model.InfinitePreviewSet{
+			PreviewSet: previews,
+			Url:        util.BrowseAllPath,
+			Params: map[string]any{
+				util.PageParam: page + 1,
 			},
 		},
 	}
 }
 
+func respondWithAllPage(c echo.Context) error {
+	return model.Browse{
+		Researches: []model.Research{allBooksResearch(util.IsSerieMode(c))},
+	}.RenderIndex(c, http.StatusOK)
+}
+
+func respondWithAllMain(c echo.Context) error {
+	return allBooksResearch(util.IsSerieMode(c)).Render(c, http.StatusOK)
+}
+
+// Return a (infinite) book-set from all books, takes a page argument
+func respondWithAllPs(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
+	//If no page is precised, return nothing
+	if err != nil || page < 1 {
+		logger.WarningLogger.Println("Missing or invalid page argument")
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	previews := fetchPreviews(page, MaxBatchSize, util.IsSerieMode(c))
+
+	//If this is the last page, return a finite set
+	if len(previews) < MaxBatchSize {
+		return previews.Render(c, http.StatusOK)
+	} else {
+		return model.InfinitePreviewSet{
+			PreviewSet: previews,
+			Url:        util.BrowseAllPath,
+			Params: map[string]any{
+				util.PageParam: page + 1,
+			},
+		}.Render(c, http.StatusOK)
+	}
+}
+
+func RespondWithAll(c echo.Context) error {
+	tmpl, err := util.GetHeaderTemplate(c)
+	if err != nil {
+		return respondWithAllPage(c)
+	}
+	switch tmpl {
+	case util.MainContentType:
+		return respondWithAllMain(c)
+	case util.PreviewSetContentType:
+		return respondWithAllPs(c)
+	default:
+		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)
+		return c.NoContent(http.StatusBadRequest)
+	}
+}

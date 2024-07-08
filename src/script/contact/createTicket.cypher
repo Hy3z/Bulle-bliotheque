@@ -1,0 +1,1 @@
+CREATE (t:Ticket {message: $message, date:$date})

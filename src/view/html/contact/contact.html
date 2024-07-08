@@ -1,0 +1,19 @@
+{{define "contact"}}
+    <div class="contact-ticket">
+        Laisser un ticket:
+        <form hx-post="/contact/ticket" hx-swap="outerHTML">
+
+            <div class="ticket-author">
+                <label>Nom (facultatif)</label>
+                <label><input type="text" name="author" class="text-black"></label>
+            </div>
+            <div class="ticket-message">
+                <label>Message</label>
+                <label><input type="text" name="message" class="text-black"></label>
+            </div>
+            <div class="ticket-button">
+                <button class="btn">Envoyer</button>
+            </div>
+        </form>
+    </div>
+{{end}}

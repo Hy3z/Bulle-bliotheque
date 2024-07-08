@@ -1,0 +1,15 @@
+{{define "contact-index"}}
+    <!DOCTYPE html>
+    <html lang="fr">
+    {{template "head"}}
+    <body>
+    {{template "header"}}
+
+    <!-- class here are outside of main template as header buttons have to target innerhtml-->
+    <div class="main">
+        {{template "contact" .}}
+    </div>
+
+    </body>
+    </html>
+{{end}}

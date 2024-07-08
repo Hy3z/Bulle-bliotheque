@@ -1,0 +1,15 @@
+<!--
+{[]Research}
+-->
+{{define "browse"}}
+    {{if and (hasField . "IsHome") (.IsHome)}}
+        Bienvenue sur le site de la bulle
+        Ca arrive fort!
+    {{end}}
+
+    {{if hasField . "Researches"}}
+        {{range .Researches}}
+            {{template "research" .}}
+        {{end}}
+    {{end}}
+{{end}}

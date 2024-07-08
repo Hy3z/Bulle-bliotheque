@@ -1,0 +1,24 @@
+{{define "serie-preview"}}
+
+    <a href="https://bulle.rezel.net/serie/{{.UUID}}"
+       onclick="clear_browse_bar()"
+       hx-boost="true"
+       hx-headers='{"Tmpl":"main"}'
+       hx-target=".main"
+       hx-swap="innerHTML show:window:top"
+       class="serie-preview">
+
+        <div class="serie-image">
+
+
+            <img src="https://bulle.rezel.net/serie/{{.UUID}}/cover" alt="cover" class="">
+
+        </div>
+        <div class="serie-name">
+            SERIE
+            {{.Name}}
+            {{.BookCount}}
+        </div>
+    </a>
+
+{{end}}

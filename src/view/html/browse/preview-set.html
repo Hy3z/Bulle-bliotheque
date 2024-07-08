@@ -1,0 +1,12 @@
+<!--
+    {[]BookPreview}
+-->
+{{define "preview-set"}}
+    {{range .}}
+        {{if hasField . "BookPreview"}}
+            {{template "book-preview" .BookPreview}}
+        {{else if hasField . "SeriePreview"}}
+            {{template "serie-preview" .SeriePreview}}
+        {{end}}
+    {{end}}
+{{end}}
