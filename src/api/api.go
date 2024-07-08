@@ -95,7 +95,7 @@ func SetupAuth(e *echo.Echo) {
 	e.GET("/auth", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO LOGGED")
 	}, auth.HasTokenMiddleware)
-	e.GET(util.LogoutPath, auth.Logout, auth.HasTokenMiddleware)
+	e.GET(util.LogoutPath, auth.Logout /*auth.HasTokenMiddleware*/)
 }
 
 func SetupRestricted(e *echo.Echo) {
