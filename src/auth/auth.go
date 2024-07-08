@@ -139,8 +139,8 @@ func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return false
 	}
-	logger.InfoLogger.Println(userInfo.Sub)
-	logger.InfoLogger.Println(userInfo.Name)
+	logger.InfoLogger.Println(*userInfo.Sub)
+	logger.InfoLogger.Println(*userInfo.Name)
 	//logger.InfoLogger.Println(userInfo.)
 	/*access_token, _, ok := getTokens(c)
 	if !ok {
