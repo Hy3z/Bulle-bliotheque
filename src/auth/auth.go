@@ -212,12 +212,13 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Request().Header.Set(refererHeaderKey, c.Path())
 			return Login(c)
 		}
-
+		access_token, _, _ := getTokens(c)
 		if jwt != nil {
 			addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
+			access_token = jwt.AccessToken
 		}
 
-		if !hasRoles(c, []string{admin_role_name}) {
+		if !hasRoles(c, access_token, []string{admin_role_name}) {
 			return c.NoContent(http.StatusForbidden)
 		}
 		return next(c)
