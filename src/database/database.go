@@ -5,7 +5,6 @@ import (
 	"context"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"os"
-	"time"
 )
 
 const (
@@ -30,7 +29,7 @@ func Connect() {
 }
 
 func Query(ctx context.Context, query string, param map[string]any) (*neo4j.EagerResult, error) {
-	before := time.Now()
+	//before := time.Now()
 	res, err := neo4j.ExecuteQuery(
 		ctx,
 		driver,
@@ -38,7 +37,7 @@ func Query(ctx context.Context, query string, param map[string]any) (*neo4j.Eage
 		param,
 		neo4j.EagerResultTransformer,
 		neo4j.ExecuteQueryWithDatabase("neo4j"))
-	logger.InfoLogger.Printf("%s\n", time.Since(before))
+	//logger.InfoLogger.Printf("%s\n", time.Since(before))
 	if err != nil {
 		logger.WarningLogger.Printf("Error on query %s: %s\n", query, err)
 	}

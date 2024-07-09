@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"os"
 )
 
@@ -25,4 +26,15 @@ func ReadCypherScript(filepath string) (string, error) {
 	}
 
 	return string(script), nil
+}
+
+func RecordsContains(records []*neo4j.Record, index int, value any) bool {
+	for _, record := range records {
+		v := record.Values[index]
+		if v == value {
+			return true
+		}
+		continue
+	}
+	return false
 }
