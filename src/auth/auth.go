@@ -1,13 +1,13 @@
 package auth
 
 import (
+	"bb/database"
 	"bb/logger"
 	"bb/util"
 	"context"
 	"errors"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/coreos/go-oidc"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 	"net/http"
@@ -25,7 +25,7 @@ const (
 	ENV_KEYCLOAK_PUBLIC_KEY    = "KEYCLOACK_PUBLIC_KEY"
 	access_token_cookie        = "access-token"
 	refresh_token_cookie       = "refresh-token"
-	admin_role_name            = "my.role.dev"
+	admin_role_name            = "admin"
 	refererHeaderKey           = "Referer"
 )
 
@@ -98,7 +98,7 @@ func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	return true, nil
 }
 
-func sliceContains(slice []interface{}, tofind string) bool {
+/*func sliceContains(slice []interface{}, tofind string) bool {
 	for _, inter := range slice {
 		sinter, ok := inter.(string)
 		if !ok {
@@ -109,9 +109,9 @@ func sliceContains(slice []interface{}, tofind string) bool {
 		}
 	}
 	return false
-}
+}*/
 
-func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
+/*func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
 	if len(keys) == 0 {
 		return jwt, nil
 	}
@@ -131,35 +131,40 @@ func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
 		}
 	}
 	return next, nil
-}
+}*/
 
 func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
-	userInfo, err := client.GetUserInfo(context.Background(), access_token, realm)
+	ctx := context.Background()
+	userInfo, err := client.GetUserInfo(ctx, access_token, realm)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return false
 	}
-	logger.InfoLogger.Println(*userInfo.Sub)
-	logger.InfoLogger.Println(*userInfo.Name)
-	logger.InfoLogger.Println(*userInfo.Address)
-	logger.InfoLogger.Println(*userInfo.Email)
-	logger.InfoLogger.Println(*userInfo.EmailVerified)
-	logger.InfoLogger.Println(*userInfo.FamilyName)
-	logger.InfoLogger.Println(*userInfo.Gender)
-	logger.InfoLogger.Println(*userInfo.GivenName)
-	logger.InfoLogger.Println(*userInfo.Locale)
-	logger.InfoLogger.Println(*userInfo.MiddleName)
-	logger.InfoLogger.Println(*userInfo.ZoneInfo)
-	logger.InfoLogger.Println(*userInfo.Website)
-	logger.InfoLogger.Println(*userInfo.Nickname)
-	logger.InfoLogger.Println(*userInfo.PhoneNumber)
-	logger.InfoLogger.Println(*userInfo.PhoneNumberVerified)
-	logger.InfoLogger.Println(*userInfo.PreferredUsername)
-	logger.InfoLogger.Println(*userInfo.Profile)
-	logger.InfoLogger.Println(*userInfo.UpdatedAt)
-	logger.InfoLogger.Println(*userInfo.Picture)
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/auth/getRolesByUUID.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return false
+	}
 
-	//logger.InfoLogger.Println(userInfo.)
+	res, err := database.Query(ctx, query, map[string]any{
+		"uuid": *userInfo.Sub,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error on query %s: %s\n", query, err)
+		return false
+	}
+
+	for _, req_role := range req_roles {
+		if !util.RecordsContains(res.Records, 0, req_role) {
+			return false
+		}
+		continue
+	}
+
+	//logger.InfoLogger.Println(*userInfo.Sub)
+	//logger.InfoLogger.Println(*userInfo.Name)
+	return true
+
 	/*access_token, _, ok := getTokens(c)
 	if !ok {
 		return false
@@ -205,7 +210,6 @@ func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 		}
 	}
 	return true*/
-	return false
 }
 
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

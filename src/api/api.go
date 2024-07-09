@@ -88,7 +88,6 @@ func SetupNoAuth(e *echo.Echo) {
 
 	e.GET(util.LoginPath, auth.Login)
 	e.GET(util.CallbackLoginPath, auth.LoginCallback)
-
 }
 
 func SetupAuth(e *echo.Echo) {
