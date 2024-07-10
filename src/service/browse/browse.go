@@ -101,13 +101,12 @@ func respondWithBrowsePage(c echo.Context) error {
 		return model.Browse{
 			IsHome: true,
 			//Researches: rootResearches(),
-		}.RenderIndex(c, http.StatusOK)
+		}.RenderIndex(c, http.StatusOK, "")
 	}
 
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
-		Query:      qParam,
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, qParam)
 }
 
 func respondWithBrowseMain(c echo.Context) error {
@@ -121,7 +120,6 @@ func respondWithBrowseMain(c echo.Context) error {
 	}
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
-		Query:      qParam,
 	}.Render(c, http.StatusOK)
 }
 

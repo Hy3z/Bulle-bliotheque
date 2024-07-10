@@ -126,8 +126,10 @@
                 rounded-full
                 text-black
                 pl-5"
-                   placeholder="Livre, saga, genre, auteur, ..."
-                   value="{{.}}"
+                placeholder="Livre, saga, genre, auteur, ..."
+                {{if hasField . "Query"}}
+                    value ="{{.Query}}"
+                {{end}}
                    hx-trigger="input changed delay:0.4s, search"
                    hx-get="https://bulle.rezel.net/browse"
                    hx-push-url="true"
@@ -168,6 +170,20 @@
             Contact
         </a>
 
+        {{if and (hasField . "IsLogged") .IsLogged}}
+            <a href="https://bulle.rezel.net/logout"
+               class="header-auth
+                        color-gray-200
+                        hover:text-blue-600
+                        dark:hover:text-blue-400
+                        text-base
+                        transition-colors
+                        px-2
+                        relative
+                        inline-block
+                        h-full">
+                Logout</a>
+        {{else}}
         <a href="https://bulle.rezel.net/login"
            class="header-auth
                     color-gray-200
@@ -179,19 +195,7 @@
                     relative
                     inline-block
                     h-full">
-        ACCOUNT HERE</a>
-
-        <a href="https://bulle.rezel.net/logout"
-           class="header-auth
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
-            LOGOUT HERE</a>
+            Login</a>
+        {{end}}
     </nav>
 {{end}}
