@@ -276,6 +276,12 @@ func Login(c echo.Context) error {
 	if pUrl.RawQuery != "" {
 		path += "?" + pUrl.RawQuery
 	}
+
+	//Prevent login-logout loop, just in case
+	if path == util.LogoutPath {
+		path = ""
+	}
+
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
