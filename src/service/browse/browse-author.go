@@ -84,7 +84,7 @@ func respondWithAuthorPage(c echo.Context) error {
 	}
 	return model.Browse{
 		Researches: []model.Research{getWroteByRs(author, util.IsSerieMode(c))},
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, "")
 }
 
 func respondWithAuthorRs(c echo.Context) error {

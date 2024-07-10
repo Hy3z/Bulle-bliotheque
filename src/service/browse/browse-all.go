@@ -79,7 +79,7 @@ func allBooksResearch(isSerieMode bool) model.Research {
 func respondWithAllPage(c echo.Context) error {
 	return model.Browse{
 		Researches: []model.Research{allBooksResearch(util.IsSerieMode(c))},
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, "")
 }
 
 func respondWithAllMain(c echo.Context) error {

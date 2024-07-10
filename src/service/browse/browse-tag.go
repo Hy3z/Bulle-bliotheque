@@ -85,7 +85,7 @@ func respondWithTagPage(c echo.Context) error {
 
 	return model.Browse{
 		Researches: []model.Research{getTaggedRs(tag, util.IsSerieMode(c))},
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, "")
 }
 
 func respondWithTagRs(c echo.Context) error {

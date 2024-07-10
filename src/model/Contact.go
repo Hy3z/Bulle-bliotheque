@@ -1,6 +1,9 @@
 package model
 
-import "github.com/labstack/echo/v4"
+import (
+	"bb/auth"
+	"github.com/labstack/echo/v4"
+)
 
 const (
 	contactTemplate      = "contact"
@@ -12,5 +15,7 @@ func RenderContact(c echo.Context, code int) error {
 }
 
 func RenderContactIndex(c echo.Context, code int) error {
-	return c.Render(code, contactIndexTemplate, nil)
+	return c.Render(code, contactIndexTemplate, Index{
+		IsLogged: auth.IsLogged(c),
+	})
 }
