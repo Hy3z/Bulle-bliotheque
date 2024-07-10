@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 const (
@@ -323,6 +324,13 @@ func Logout(c echo.Context) error {
 	if pUrl.RawQuery != "" {
 		path += "?" + pUrl.RawQuery
 	}
+
+	//Urls containing such characters will result in 'Invalid url' from keycloak logout for some reason. There may be other unallowed characters
+	// So we default to root url
+	if strings.ContainsAny(path, "+% ") {
+		path = ""
+	}
+
 	redirectUrl := "https://bulle.rezel.net" + path
 
 	url := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
