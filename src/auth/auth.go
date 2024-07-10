@@ -82,6 +82,10 @@ func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 		//logger.InfoLogger.Println("Not ok")
 		return false, nil
 	}
+	if !ok {
+		//logger.InfoLogger.Println("Not ok")
+		return false, nil
+	}
 
 	result, err := client.RetrospectToken(ctx, access_token, clientID, clientSecret, realm)
 	if err != nil {
@@ -254,12 +258,14 @@ func addCookies(c *echo.Context, access_token string, refresh_token string) {
 	accessCookie.Value = access_token
 	accessCookie.Secure = true
 	accessCookie.Path = "/"
+	accessCookie.SameSite = http.SameSiteNoneMode
 	(*c).SetCookie(accessCookie)
 	refreshCookie := new(http.Cookie)
 	refreshCookie.Name = refresh_token_cookie
 	refreshCookie.Value = refresh_token
 	refreshCookie.Secure = true
 	refreshCookie.Path = "/"
+	refreshCookie.SameSite = http.SameSiteNoneMode
 	(*c).SetCookie(refreshCookie)
 }
 
@@ -270,6 +276,12 @@ func Login(c echo.Context) error {
 	if pUrl.RawQuery != "" {
 		path += "?" + pUrl.RawQuery
 	}
+
+	//Prevent login-logout loop, just in case
+	if path == util.LogoutPath {
+		path = ""
+	}
+
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
@@ -346,6 +358,7 @@ func IsLogged(c echo.Context) bool {
 	}
 
 	if jwt != nil {
+		logger.InfoLogger.Println("Changed cookies")
 		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
 	}
 	return true
