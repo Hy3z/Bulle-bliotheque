@@ -127,7 +127,12 @@
                 text-black
                 pl-5"
                    placeholder="Livre, saga, genre, auteur, ..."
-                   value="{{.Query}}"
+                   value =
+                           {{if hasField . "Query"}}
+                                "{{.Query}}"
+                            {{else}}
+                                ""
+                            {{end}}
                    hx-trigger="input changed delay:0.4s, search"
                    hx-get="https://bulle.rezel.net/browse"
                    hx-push-url="true"
