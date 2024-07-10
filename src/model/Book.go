@@ -1,6 +1,9 @@
 package model
 
-import "github.com/labstack/echo/v4"
+import (
+	"bb/auth"
+	"github.com/labstack/echo/v4"
+)
 
 type Book struct {
 	Title         string
@@ -27,5 +30,8 @@ func (b Book) Render(c echo.Context, code int) error {
 }
 
 func (b Book) RenderIndex(c echo.Context, code int) error {
-	return c.Render(code, bookIndexTemplate, b)
+	return c.Render(code, bookIndexTemplate, Index{
+		IsLogged: auth.IsLogged(c),
+		Data:     b,
+	})
 }

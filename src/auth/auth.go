@@ -330,3 +330,15 @@ func Logout(c echo.Context) error {
 	url += "&client_id=" + clientID
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
+
+func IsLogged(c echo.Context) bool {
+	ok, jwt := hasToken(c)
+	if !ok {
+		return false
+	}
+
+	if jwt != nil {
+		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
+	}
+	return true
+}
