@@ -168,7 +168,7 @@
             Contact
         </a>
 
-        {{if .IsLogged}}
+        {{if and (hasField . "IsLogged") .IsLogged}}
             <a href="https://bulle.rezel.net/logout"
                class="header-auth
                         color-gray-200
