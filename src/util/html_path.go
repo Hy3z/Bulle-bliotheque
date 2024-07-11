@@ -8,9 +8,11 @@ const (
 	BrowseAllPath    = BrowsePath + "/all"
 	BrowseLatestPath = BrowsePath + "/latest"
 
-	BookPath      = "/book/:" + BookParam
-	BookCoverPath = BookPath + "/cover"
-	BookEditPath  = BookPath + "/edit"
+	BookPath       = "/book/:" + BookParam
+	BookCoverPath  = BookPath + "/cover"
+	BookBorrowPath = BookPath + "/borrow"
+	BookReturnPath = BookPath + "/return"
+	//BookEditPath   = BookPath + "/edit"
 
 	SeriePath      = "serie/:" + SerieParam
 	SerieCoverPath = SeriePath + "/cover"

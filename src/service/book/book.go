@@ -9,9 +9,10 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"reflect"
 )
 
-func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, error) {
+func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
 	if err != nil {
 		return model.Book{}, err
@@ -44,8 +45,7 @@ func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, e
 	sname, okSn := values[9].(string)
 	suuid, okSu := values[10].(string)
 	bstatus, okB := values[11].(int64)
-	borrowerName, okBn := values[12].(string)
-	borrowerUUID, okBu := values[13].(string)
+	borrowerUUID, okBu := values[12].(string)
 
 	if okT {
 		book.Title = title
@@ -77,9 +77,6 @@ func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, e
 	if okB {
 		book.Status = int(bstatus)
 	}
-	if okBn {
-		book.Borrower = borrowerName
-	}
 	book.HasBorrowed = okBu && (borrowerUUID == clientUUID)
 
 	if okAsI {
@@ -109,8 +106,43 @@ func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, e
 	return book, nil
 }
 
+// getBookStatusByUUID returns ID=0 in case of an error
+func getBookStatusByUUID(uuid string) int {
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book.getBookStatusByUUID")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"uuid": uuid,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error querying book status: %s\n", err)
+		return 0
+	}
+
+	records := res.Records
+	if len(records) == 0 {
+		logger.ErrorLogger.Printf("No book status found for: %s\n", uuid)
+		return 0
+	}
+	if len(records) > 1 {
+		logger.ErrorLogger.Printf("Multiple book status found for: %s\n", uuid)
+		return 0
+	}
+
+	id, ok := records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Printf("Cannot cast id to int64 from: %s\n", reflect.TypeOf(id))
+		return 0
+	}
+
+	return int(id)
+}
+
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c), auth.GetUserUUID(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -119,7 +151,7 @@ func respondWithBookMain(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c), auth.GetUserUUID(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -144,4 +176,66 @@ func RespondWithBook(c echo.Context) error {
 func RespondWithCover(c echo.Context) error {
 	uuid := c.Param(util.BookParam)
 	return c.File("./data/book/" + uuid + "/cover.jpg")
+}
+
+// RespondWithBorrow assumes the user is connected
+func RespondWithBorrow(c echo.Context) error {
+	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	bookUUID := c.Param(util.BookParam)
+	status := getBookStatusByUUID(bookUUID)
+	//status = 0 means error
+	if status == 0 {
+		return siserr
+	}
+	//status != 3 means the book isn't available
+	if status != 3 {
+		return c.HTML(http.StatusForbidden, "Le livre n'est pas disponible")
+	}
+
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/borrowBook.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return siserr
+	}
+	_, err = database.Query(context.Background(), query, map[string]any{
+		"buuid": bookUUID,
+		"uuuid": auth.GetUserUUID(c),
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return siserr
+	}
+
+	return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
+
+}
+
+func RespondWithReturn(c echo.Context) error {
+	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	bookUUID := c.Param(util.BookParam)
+	status := getBookStatusByUUID(bookUUID)
+	//status = 0 means error
+	if status == 0 {
+		return siserr
+	}
+	//status != 1 means the book isn't borrowed
+	if status != 1 {
+		return c.HTML(http.StatusForbidden, "Le livre n'est pas emprunté")
+	}
+
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/returnBook.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return siserr
+	}
+	_, err = database.Query(context.Background(), query, map[string]any{
+		"buuid": bookUUID,
+		"uuuid": auth.GetUserUUID(c),
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return siserr
+	}
+
+	return c.HTML(http.StatusOK, "Le livre a bien été rendu")
 }
