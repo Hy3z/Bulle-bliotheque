@@ -211,6 +211,7 @@ func RespondWithBorrow(c echo.Context) error {
 		return siserr
 	}
 
+	logger.InfoLogger.Println("OK")
 	return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
 
 }
@@ -246,5 +247,6 @@ func RespondWithReturn(c echo.Context) error {
 		return siserr
 	}
 
+	logger.InfoLogger.Println("OKAY")
 	return c.HTML(http.StatusOK, "Le livre a bien été rendu")
 }
