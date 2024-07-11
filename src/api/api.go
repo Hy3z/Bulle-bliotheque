@@ -91,8 +91,8 @@ func SetupNoAuth(e *echo.Echo) {
 }
 
 func SetupAuth(e *echo.Echo) {
-	e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
-	e.POST(util.BookPath+"/jedeviensfou", book.RespondWithBorrow, auth.HasTokenMiddleware)
+	//e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
+	e.POST(util.BookBorrowPath, book.RespondWithBorrow, auth.HasTokenMiddleware)
 
 	e.GET("/auth", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO LOGGED")
