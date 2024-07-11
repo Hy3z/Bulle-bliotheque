@@ -80,7 +80,6 @@ func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, e
 	if okBn {
 		book.Borrower = borrowerName
 	}
-	book.IsLogged = isLogged
 	book.HasBorrowed = okBu && (borrowerUUID == clientUUID)
 
 	if okAsI {

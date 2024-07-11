@@ -107,7 +107,7 @@
         {{end}}
     </div>
 
-    {{if and .IsLogged (eq .Status 3)}}
+    {{if eq .Status 3}}
     <div>
         <a href="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-boost="true" hx-swap="innerHTML"
            class="color-gray-200

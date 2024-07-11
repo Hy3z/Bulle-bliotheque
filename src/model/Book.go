@@ -21,7 +21,6 @@ type Book struct {
 	Status   int
 	Borrower string
 
-	IsLogged    bool
 	HasBorrowed bool
 }
 
