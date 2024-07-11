@@ -292,6 +292,7 @@ func Login(c echo.Context) error {
 
 	if c.Request().Header.Get("HX-Request") == "true" {
 		c.Response().Header().Set("HX-Redirect", oauth2Config.AuthCodeURL(url.QueryEscape(path)))
+		return c.NoContent(http.StatusOK)
 	} else {
 		return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 	}
