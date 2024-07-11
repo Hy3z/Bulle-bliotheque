@@ -227,7 +227,7 @@ func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		//c.Request().Header.Set(refererHeaderKey, c.Path())
+		c.Request().Header.Set(refererHeaderKey, c.Request().URL.Path)
 		return Login(c)
 	}
 }
