@@ -363,3 +363,18 @@ func IsLogged(c echo.Context) bool {
 	}
 	return true
 }
+
+// GetUserUUID returns user's UUID, empty if no user
+func GetUserUUID(c echo.Context) string {
+	access_token, _, ok := getTokens(c)
+	if !ok {
+		return ""
+	}
+
+	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+	if err != nil {
+		return ""
+	}
+
+	return *info.Sub
+}

@@ -121,12 +121,23 @@
             Emprunter
         </a>
     </div>
-    {{else if eq .Status 1}}
+    {{else if and .HasBorrowed (eq .Status 1)}}
     <div>
-        <label>Détenteur</label>
+        <!--<label>Détenteur</label>
         {{if .Borrower}}
             {{.Borrower}}
-        {{end}}
+        {{end}}-->
+        <a href="https://bulle.rezel.net/book/{{.UUID}}/return" hx-boost="true" hx-swap="innerHTML"
+           class="color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block">
+            Rendre
+        </a>
     </div>
     {{end}}
 {{end}}

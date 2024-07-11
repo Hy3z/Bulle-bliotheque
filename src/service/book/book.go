@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func getBookByUUID(uuid string, isLogged bool) (model.Book, error) {
+func getBookByUUID(uuid string, isLogged bool, clientUUID string) (model.Book, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
 	if err != nil {
 		return model.Book{}, err
@@ -45,6 +45,8 @@ func getBookByUUID(uuid string, isLogged bool) (model.Book, error) {
 	suuid, okSu := values[10].(string)
 	bstatus, okB := values[11].(int64)
 	borrowerName, okBn := values[12].(string)
+	borrowerUUID, okBu := values[13].(string)
+
 	if okT {
 		book.Title = title
 	}
@@ -79,6 +81,7 @@ func getBookByUUID(uuid string, isLogged bool) (model.Book, error) {
 		book.Borrower = borrowerName
 	}
 	book.IsLogged = isLogged
+	book.HasBorrowed = okBu && (borrowerUUID == clientUUID)
 
 	if okAsI {
 		authors := make([]string, len(authorsI))
@@ -108,7 +111,7 @@ func getBookByUUID(uuid string, isLogged bool) (model.Book, error) {
 }
 
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -117,7 +120,7 @@ func respondWithBookMain(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)

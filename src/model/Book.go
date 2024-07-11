@@ -17,9 +17,12 @@ type Book struct {
 	PageCount     int64
 	SerieName     string
 	SerieUUID     string
-	Status        int
-	Borrower      string
-	IsLogged      bool
+
+	Status   int
+	Borrower string
+
+	IsLogged    bool
+	HasBorrowed bool
 }
 
 const (
