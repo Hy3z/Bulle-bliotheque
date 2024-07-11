@@ -210,11 +210,8 @@ func RespondWithBorrow(c echo.Context) error {
 		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 
-	logger.InfoLogger.Println("OK")
 	//return c.Render(http.StatusOK, "borrow-success", nil)
-	//return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
-	return c.Render(http.StatusOK, "borrow-success", nil)
-
+	return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
 }
 
 type Test struct {
@@ -251,6 +248,5 @@ func RespondWithReturn(c echo.Context) error {
 		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 
-	logger.InfoLogger.Println("OKAY")
 	return c.HTML(http.StatusOK, "Le livre a bien été rendu")
 }
