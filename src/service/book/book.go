@@ -185,12 +185,11 @@ func RespondWithBorrow(c echo.Context) error {
 		return c.NoContent(http.StatusForbidden)
 	}
 
-	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	bookUUID := c.Param(util.BookParam)
 	status := getBookStatusByUUID(bookUUID)
 	//status = 0 means error
 	if status == 0 {
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 	//status != 3 means the book isn't available
 	if status != 3 {
@@ -200,7 +199,7 @@ func RespondWithBorrow(c echo.Context) error {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/borrowBook.cypher")
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 	_, err = database.Query(context.Background(), query, map[string]any{
 		"buuid": bookUUID,
@@ -208,7 +207,7 @@ func RespondWithBorrow(c echo.Context) error {
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 
 	logger.InfoLogger.Println("OK")
@@ -222,12 +221,11 @@ func RespondWithReturn(c echo.Context) error {
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
-	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	bookUUID := c.Param(util.BookParam)
 	status := getBookStatusByUUID(bookUUID)
 	//status = 0 means error
 	if status == 0 {
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 	//status != 1 means the book isn't borrowed
 	if status != 1 {
@@ -237,7 +235,7 @@ func RespondWithReturn(c echo.Context) error {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/returnBook.cypher")
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 	_, err = database.Query(context.Background(), query, map[string]any{
 		"buuid": bookUUID,
@@ -245,7 +243,7 @@ func RespondWithReturn(c echo.Context) error {
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
-		return siserr
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 
 	logger.InfoLogger.Println("OKAY")
