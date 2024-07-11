@@ -23,4 +23,6 @@ const (
 	LoginPath         = "/login"
 	CallbackLoginPath = LoginPath + "/callback"
 	LogoutPath        = "/logout"
+
+	AccountPath = "/account"
 )
