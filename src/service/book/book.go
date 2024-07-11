@@ -1,6 +1,7 @@
 package book
 
 import (
+	"bb/auth"
 	"bb/database"
 	"bb/logger"
 	"bb/model"
@@ -10,7 +11,7 @@ import (
 	"net/http"
 )
 
-func getBookByUUID(uuid string) (model.Book, error) {
+func getBookByUUID(uuid string, isLogged bool) (model.Book, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
 	if err != nil {
 		return model.Book{}, err
@@ -77,6 +78,7 @@ func getBookByUUID(uuid string) (model.Book, error) {
 	if okBn {
 		book.Borrower = borrowerName
 	}
+	book.IsLogged = isLogged
 
 	if okAsI {
 		authors := make([]string, len(authorsI))
@@ -106,7 +108,7 @@ func getBookByUUID(uuid string) (model.Book, error) {
 }
 
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -115,7 +117,7 @@ func respondWithBookMain(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.IsLogged(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
