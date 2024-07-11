@@ -111,7 +111,6 @@
     {{if eq .Status 3}}
     <div>
         <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
-                hx-headers='{"Access-Control-Allow-Origin": "https://garezeldap.rezel.net"}'
                 class="color-gray-200
                     hover:text-blue-600
                     dark:hover:text-blue-400
@@ -122,6 +121,13 @@
                     inline-block">
             Emprunter
         </button>
+        <script>
+            // Remove all extra htmx headers, re-add content-type.
+            document.body.addEventListener('htmx:configRequest', function(event) {
+                event.detail.headers = ''
+                event.detail.headers['Content-Type'] = "application/x-www-form-urlencoded; charset=UTF-8"
+            });
+        </script>
     </div>
     {{else if and .HasBorrowed (eq .Status 1)}}
     <div>
