@@ -180,6 +180,11 @@ func RespondWithCover(c echo.Context) error {
 
 // RespondWithBorrow assumes the user is connected
 func RespondWithBorrow(c echo.Context) error {
+	uuuid := auth.GetUserUUID(c)
+	if uuuid == "" {
+		return c.NoContent(http.StatusForbidden)
+	}
+
 	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	bookUUID := c.Param(util.BookParam)
 	status := getBookStatusByUUID(bookUUID)
@@ -199,7 +204,7 @@ func RespondWithBorrow(c echo.Context) error {
 	}
 	_, err = database.Query(context.Background(), query, map[string]any{
 		"buuid": bookUUID,
-		"uuuid": auth.GetUserUUID(c),
+		"uuuid": uuuid,
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
@@ -211,6 +216,10 @@ func RespondWithBorrow(c echo.Context) error {
 }
 
 func RespondWithReturn(c echo.Context) error {
+	uuuid := auth.GetUserUUID(c)
+	if uuuid == "" {
+		return c.NoContent(http.StatusForbidden)
+	}
 	siserr := c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	bookUUID := c.Param(util.BookParam)
 	status := getBookStatusByUUID(bookUUID)
@@ -230,7 +239,7 @@ func RespondWithReturn(c echo.Context) error {
 	}
 	_, err = database.Query(context.Background(), query, map[string]any{
 		"buuid": bookUUID,
-		"uuuid": auth.GetUserUUID(c),
+		"uuuid": uuuid,
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
