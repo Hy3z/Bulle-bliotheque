@@ -107,10 +107,26 @@
         {{end}}
     </div>
 
+    {{if and .IsLogged (eq .Status 3)}}
     <div>
-        <label>Borrower</label>
+        <a href="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-boost="true" hx-swap="innerHTML"
+           class="color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block">
+            Emprunter
+        </a>
+    </div>
+    {{else if eq .Status 1}}
+    <div>
+        <label>Détenteur</label>
         {{if .Borrower}}
             {{.Borrower}}
         {{end}}
     </div>
+    {{end}}
 {{end}}

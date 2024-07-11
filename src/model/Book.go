@@ -19,6 +19,7 @@ type Book struct {
 	SerieUUID     string
 	Status        int
 	Borrower      string
+	IsLogged      bool
 }
 
 const (
