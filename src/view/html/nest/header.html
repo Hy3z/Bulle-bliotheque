@@ -171,7 +171,7 @@
         </a>
 
         {{if and (hasField . "IsLogged") .IsLogged}}
-            <a href="https://bulle.rezel.net/logout"
+            <a href="https://bulle.rezel.net/logout" hx-push-url="false"
                class="header-auth
                         color-gray-200
                         hover:text-blue-600
@@ -184,7 +184,7 @@
                         h-full">
                 Logout</a>
         {{else}}
-        <a href="https://bulle.rezel.net/login"
+        <a href="https://bulle.rezel.net/login" hx-push-url="false"
            class="header-auth
                     color-gray-200
                     hover:text-blue-600
