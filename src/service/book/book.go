@@ -212,8 +212,15 @@ func RespondWithBorrow(c echo.Context) error {
 
 	logger.InfoLogger.Println("OK")
 	//return c.Render(http.StatusOK, "borrow-success", nil)
-	return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
+	//return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
+	return c.Render(http.StatusOK, "mytemplate", Test{
+		Test: "hello",
+	})
 
+}
+
+type Test struct {
+	Test string
 }
 
 func RespondWithReturn(c echo.Context) error {
