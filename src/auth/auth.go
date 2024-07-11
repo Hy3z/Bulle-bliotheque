@@ -219,6 +219,7 @@ func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		c.Request().Header.Set("Access-Control-Allow-Origin", "*")
 		tokenPresent, jwt := hasToken(c)
 		if tokenPresent {
 			if jwt != nil {
