@@ -228,7 +228,9 @@ func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		//On devra donc refaire l'action si on est pas encore connecté
+		//Dans le futur on passera un paramètre si on veut être quand même redirigé
 		//c.Request().Header.Set(refererHeaderKey, c.Path())
+
 		return Login(c)
 	}
 }
