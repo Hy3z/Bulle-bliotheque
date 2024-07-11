@@ -65,6 +65,9 @@ func SetupNoAuth(e *echo.Echo) {
 	e.GET("/icon", func(c echo.Context) error {
 		return c.File("view/image/icon.png")
 	})
+	e.GET("/htmx", func(c echo.Context) error {
+		return c.File("view/script/htmx.js")
+	})
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
@@ -91,10 +94,14 @@ func SetupNoAuth(e *echo.Echo) {
 }
 
 func SetupAuth(e *echo.Echo) {
+	e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
+	e.POST(util.BookBorrowPath, book.RespondWithBorrow, auth.HasTokenMiddleware)
+
 	e.GET("/auth", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO LOGGED")
 	}, auth.HasTokenMiddleware)
 	e.GET(util.LogoutPath, auth.Logout, auth.HasTokenMiddleware)
+
 }
 
 func SetupRestricted(e *echo.Echo) {

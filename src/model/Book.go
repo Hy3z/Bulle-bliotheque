@@ -18,6 +18,7 @@ type Book struct {
 	SerieName     string
 	SerieUUID     string
 	Status        int
+	HasBorrowed   bool
 }
 
 const (

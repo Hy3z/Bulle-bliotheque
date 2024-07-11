@@ -226,7 +226,11 @@ func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			return next(c)
 		}
-		c.Request().Header.Set(refererHeaderKey, c.Path())
+
+		//On devra donc refaire l'action si on est pas encore connecté
+		//Dans le futur on passera un paramètre si on veut être quand même redirigé
+		//c.Request().Header.Set(refererHeaderKey, c.Path())
+
 		return Login(c)
 	}
 }
@@ -289,7 +293,14 @@ func Login(c echo.Context) error {
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
-	return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
+
+	if c.Request().Header.Get("HX-Request") == "true" {
+		c.Response().Header().Set("HX-Redirect", oauth2Config.AuthCodeURL(url.QueryEscape(path)))
+		return c.NoContent(http.StatusOK)
+	} else {
+		return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
+	}
+
 }
 
 func LoginCallback(c echo.Context) error {
@@ -362,4 +373,19 @@ func IsLogged(c echo.Context) bool {
 		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
 	}
 	return true
+}
+
+// GetUserUUID returns user's UUID, empty if no user
+func GetUserUUID(c echo.Context) string {
+	access_token, _, ok := getTokens(c)
+	if !ok {
+		return ""
+	}
+
+	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+	if err != nil {
+		return ""
+	}
+
+	return *info.Sub
 }
