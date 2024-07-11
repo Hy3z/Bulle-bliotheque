@@ -110,7 +110,7 @@
 
     {{if eq .Status 3}}
     <div>
-        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-swap="innerHTML" hx-trigger="click" hx-target="this"
+        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
                 class="color-gray-200
                     hover:text-blue-600
                     dark:hover:text-blue-400
@@ -125,7 +125,7 @@
     {{else if and .HasBorrowed (eq .Status 1)}}
     <div>
 
-        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/return" hx-swap="innerHTML" hx-trigger="click" hx-target="this"
+        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/return" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
                 class="color-gray-200
                     hover:text-blue-600
                     dark:hover:text-blue-400
