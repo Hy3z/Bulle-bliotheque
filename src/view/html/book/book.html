@@ -108,4 +108,34 @@
     </div>
 
 
+    {{if eq .Status 3}}
+    <div>
+        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/borrow" hx-swap="innerHTML" hx-trigger="click"
+                class="color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block">
+            Emprunter
+        </button>
+    </div>
+    {{else if and .HasBorrowed (eq .Status 1)}}
+    <div>
+
+        <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/return" hx-swap="innerHTML" hx-trigger="click"
+                class="color-gray-200
+                    hover:text-blue-600
+                    dark:hover:text-blue-400
+                    text-base
+                    transition-colors
+                    px-2
+                    relative
+                    inline-block">
+            Rendre
+        </button>
+    </div>
+    {{end}}
 {{end}}
