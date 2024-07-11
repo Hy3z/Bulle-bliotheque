@@ -43,7 +43,7 @@ func getBookByUUID(uuid string) (model.Book, error) {
 	sname, okSn := values[9].(string)
 	suuid, okSu := values[10].(string)
 	bstatus, okB := values[11].(int64)
-
+	borrowerName, okBn := values[12].(string)
 	if okT {
 		book.Title = title
 	}
@@ -73,6 +73,9 @@ func getBookByUUID(uuid string) (model.Book, error) {
 	}
 	if okB {
 		book.Status = int(bstatus)
+	}
+	if okBn {
+		book.Borrower = borrowerName
 	}
 
 	if okAsI {
