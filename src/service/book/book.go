@@ -108,7 +108,7 @@ func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 
 // getBookStatusByUUID returns ID=0 in case of an error
 func getBookStatusByUUID(uuid string) int {
-	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookStatusByUUID")
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookStatusByUUID.cypher")
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
 		return 0
