@@ -305,6 +305,7 @@ func Login(c echo.Context) error {
 
 func LoginCallback(c echo.Context) error {
 	origin := c.QueryParam("state")
+	ctx := context.Background()
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
@@ -312,9 +313,30 @@ func LoginCallback(c echo.Context) error {
 		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
-	token, err := oauth2Config.Exchange(context.Background(), c.QueryParam("code"))
+	token, err := oauth2Config.Exchange(ctx, c.QueryParam("code"))
 	if err != nil {
 		logger.ErrorLogger.Printf("Error exchanging code: %s\n", err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	uuid, name, err := GetUserInfo(token.AccessToken)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error getting user infos: %s\n", err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	//Création & Mise à jour des info utilisateur à la connection
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/auth/createUser.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+	_, err = database.Query(ctx, query, map[string]any{
+		"uuid": uuid,
+		"name": name,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error creating user: %s\n", err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -375,17 +397,55 @@ func IsLogged(c echo.Context) bool {
 	return true
 }
 
+func GetUserInfo(access_token string) (string, string, error) {
+	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+	if err != nil {
+		return "", "", err
+	}
+
+	return *info.Sub, *info.Name, nil
+}
+
+func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
+	access_token, _, ok := getTokens(c)
+	if !ok {
+		return "", "", false
+	}
+	uuid, name, err := GetUserInfo(access_token)
+	return uuid, name, err != nil
+}
+
 // GetUserUUID returns user's UUID, empty if no user
-func GetUserUUID(c echo.Context) string {
+func GetUserUUID(access_token string) string {
+	uuid, _, err := GetUserInfo(access_token)
+	if err != nil {
+		return ""
+	}
+	return uuid
+}
+
+// GetUserUUIDFromContext GetUserUUID returns user's UUID, empty if no user
+func GetUserUUIDFromContext(c echo.Context) string {
 	access_token, _, ok := getTokens(c)
 	if !ok {
 		return ""
 	}
+	return GetUserUUID(access_token)
+}
 
-	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+func GetUserName(access_token string) string {
+	_, name, err := GetUserInfo(access_token)
 	if err != nil {
 		return ""
 	}
+	return name
+}
 
-	return *info.Sub
+// GetUserNameFromContext GetUserName returns user's UUID, empty if no user
+func GetUserNameFromContext(c echo.Context) string {
+	access_token, _, ok := getTokens(c)
+	if !ok {
+		return ""
+	}
+	return GetUserName(access_token)
 }
