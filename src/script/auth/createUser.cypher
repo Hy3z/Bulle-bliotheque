@@ -1,0 +1,1 @@
+MERGE (u:User{UUID:$uuid}) SET u.name=$name

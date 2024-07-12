@@ -2,6 +2,7 @@ package api
 
 import (
 	"bb/auth"
+	"bb/service/account"
 	"bb/service/book"
 	"bb/service/browse"
 	"bb/service/contact"
@@ -96,6 +97,8 @@ func SetupNoAuth(e *echo.Echo) {
 func SetupAuth(e *echo.Echo) {
 	e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
 	e.POST(util.BookBorrowPath, book.RespondWithBorrow, auth.HasTokenMiddleware)
+
+	e.GET(util.AccountPath, account.RespondWithAccount, auth.HasTokenMiddleware)
 
 	e.GET("/auth", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO LOGGED")

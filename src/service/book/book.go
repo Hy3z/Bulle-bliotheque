@@ -142,7 +142,7 @@ func getBookStatusByUUID(uuid string) int {
 }
 
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -151,7 +151,7 @@ func respondWithBookMain(c echo.Context) error {
 }
 
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -180,7 +180,7 @@ func RespondWithCover(c echo.Context) error {
 
 // RespondWithBorrow assumes the user is connected
 func RespondWithBorrow(c echo.Context) error {
-	uuuid := auth.GetUserUUID(c)
+	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
@@ -219,7 +219,7 @@ type Test struct {
 }
 
 func RespondWithReturn(c echo.Context) error {
-	uuuid := auth.GetUserUUID(c)
+	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
