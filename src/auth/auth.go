@@ -412,7 +412,7 @@ func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
 		return "", "", false
 	}
 	uuid, name, err := GetUserInfo(access_token)
-	return uuid, name, err != nil
+	return uuid, name, err == nil
 }
 
 // GetUserUUID returns user's UUID, empty if no user
