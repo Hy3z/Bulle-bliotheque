@@ -430,6 +430,7 @@ func GetUserUUIDFromContext(c echo.Context) string {
 	if !ok {
 		return ""
 	}
+
 	return GetUserUUID(access_token)
 }
 
@@ -447,5 +448,11 @@ func GetUserNameFromContext(c echo.Context) string {
 	if !ok {
 		return ""
 	}
-	return GetUserName(access_token)
+
+	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+	if err != nil {
+		return ""
+	}
+
+	return *info.Sub
 }
