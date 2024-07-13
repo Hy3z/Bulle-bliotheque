@@ -140,8 +140,8 @@
     {{end}}
 
     <div>
-        <label>Nombre de like</label>
-        {{if .LikeCount}}
+        <label>Nombre de like: </label>
+        {{if hasField . "LikeCount"}}
             {{.LikeCount}}
         {{end}}
     </div>
@@ -176,6 +176,7 @@
                     </button>
                 </div>
             {{end}}
+
         {{else}}
             Vous devez être connecté pour liker un livre
         {{end}}
