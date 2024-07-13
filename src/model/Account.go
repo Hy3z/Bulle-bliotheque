@@ -9,6 +9,7 @@ type Account struct {
 	UUID     string
 	Name     string
 	Borrowed []BookPreview
+	Liked    []BookPreview
 }
 
 const (

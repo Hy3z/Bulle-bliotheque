@@ -11,24 +11,19 @@ import (
 	"net/http"
 )
 
-func getAccountByUUID(uuid string, name string) (model.Account, error) {
-	account := model.Account{
-		UUID: uuid,
-		Name: name,
-	}
+func getBorrowedByUUID(uuid string) ([]model.BookPreview, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/account/getBorrowedByUUID.cypher")
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
-		return account, err
+		return nil, err
 	}
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"uuid": uuid,
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error creating user: %s\n", err)
-		return account, err
+		return nil, err
 	}
-
 	previews := make([]model.BookPreview, len(res.Records))
 	for i, record := range res.Records {
 		buuid := record.Values[0].(string)
@@ -37,10 +32,50 @@ func getAccountByUUID(uuid string, name string) (model.Account, error) {
 		preview := model.BookPreview{Title: btitle, UUID: buuid, Status: int(bstatus)}
 		previews[i] = preview
 	}
-	account.Borrowed = previews
+	return previews, nil
+}
 
+func getLikedByUUID(uuid string) ([]model.BookPreview, error) {
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/account/getLikedByUUID.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return nil, err
+	}
+	res, err := database.Query(context.Background(), query, map[string]any{
+		"uuid": uuid,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error creating user: %s\n", err)
+		return nil, err
+	}
+	previews := make([]model.BookPreview, len(res.Records))
+	for i, record := range res.Records {
+		buuid := record.Values[0].(string)
+		btitle := record.Values[1].(string)
+		bstatus := record.Values[2].(int64)
+		preview := model.BookPreview{Title: btitle, UUID: buuid, Status: int(bstatus)}
+		previews[i] = preview
+	}
+	return previews, nil
+}
+
+func getAccountByUUID(uuid string, name string) (model.Account, error) {
+	account := model.Account{
+		UUID: uuid,
+		Name: name,
+	}
+	borrowed, err := getBorrowedByUUID(uuid)
+	if err != nil {
+		return account, err
+	}
+	liked, err := getLikedByUUID(uuid)
+	if err != nil {
+		return account, err
+	}
+
+	account.Borrowed = borrowed
+	account.Liked = liked
 	return account, nil
-
 }
 
 func respondWithAccountMain(c echo.Context, uuid string, name string) error {
