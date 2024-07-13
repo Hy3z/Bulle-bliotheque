@@ -18,4 +18,10 @@
                 </button>
             {{end}}
         </div>
+        <div>
+            Livres likés:
+            {{range .Liked}}
+                {{template "book-preview" .}}
+            {{end}}
+        </div>
 {{end}}

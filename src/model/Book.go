@@ -18,7 +18,10 @@ type Book struct {
 	SerieName     string
 	SerieUUID     string
 	Status        int
+	IsLogged      bool
 	HasBorrowed   bool
+	HasLiked      bool
+	LikeCount     int
 }
 
 const (

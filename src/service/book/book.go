@@ -12,14 +12,15 @@ import (
 	"reflect"
 )
 
-func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
+func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
 	if err != nil {
 		return model.Book{}, err
 	}
 
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"uuid": uuid,
+		"buuid": uuid,
+		"uuuid": userUUID,
 	})
 
 	if err != nil {
@@ -46,6 +47,8 @@ func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 	suuid, okSu := values[10].(string)
 	bstatus, okB := values[11].(int64)
 	borrowerUUID, okBu := values[12].(string)
+	hasLiked, okH := values[13].(bool)
+	likeCount, okL := values[14].(int64)
 
 	if okT {
 		book.Title = title
@@ -77,7 +80,16 @@ func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 	if okB {
 		book.Status = int(bstatus)
 	}
-	book.HasBorrowed = okBu && (borrowerUUID == clientUUID)
+	book.IsLogged = userUUID != ""
+	if okBu {
+		book.HasBorrowed = borrowerUUID == userUUID
+	}
+	if okH {
+		book.HasLiked = hasLiked
+	}
+	if okL {
+		book.LikeCount = int(likeCount)
+	}
 
 	if okAsI {
 		authors := make([]string, len(authorsI))
@@ -249,4 +261,50 @@ func RespondWithReturn(c echo.Context) error {
 	}
 
 	return c.HTML(http.StatusOK, "Le livre a bien été rendu")
+}
+
+func RespondWithLike(c echo.Context) error {
+	uuuid := auth.GetUserUUIDFromContext(c)
+	if uuuid == "" {
+		return c.NoContent(http.StatusForbidden)
+	}
+	bookUUID := c.Param(util.BookParam)
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/likeBook.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	}
+	_, err = database.Query(context.Background(), query, map[string]any{
+		"buuid": bookUUID,
+		"uuuid": uuuid,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	}
+
+	return c.HTML(http.StatusOK, "Le livre a été liké")
+}
+
+func RespondWithUnlike(c echo.Context) error {
+	uuuid := auth.GetUserUUIDFromContext(c)
+	if uuuid == "" {
+		return c.NoContent(http.StatusForbidden)
+	}
+	bookUUID := c.Param(util.BookParam)
+	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/unlikeBook.cypher")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	}
+	_, err = database.Query(context.Background(), query, map[string]any{
+		"buuid": bookUUID,
+		"uuuid": uuuid,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
+	}
+
+	return c.HTML(http.StatusOK, "Le livre a été déliké")
 }
