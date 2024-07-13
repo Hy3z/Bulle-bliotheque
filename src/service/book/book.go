@@ -48,6 +48,7 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	bstatus, okB := values[11].(int64)
 	borrowerUUID, okBu := values[12].(string)
 	hasLiked, okH := values[13].(bool)
+	likeCount, okL := values[14].(int64)
 
 	if okT {
 		book.Title = title
@@ -79,13 +80,16 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	if okB {
 		book.Status = int(bstatus)
 	}
+	book.IsLogged = userUUID != ""
 	if okBu {
 		book.HasBorrowed = borrowerUUID == userUUID
 	}
 	if okH {
 		book.HasLiked = hasLiked
 	}
-	book.IsLogged = userUUID != ""
+	if okL {
+		book.LikeCount = int(likeCount)
+	}
 
 	if okAsI {
 		authors := make([]string, len(authorsI))
