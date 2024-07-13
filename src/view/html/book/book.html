@@ -146,33 +146,37 @@
         {{end}}
     </div>
 
-    {{if .HasLiked}}
-        <div>
-            <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/unlike" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
-                    class="color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block">
-                Déliker
-            </button>
-        </div>
-    {{else}}
-        <div>
-            <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/like" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
-                    class="color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block">
-                Liker
-            </button>
-        </div>
-    {{end}}
+        {{if .IsLogged}}
+            {{if .HasLiked}}
+                <div>
+                    <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/unlike" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
+                            class="color-gray-200
+                            hover:text-blue-600
+                            dark:hover:text-blue-400
+                            text-base
+                            transition-colors
+                            px-2
+                            relative
+                            inline-block">
+                        Déliker
+                    </button>
+                </div>
+            {{else}}
+                <div>
+                    <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/like" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
+                            class="color-gray-200
+                            hover:text-blue-600
+                            dark:hover:text-blue-400
+                            text-base
+                            transition-colors
+                            px-2
+                            relative
+                            inline-block">
+                        Liker
+                    </button>
+                </div>
+            {{end}}
+        {{else}}
+            Vous devez être connecté pour liker un livre
+        {{end}}
 {{end}}

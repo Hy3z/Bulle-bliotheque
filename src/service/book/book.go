@@ -12,14 +12,15 @@ import (
 	"reflect"
 )
 
-func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
+func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
 	if err != nil {
 		return model.Book{}, err
 	}
 
 	res, err := database.Query(context.Background(), query, map[string]any{
-		"uuid": uuid,
+		"buuid": uuid,
+		"uuuid": userUUID,
 	})
 
 	if err != nil {
@@ -46,6 +47,7 @@ func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 	suuid, okSu := values[10].(string)
 	bstatus, okB := values[11].(int64)
 	borrowerUUID, okBu := values[12].(string)
+	hasLiked, okH := values[13].(bool)
 
 	if okT {
 		book.Title = title
@@ -77,7 +79,13 @@ func getBookByUUID(uuid string, clientUUID string) (model.Book, error) {
 	if okB {
 		book.Status = int(bstatus)
 	}
-	book.HasBorrowed = okBu && (borrowerUUID == clientUUID)
+	if okBu {
+		book.HasBorrowed = borrowerUUID == userUUID
+	}
+	if okH {
+		book.HasLiked = hasLiked
+	}
+	book.IsLogged = userUUID != ""
 
 	if okAsI {
 		authors := make([]string, len(authorsI))
