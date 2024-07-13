@@ -88,10 +88,8 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 		book.HasLiked = hasLiked
 	}
 	if okL {
-		logger.InfoLogger.Println("ok %n | %n", likeCount, int(likeCount))
 		book.LikeCount = int(likeCount)
 	} else {
-		logger.InfoLogger.Println("not ok")
 		book.LikeCount = 0
 	}
 
