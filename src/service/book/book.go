@@ -89,8 +89,6 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	}
 	if okL {
 		book.LikeCount = int(likeCount)
-	} else {
-		book.LikeCount = 0
 	}
 
 	if okAsI {
