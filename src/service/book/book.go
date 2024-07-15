@@ -10,28 +10,48 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
+	"time"
 )
 
-func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
-	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookByUUID.cypher")
+func getBookReviewsByUUID(buuid string) ([]model.Review, error) {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/getBookReviewsByUUID.cypher", map[string]any{
+		"uuid": buuid,
+	})
 	if err != nil {
-		return model.Book{}, err
+		return []model.Review{}, err
 	}
+	reviews := make([]model.Review, len(res.Records))
+	for i, rec := range res.Records {
+		review := model.Review{}
+		values := rec.Values
+		//uuuid, okU := values[0].(string)
+		uname, okN := values[1].(string)
+		message, okM := values[2].(string)
+		date, okD := values[3].(string)
+		if okN {
+			review.UserName = uname
+		}
+		if okM {
+			review.Message = message
+		}
+		if okD {
+			review.Date = date
+		}
+		reviews[i] = review
+	}
+	return reviews, nil
+}
 
-	res, err := database.Query(context.Background(), query, map[string]any{
+func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
+	book := model.Book{}
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/getBookByUUID.cypher", map[string]any{
 		"buuid": uuid,
 		"uuuid": userUUID,
 	})
-
-	if err != nil {
-		return model.Book{}, err
+	if err != nil || len(res.Records) == 0 {
+		return book, err
 	}
 
-	if len(res.Records) == 0 {
-		return model.Book{}, err
-	}
-
-	book := model.Book{}
 	values := res.Records[0].Values
 
 	title, okT := values[0].(string)
@@ -115,6 +135,12 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 		}
 		book.Tags = tags
 	}
+
+	reviews, err := getBookReviewsByUUID(uuid)
+	if err != nil {
+		return book, err
+	}
+	book.Reviews = reviews
 	return book, nil
 }
 
@@ -307,4 +333,36 @@ func RespondWithUnlike(c echo.Context) error {
 	}
 
 	return c.HTML(http.StatusOK, "Le livre a été déliké")
+}
+
+func RespondWithReview(c echo.Context) error {
+	userUUID := auth.GetUserUUIDFromContext(c)
+	if userUUID == "" {
+		return c.NoContent(http.StatusForbidden)
+	}
+	message := c.FormValue("message")
+	bookUUID := c.Param(util.BookParam)
+	if message == "" {
+		_, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/removeReview.cypher", map[string]any{
+			"uuuid": userUUID,
+			"buuid": bookUUID,
+		})
+		if err != nil {
+			logger.ErrorLogger.Printf("Error executing script: %s\n", err)
+			return c.NoContent(http.StatusInternalServerError)
+		}
+		return c.HTML(http.StatusOK, "Le message a été supprimé")
+	}
+
+	_, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/editReview.cypher", map[string]any{
+		"uuuid":   userUUID,
+		"buuid":   bookUUID,
+		"message": message,
+		"date":    time.Now().String(),
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error executing script: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.HTML(http.StatusOK, "Le message a été ajouté")
 }

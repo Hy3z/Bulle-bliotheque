@@ -5,6 +5,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type Review struct {
+	UserName string
+	Date     string
+	Message  string
+}
+
 type Book struct {
 	Title         string
 	UUID          string
@@ -18,10 +24,16 @@ type Book struct {
 	SerieName     string
 	SerieUUID     string
 	Status        int
-	IsLogged      bool
-	HasBorrowed   bool
-	HasLiked      bool
-	LikeCount     int
+
+	IsLogged bool
+
+	HasBorrowed bool
+
+	HasLiked  bool
+	LikeCount int
+
+	UserReview string
+	Reviews    []Review
 }
 
 const (

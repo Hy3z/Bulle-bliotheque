@@ -1,7 +1,9 @@
 package util
 
 import (
+	"bb/database"
 	"bytes"
+	"context"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"os"
 )
@@ -37,4 +39,13 @@ func RecordsContains(records []*neo4j.Record, index int, value any) bool {
 		continue
 	}
 	return false
+}
+
+func ExecuteCypherScript(filepath string, parameters map[string]any) (*neo4j.EagerResult, error) {
+	query, err := ReadCypherScript(filepath)
+	if err != nil {
+		return nil, err
+	}
+	res, err := database.Query(context.Background(), query, parameters)
+	return res, err
 }
