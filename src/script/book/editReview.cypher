@@ -1,4 +1,4 @@
-MATCH (u:User{UUID:$uuid})
+MATCH (u:User{UUID:$uuuid})
 MATCH (b:Book{UUID:$buuid})
 OPTIONAL MATCH (u)-[r:REVIEWED]->(b)
 DELETE r
