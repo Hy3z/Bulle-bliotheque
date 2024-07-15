@@ -6,6 +6,7 @@ import (
 )
 
 type Review struct {
+	UserUUID string
 	UserName string
 	Date     string
 	Message  string

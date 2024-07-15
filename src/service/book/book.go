@@ -13,6 +13,15 @@ import (
 	"time"
 )
 
+func getUserReviewByUUID(userUUID string, reviews []model.Review) string {
+	for _, review := range reviews {
+		if review.UserUUID == userUUID {
+			return review.Message
+		}
+	}
+	return ""
+}
+
 func getBookReviewsByUUID(buuid string) ([]model.Review, error) {
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/getBookReviewsByUUID.cypher", map[string]any{
 		"uuid": buuid,
@@ -24,10 +33,13 @@ func getBookReviewsByUUID(buuid string) ([]model.Review, error) {
 	for i, rec := range res.Records {
 		review := model.Review{}
 		values := rec.Values
-		//uuuid, okU := values[0].(string)
+		uuuid, okU := values[0].(string)
 		uname, okN := values[1].(string)
 		message, okM := values[2].(string)
 		date, okD := values[3].(string)
+		if okU {
+			review.UserUUID = uuuid
+		}
 		if okN {
 			review.UserName = uname
 		}
@@ -141,6 +153,7 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 		return book, err
 	}
 	book.Reviews = reviews
+	book.UserReview = getUserReviewByUUID(userUUID, reviews)
 	return book, nil
 }
 
