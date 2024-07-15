@@ -186,8 +186,10 @@
                 <label>Commentaire
                     <input type="text" name="message" value="{{.UserReview}}">
                 </label>
-                <button class="btn">Mettre à jour</button>
+                <button>Mettre à jour</button>
+                <button hx-put="https://bulle.rezel.net/book/{{.UUID}}/review" hx-target="this" hx-swap="outerHTML">Supprimer</button>
             </form>
+
         {{else}}
             Ajouter un commentaire:
                 <form hx-put="https://bulle.rezel.net/book/{{.UUID}}/review" hx-target="this" hx-swap="outerHTML">
