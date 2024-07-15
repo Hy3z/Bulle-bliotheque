@@ -59,6 +59,25 @@ func getLikedByUUID(uuid string) ([]model.BookPreview, error) {
 	return previews, nil
 }
 
+func getReviewedByUUID(uuid string) ([]model.BookPreview, error) {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/account/getReviewedByUUID.cypher", map[string]any{
+		"uuid": uuid,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error executing script: %s\n", err)
+		return nil, err
+	}
+	previews := make([]model.BookPreview, len(res.Records))
+	for i, record := range res.Records {
+		buuid := record.Values[0].(string)
+		btitle := record.Values[1].(string)
+		bstatus := record.Values[2].(int64)
+		preview := model.BookPreview{Title: btitle, UUID: buuid, Status: int(bstatus)}
+		previews[i] = preview
+	}
+	return previews, nil
+}
+
 func getAccountByUUID(uuid string, name string) (model.Account, error) {
 	account := model.Account{
 		UUID: uuid,
@@ -72,9 +91,14 @@ func getAccountByUUID(uuid string, name string) (model.Account, error) {
 	if err != nil {
 		return account, err
 	}
+	reviewed, err := getReviewedByUUID(uuid)
+	if err != nil {
+		return account, err
+	}
 
 	account.Borrowed = borrowed
 	account.Liked = liked
+	account.Reviewed = reviewed
 	return account, nil
 }
 

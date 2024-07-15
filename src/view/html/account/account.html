@@ -24,4 +24,10 @@
                 {{template "book-preview" .}}
             {{end}}
         </div>
+        <div>
+            Livres commentés:
+            {{range .Reviewed}}
+                {{template "book-preview" .}}
+            {{end}}
+        </div>
 {{end}}

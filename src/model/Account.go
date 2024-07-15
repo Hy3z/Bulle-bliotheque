@@ -10,6 +10,7 @@ type Account struct {
 	Name     string
 	Borrowed []BookPreview
 	Liked    []BookPreview
+	Reviewed []BookPreview
 }
 
 const (
