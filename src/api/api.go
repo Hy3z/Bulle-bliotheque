@@ -98,6 +98,8 @@ func SetupAuth(e *echo.Echo) {
 	e.POST(util.BookLikePath, book.RespondWithLike, auth.HasTokenMiddleware)
 	e.POST(util.BookUnlikePath, book.RespondWithUnlike, auth.HasTokenMiddleware)
 
+	e.PUT(util.BookReviewPath, book.RespondWithReview, auth.HasTokenMiddleware)
+
 	e.GET(util.AccountPath, account.RespondWithAccount, auth.HasTokenMiddleware)
 
 	e.GET("/auth", func(c echo.Context) error {

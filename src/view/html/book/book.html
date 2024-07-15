@@ -142,7 +142,7 @@
     <div>
         Nombre de like: {{.LikeCount}}
     </div>
-
+    <div>
         {{if .IsLogged}}
             {{if .HasLiked}}
                 <div>
@@ -176,5 +176,34 @@
 
         {{else}}
             Vous devez être connecté pour liker un livre
+        {{end}}
+    </div>
+
+    <div>
+        {{if hasField . "UserReview"}}
+            Votre commentaire:
+            <form hx-put="https://bulle.rezel.net/book/{{.UUID}}/review" hx-target="this" hx-swap="outerHTML">
+                <label>Commentaire
+                    <input type="text" name="message" value="{{.UserReview}}">
+                </label>
+                <button>Mettre à jour</button>
+            </form>
+            <button hx-put="https://bulle.rezel.net/book/{{.UUID}}/review" hx-target="this" hx-swap="outerHTML">Supprimer</button>
+        {{else}}
+            Ajouter un commentaire:
+                <form hx-put="https://bulle.rezel.net/book/{{.UUID}}/review" hx-target="this" hx-swap="outerHTML">
+                    <label>Commentaire
+                        <input type="text" name="message" value="">
+                    </label>
+                    <button class="btn">Ajouter</button>
+                </form>
+        {{end}}
+    </div>
+
+    <div>Commentaires</div>
+        {{range .Reviews}}
+            <div>
+                {{.UserName}} le {{.Date}}: {{.Message}}
+            </div>
         {{end}}
 {{end}}

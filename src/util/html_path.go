@@ -14,6 +14,7 @@ const (
 	BookReturnPath = BookPath + "/return"
 	BookLikePath   = BookPath + "/like"
 	BookUnlikePath = BookPath + "/unlike"
+	BookReviewPath = BookPath + "/review"
 	//BookEditPath   = BookPath + "/edit"
 
 	SeriePath      = "serie/:" + SerieParam
