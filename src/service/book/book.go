@@ -371,7 +371,7 @@ func RespondWithReview(c echo.Context) error {
 		"uuuid":   userUUID,
 		"buuid":   bookUUID,
 		"message": message,
-		"date":    time.Now().String(),
+		"date":    time.Now().Format(time.DateOnly),
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error executing script: %s\n", err)
