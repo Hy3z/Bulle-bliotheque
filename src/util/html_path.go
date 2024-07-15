@@ -8,13 +8,14 @@ const (
 	BrowseAllPath    = BrowsePath + "/all"
 	BrowseLatestPath = BrowsePath + "/latest"
 
-	BookPath       = "/book/:" + BookParam
-	BookCoverPath  = BookPath + "/cover"
-	BookBorrowPath = BookPath + "/borrow"
-	BookReturnPath = BookPath + "/return"
-	BookLikePath   = BookPath + "/like"
-	BookUnlikePath = BookPath + "/unlike"
-	BookReviewPath = BookPath + "/review"
+	BookPath             = "/book/:" + BookParam
+	BookCoverPath        = BookPath + "/cover"
+	BookBorrowPath       = BookPath + "/borrow"
+	BookReturnPath       = BookPath + "/return"
+	BookLikePath         = BookPath + "/like"
+	BookUnlikePath       = BookPath + "/unlike"
+	BookReviewPath       = BookPath + "/review"
+	BookDeleteReviewPath = BookReviewPath + "/delete"
 	//BookEditPath   = BookPath + "/edit"
 
 	SeriePath      = "serie/:" + SerieParam

@@ -99,6 +99,7 @@ func SetupAuth(e *echo.Echo) {
 	e.POST(util.BookUnlikePath, book.RespondWithUnlike, auth.HasTokenMiddleware)
 
 	e.PUT(util.BookReviewPath, book.RespondWithReview, auth.HasTokenMiddleware)
+	//e.PUT(util.BookDeleteReviewPath, book.RespondWithReview, auth.HasTokenMiddleware)
 
 	e.GET(util.AccountPath, account.RespondWithAccount, auth.HasTokenMiddleware)
 
