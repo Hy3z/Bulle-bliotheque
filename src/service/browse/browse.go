@@ -95,15 +95,17 @@ func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 }
 
 func respondWithBrowsePage(c echo.Context) error {
+	logger.InfoLogger.Println("a")
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render default view
+	logger.InfoLogger.Println("b")
 	if qParam == "" {
 		return model.Browse{
 			IsHome: true,
 			//Researches: rootResearches(),
 		}.RenderIndex(c, http.StatusOK, "")
 	}
-
+	logger.InfoLogger.Println("c")
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
 	}.RenderIndex(c, http.StatusOK, qParam)
