@@ -27,5 +27,9 @@ const (
 	CallbackLoginPath = LoginPath + "/callback"
 	LogoutPath        = "/logout"
 
+	AdminPath      = "/admin"
+	AdminSeriePath = AdminPath + "/serie"
+	AdminBookPath  = AdminPath + "/book"
+
 	AccountPath = "/account"
 )

@@ -3,6 +3,7 @@ package api
 import (
 	"bb/auth"
 	"bb/service/account"
+	"bb/service/admin"
 	"bb/service/book"
 	"bb/service/browse"
 	"bb/service/contact"
@@ -13,7 +14,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 )
 
 type Templates struct {
@@ -42,11 +46,24 @@ func escape(s string) string {
 }
 
 func newTemplate() *Templates {
+	tmpl := template.New("").Funcs(map[string]any{
+		"hasField": hasField,
+		"escape":   escape,
+	})
+	err := filepath.Walk("view/html", func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".html") {
+			_, err := tmpl.ParseFiles(path)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil
+	}
 	return &Templates{
-		templates: template.Must(template.New("").Funcs(map[string]any{
-			"hasField": hasField,
-			"escape":   escape,
-		}).ParseGlob("view/html/*/*.html")),
+		templates: tmpl,
 	}
 }
 
@@ -110,6 +127,8 @@ func SetupAuth(e *echo.Echo) {
 }
 
 func SetupRestricted(e *echo.Echo) {
+	e.GET(util.AdminPath, admin.RespondWithAdmin, auth.HasRoleMiddleware)
+	e.GET(util.AdminSeriePath, admin.RespondWithSerie, auth.HasRoleMiddleware)
 	e.GET("/restricted", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO RESTRICTED")
 	}, auth.HasRoleMiddleware)
