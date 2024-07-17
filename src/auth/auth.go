@@ -407,7 +407,6 @@ func IsAdmin(c echo.Context) bool {
 		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
 		access_token = jwt.AccessToken
 	}
-	logger.InfoLogger.Println(hasRoles(c, access_token, []string{admin_role_name}))
 	return hasRoles(c, access_token, []string{admin_role_name})
 }
 
