@@ -398,7 +398,6 @@ func IsLogged(c echo.Context) bool {
 }
 
 func IsAdmin(c echo.Context) bool {
-	return false
 	tokenPresent, jwt := hasToken(c)
 	if !tokenPresent {
 		return false
