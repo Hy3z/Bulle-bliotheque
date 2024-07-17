@@ -1,2 +1,5 @@
 {{define "admin-serie"}}
+    {{range .Series}}
+        {{template "serie-preview" .}}
+    {{end}}
 {{end}}
