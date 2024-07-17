@@ -50,5 +50,6 @@ func (b Book) RenderIndex(c echo.Context, code int) error {
 	return c.Render(code, bookIndexTemplate, Index{
 		IsLogged: auth.IsLogged(c),
 		Data:     b,
+		IsAdmin:  auth.IsAdmin(c),
 	})
 }

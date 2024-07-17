@@ -18,5 +18,6 @@ func RenderAdminIndex(c echo.Context, code int) error {
 	return c.Render(code, adminIndexTemplate, Index{
 		IsLogged: auth.IsLogged(c),
 		Data:     nil,
+		IsAdmin:  auth.IsAdmin(c),
 	})
 }

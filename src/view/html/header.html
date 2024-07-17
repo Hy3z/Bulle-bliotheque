@@ -1,5 +1,5 @@
 {{define "header"}}
-    <nav class="header
+    < class="header
     sticky
     bg-[#111111]
     font-header
@@ -169,6 +169,25 @@
                     h-full">
             Contact
         </a>
+
+        {if .IsAdmin}}
+            <a href="https://bulle.rezel.net/admin"
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML show:window:top"
+               class="color-gray-200
+                            hover:text-blue-600
+                            dark:hover:text-blue-400
+                            text-base
+                            transition-colors
+                            px-2
+                            relative
+                            inline-block
+                            h-full">
+                Pannel admin</a>
+        {{end}}
 
         {{if and (hasField . "IsLogged") .IsLogged}}
             <a href="https://bulle.rezel.net/account"
