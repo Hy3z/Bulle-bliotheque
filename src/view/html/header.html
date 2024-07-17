@@ -169,8 +169,8 @@
                     h-full">
             Contact
         </a>
-        ADMIN: {{.IsAdmin}}
-        {{if and (hasField . "IsAdmin") .IsAdmin}}
+
+        {{if .IsAdmin}}
             <a href="https://bulle.rezel.net/admin"
                onclick="clear_browse_bar()"
                hx-boost="true"
