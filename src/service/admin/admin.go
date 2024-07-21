@@ -5,7 +5,9 @@ import (
 	"bb/model"
 	"bb/util"
 	"github.com/labstack/echo/v4"
+	"io"
 	"net/http"
+	"os"
 )
 
 func respondWithAdminMain(c echo.Context) error {
@@ -77,4 +79,49 @@ func RespondWithSerie(c echo.Context) error {
 		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
+}
+
+func CreateSerie(c echo.Context) error {
+	name := c.FormValue("name")
+	fileheader, err := c.FormFile("cover")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading fileheader: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	file, err := fileheader.Open()
+	if err != nil {
+		logger.ErrorLogger.Printf("Error opening fileheader: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/admin/serie/createSerie.cypher", map[string]any{
+		"name": name,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error executing script: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	uuid, _ := res.Records[0].Values[0].(string)
+	path := "/data/serie/" + uuid
+	err = os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error on mkdir: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	dest, err := os.Create(path + "/cover.jpg")
+	if err != nil {
+		logger.ErrorLogger.Printf("Error creating cover file for %s: %s\n", name, err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	_, err = io.Copy(dest, file)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error copying cover for %s: %s\n", name, err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	logger.InfoLogger.Printf("Serie \"%s\" was created\n", name)
+	return c.HTML(http.StatusOK, "Created serie "+name)
 }
