@@ -9,7 +9,6 @@ import (
 	"bb/service/contact"
 	"bb/service/serie"
 	"bb/util"
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
 	"net/http"
@@ -18,6 +17,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Templates struct {
@@ -129,7 +130,7 @@ func SetupAuth(e *echo.Echo) {
 func SetupRestricted(e *echo.Echo) {
 	e.GET(util.AdminPath, admin.RespondWithAdmin, auth.HasRoleMiddleware)
 	e.GET(util.AdminSeriePath, admin.RespondWithSerie, auth.HasRoleMiddleware)
-	e.GET(util.AdminCreateSeriePath, admin.CreateSerie, auth.HasRoleMiddleware)
+	e.POST(util.AdminCreateSeriePath, admin.CreateSerie, auth.HasRoleMiddleware)
 	e.GET("/restricted", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "HELLO RESTRICTED")
 	}, auth.HasRoleMiddleware)
