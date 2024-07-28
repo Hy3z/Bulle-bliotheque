@@ -25,5 +25,6 @@ func (m Browse) RenderIndex(c echo.Context, code int, query string) error {
 		IsLogged: auth.IsLogged(c),
 		Query:    query,
 		Data:     m,
+		IsAdmin:  auth.IsAdmin(c),
 	})
 }

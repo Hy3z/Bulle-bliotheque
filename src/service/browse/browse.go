@@ -103,7 +103,6 @@ func respondWithBrowsePage(c echo.Context) error {
 			//Researches: rootResearches(),
 		}.RenderIndex(c, http.StatusOK, "")
 	}
-
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
 	}.RenderIndex(c, http.StatusOK, qParam)

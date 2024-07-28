@@ -1,20 +1,4 @@
 {{define "header"}}
-    <nav class="header
-    sticky
-    bg-[#111111]
-    font-header
-    top-0
-    left-0
-    right-0
-    z-50
-    transition-shadow
-    flex
-    flex-row
-    items-center
-    mx-auto
-    px-4
-    py-2
-    gap-2">
         <!--HEADER HERE-->
         <a href="https://bulle.rezel.net/browse"
            hx-boost="true"
@@ -169,6 +153,25 @@
                     h-full">
             Contact
         </a>
+
+        {{if .IsAdmin}}
+            <a href="https://bulle.rezel.net/admin"
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML show:window:top"
+               class="color-gray-200
+                            hover:text-blue-600
+                            dark:hover:text-blue-400
+                            text-base
+                            transition-colors
+                            px-2
+                            relative
+                            inline-block
+                            h-full">
+                Pannel admin</a>
+        {{end}}
 
         {{if and (hasField . "IsLogged") .IsLogged}}
             <a href="https://bulle.rezel.net/account"

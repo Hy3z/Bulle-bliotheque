@@ -1,0 +1,14 @@
+{{define "admin-serie"}}
+<form
+    hx-post="https://bulle.rezel.net/admin/serie/create"
+    hx-swap="outerHTML"
+    hx-target="this"
+    enctype="multipart/form-data"
+>
+    <label for="name">Nom de la série</label>
+    <input type="text" placeholder="Nom" name="name" id="name" />
+    <label for="cover">Image au format jpg</label>
+    <input type="file" name="cover" id="cover" accept=".jpg" />
+    <button>Submit</button>
+</form>
+{{range .Series}} {{template "serie-preview" .}} {{end}} {{end}}

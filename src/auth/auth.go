@@ -397,6 +397,19 @@ func IsLogged(c echo.Context) bool {
 	return true
 }
 
+func IsAdmin(c echo.Context) bool {
+	tokenPresent, jwt := hasToken(c)
+	if !tokenPresent {
+		return false
+	}
+	access_token, _, _ := getTokens(c)
+	if jwt != nil {
+		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
+		access_token = jwt.AccessToken
+	}
+	return hasRoles(c, access_token, []string{admin_role_name})
+}
+
 func GetUserInfo(access_token string) (string, string, error) {
 	info, err := client.GetUserInfo(context.Background(), access_token, realm)
 	if err != nil {
