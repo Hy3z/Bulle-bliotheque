@@ -105,7 +105,7 @@ func CreateSerie(c echo.Context) error {
 	}
 
 	uuid, _ := res.Records[0].Values[0].(string)
-	path := "/data/serie/" + uuid
+	path := "data/serie/" + uuid
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error on mkdir: %s\n", err)
