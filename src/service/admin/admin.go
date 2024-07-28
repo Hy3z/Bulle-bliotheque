@@ -4,10 +4,11 @@ import (
 	"bb/logger"
 	"bb/model"
 	"bb/util"
-	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/labstack/echo/v4"
 )
 
 func respondWithAdminMain(c echo.Context) error {
@@ -93,6 +94,7 @@ func CreateSerie(c echo.Context) error {
 		logger.ErrorLogger.Printf("Error opening fileheader: %s\n", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
+	defer file.Close()
 
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/admin/serie/createSerie.cypher", map[string]any{
 		"name": name,
@@ -122,6 +124,6 @@ func CreateSerie(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	logger.InfoLogger.Printf("Serie \"%s\" was created\n", name)
+	logger.InfoLogger.Printf("Serie \"%s\" was created with uuid: %s\n", name, uuid)
 	return c.HTML(http.StatusOK, "Created serie "+name)
 }
