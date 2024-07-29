@@ -6,9 +6,10 @@ import (
 	"bb/model"
 	"bb/util"
 	"context"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 //
@@ -154,16 +155,22 @@ func respondWithBrowsePs(c echo.Context) error {
 }
 
 func RespondWithBrowse(c echo.Context) error {
+	logger.InfoLogger.Println("a")
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
+		logger.InfoLogger.Println("b")
 		return respondWithBrowsePage(c)
 	}
+	logger.InfoLogger.Println("c")
 	switch tmpl {
 	case util.MainContentType:
+		logger.InfoLogger.Println("d")
 		return respondWithBrowseMain(c)
 	case util.PreviewSetContentType:
+		logger.InfoLogger.Println("e")
 		return respondWithBrowsePs(c)
 	default:
+		logger.InfoLogger.Println("f")
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}

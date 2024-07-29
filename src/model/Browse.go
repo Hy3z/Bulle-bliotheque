@@ -2,6 +2,7 @@ package model
 
 import (
 	"bb/auth"
+
 	"github.com/labstack/echo/v4"
 )
 

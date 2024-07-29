@@ -1,45 +1,23 @@
 {{define "header"}}
+    EHO YA QQUN
         <!--HEADER HERE-->
         <a href="http://localhost:8080/browse"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
            hx-swap="innerHTML show:window:top"
-           onclick="clear_browse_bar()"
-           class="header-main
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-sm
-                    transition-colors
-                    px-2.5
-                    relative
-                    inline-block
-                    h-full">
-            <img src="http://localhost:8080/logo" alt="logo" class="logo
-                    hidden
-                    dark:block
-                    h-12
-                    cursor-pointer">
+           onclick="clear_browse_bar()">
+            <img src="http://localhost:8080/logo" alt="logo">
+
         </a>
 
-        <div class="browse-button">
+        <div>
             <a href="http://localhost:8080/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-latest
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML show:window:top">
                 Tous les livres
             </a>
 <!--
@@ -48,17 +26,7 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-latest
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML show:window:top">
                 Nouveautés
             </a>
 -->
@@ -69,17 +37,7 @@
                hx-vals='{"tag":"Manga"}'
                hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-manga
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML show:window:top">
                 Manga
             </a>
             <a href="http://localhost:8080/browse/tag/{tag}"
@@ -89,27 +47,13 @@
                hx-vals='{"tag":"BD"}'
                hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-bd
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML show:window:top">
                 BD
             </a>
         </div>
 
         <label class ="flex-grow">
-            <input type="search" name="q" id="browse-bar"  class="
-                w-full
-                rounded-full
-                text-black
-                pl-5"
+            <input type="search" name="q" id="browse-bar"
                 placeholder="Livre, saga, genre, auteur, ..."
                 {{if hasField . "Query"}}
                     value ="{{.Query}}"
@@ -140,17 +84,7 @@
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
-           hx-swap="innerHTML show:window:top"
-           class="header-contact
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+           hx-swap="innerHTML show:window:top">
             Contact
         </a>
 
@@ -160,62 +94,25 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="color-gray-200
-                            hover:text-blue-600
-                            dark:hover:text-blue-400
-                            text-base
-                            transition-colors
-                            px-2
-                            relative
-                            inline-block
-                            h-full">
-                Pannel admin</a>
+               hx-swap="innerHTML show:window:top">
+                Pannel admin
+            </a>
         {{end}}
 
-        {{if and (hasField . "IsLogged") .IsLogged}}
+        {{if .IsLogged}}
             <a href="http://localhost:8080/account"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="color-gray-200
-                        hover:text-blue-600
-                        dark:hover:text-blue-400
-                        text-base
-                        transition-colors
-                        px-2
-                        relative
-                        inline-block
-                        h-full">
+               hx-swap="innerHTML show:window:top">
                 Mon compte</a>
 
-            <a href="http://localhost:8080/logout"
-               class="header-auth
-                        color-gray-200
-                        hover:text-blue-600
-                        dark:hover:text-blue-400
-                        text-base
-                        transition-colors
-                        px-2
-                        relative
-                        inline-block
-                        h-full">
+            <a href="http://localhost:8080/logout">
                 Logout</a>
         {{else}}
-        <a href="http://localhost:8080/login"
-           class="header-auth
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+        <a href="http://localhost:8080/login">
             Login</a>
         {{end}}
-    </nav>
+
 {{end}}
