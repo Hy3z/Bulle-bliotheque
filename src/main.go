@@ -5,6 +5,7 @@ import (
 	"bb/auth"
 	"bb/database"
 	"bb/logger"
+
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
@@ -24,5 +25,5 @@ func main() {
 	api.SetupAuth(e)
 	api.SetupRestricted(e)
 	api.SetupNoAuth(e)
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start(":8080"))
 }

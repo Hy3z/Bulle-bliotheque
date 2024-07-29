@@ -1,22 +1,14 @@
-{{define "admin"}}
-    ----Panneau de contrôle admin----
-    <a href="https://bulle.rezel.net/admin/serie"
-       onclick="clear_browse_bar()"
-       hx-boost="true"
-       hx-headers='{"Tmpl":"main"}'
-       hx-target=".main"
-       hx-swap="innerHTML show:window:top"
-       class="header-latest
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
-        Gérer les séries
-    </a>
+{{define "admin"}} ----Panneau de contrôle admin----
+<a
+    href="http://localhost:8080/admin/serie"
+    onclick="clear_browse_bar()"
+    hx-boost="true"
+    hx-headers='{"Tmpl":"main"}'
+    hx-target=".main"
+    hx-swap="innerHTML show:window:top"
+    class="header-latest color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block h-full"
+>
+    Gérer les séries
+</a>
 
 {{end}}

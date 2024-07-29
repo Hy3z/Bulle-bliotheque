@@ -1,33 +1,22 @@
 {{define "account"}}
-        <div>Mon compte</div>
-        <div>UUID: {{.UUID}}</div>
-        <div>Nom: {{.Name}}</div>
-        <div>Livres empruntés:
-            {{range .Borrowed}}
-                {{template "book-preview" .}}
-                <button hx-post="https://bulle.rezel.net/book/{{.UUID}}/return" hx-swap="outerHTML" hx-trigger="click" hx-target="this"
-                        class="color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block">
-                    Rendre
-                </button>
-            {{end}}
-        </div>
-        <div>
-            Livres likés:
-            {{range .Liked}}
-                {{template "book-preview" .}}
-            {{end}}
-        </div>
-        <div>
-            Livres commentés:
-            {{range .Reviewed}}
-                {{template "book-preview" .}}
-            {{end}}
-        </div>
+<div>Mon compte</div>
+<div>UUID: {{.UUID}}</div>
+<div>Nom: {{.Name}}</div>
+<div>
+    Livres empruntés: {{range .Borrowed}} {{template "book-preview" .}}
+    <button
+        hx-post="http://localhost:8080/book/{{.UUID}}/return"
+        hx-swap="outerHTML"
+        hx-trigger="click"
+        hx-target="this"
+        class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
+    >
+        Rendre
+    </button>
+    {{end}}
+</div>
+<div>Livres likés: {{range .Liked}} {{template "book-preview" .}} {{end}}</div>
+<div>
+    Livres commentés: {{range .Reviewed}} {{template "book-preview" .}} {{end}}
+</div>
 {{end}}

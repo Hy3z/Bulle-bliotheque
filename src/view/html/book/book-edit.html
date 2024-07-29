@@ -1,98 +1,107 @@
 {{define "book-edit"}}
-    <div>
-        {{.UUID}}
-        <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book">
-    </div>
+<div>
+    {{.UUID}}
+    <img src="http://localhost:8080/book/{{.UUID}}/cover" alt="book" />
+</div>
 
-    <form hx-post="https://bulle.rezel.net/book/{{.UUID}}">
+<form hx-post="http://localhost:8080/book/{{.UUID}}">
     <div>
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="{{.Title}}">
+        <input type="text" id="title" name="title" value="{{.Title}}" />
     </div>
 
     <div>
         <label for="description">Description</label>
-        <input type="text" id="description" name="description" value="{{.Description}}">
+        <input
+            type="text"
+            id="description"
+            name="description"
+            value="{{.Description}}"
+        />
     </div>
     <div>
-        {{if .Authors}}
-            {{range .Authors}}
-                <a href="https://bulle.rezel.net/browse/author/{{escape .}}"
-                   hx-boost="true"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-target=".main"
-                   hx-swap="innerHTML show:window:top"
-                   class="header-main">
-                    {{.}}
-                </a>
-            {{end}}
-        {{else}}
-            NO AUTHORS {{end}}
+        {{if .Authors}} {{range .Authors}}
+        <a
+            href="http://localhost:8080/browse/author/{{escape .}}"
+            hx-boost="true"
+            hx-headers='{"Tmpl":"main"}'
+            hx-target=".main"
+            hx-swap="innerHTML show:window:top"
+            class="header-main"
+        >
+            {{.}}
+        </a>
+        {{end}} {{else}} NO AUTHORS {{end}}
     </div>
     <div>
-        {{if .Tags}}
-            {{range .Tags}}
-                <a href="https://bulle.rezel.net/browse/tag/{{escape .}}"
-                   hx-boost="true"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-target=".main"
-                   hx-swap="innerHTML show:window:top"
-                   class="header-main">
-                    {{.}}
-                </a>
-            {{end}}
-        {{else}}
-            NO TAGS {{end}}
+        {{if .Tags}} {{range .Tags}}
+        <a
+            href="http://localhost:8080/browse/tag/{{escape .}}"
+            hx-boost="true"
+            hx-headers='{"Tmpl":"main"}'
+            hx-target=".main"
+            hx-swap="innerHTML show:window:top"
+            class="header-main"
+        >
+            {{.}}
+        </a>
+        {{end}} {{else}} NO TAGS {{end}}
     </div>
     <div>
         <label for="publishedDate">Date de publication</label>
-        <input type="text" id="publishedDate" name="publishedDate" value="{{.PublishedDate}}">
+        <input
+            type="text"
+            id="publishedDate"
+            name="publishedDate"
+            value="{{.PublishedDate}}"
+        />
     </div>
     <div>
         <label for="publisher">Editeur</label>
-        <input type="text" id="publisher" name="publisher" value="{{.Publisher}}">
+        <input
+            type="text"
+            id="publisher"
+            name="publisher"
+            value="{{.Publisher}}"
+        />
     </div>
     <div>
         <label for="cote">Cote</label>
-        <input type="text" id="cote" name="cote" value="{{.Cote}}">
+        <input type="text" id="cote" name="cote" value="{{.Cote}}" />
     </div>
     <div>
         <label for="pageCount">Nombre de pages</label>
-        <input type="text" id="pageCount" name="pageCount" value="{{.PageCount}}">
+        <input
+            type="text"
+            id="pageCount"
+            name="pageCount"
+            value="{{.PageCount}}"
+        />
     </div>
     <div>
         <label for="serieSelect">SerieSelect</label>
-        <select id="serieSelect" name="serieSelect">
-        </select>
+        <select id="serieSelect" name="serieSelect"></select>
         <label for="serieInput">SerieInput</label>
-        <input type="text" id="serieInput" name="serieInput">
+        <input type="text" id="serieInput" name="serieInput" />
 
         {{if and .SerieName .SerieUUID}}
-            <a href="https://bulle.rezel.net/serie/{{.SerieUUID}}"
-               hx-boost="true"
-               hx-headers='{"Tmpl":"main"}'
-               hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-main">
-                {{.SerieName}}
-            </a>
-        {{else if or .SerieName .SerieUUID}}
-            SERIE EITHER MISSING NAME OR UUID
-        {{else}}
-            NO SERIE
-        {{end}}
+        <a
+            href="http://localhost:8080/serie/{{.SerieUUID}}"
+            hx-boost="true"
+            hx-headers='{"Tmpl":"main"}'
+            hx-target=".main"
+            hx-swap="innerHTML show:window:top"
+            class="header-main"
+        >
+            {{.SerieName}}
+        </a>
+        {{else if or .SerieName .SerieUUID}} SERIE EITHER MISSING NAME OR UUID
+        {{else}} NO SERIE {{end}}
     </div>
-    </form>
+</form>
 
-    <div>
-        {{if eq .Status 1}}
-            Emprunté
-        {{else if eq .Status 2}}
-            Perdu
-        {{else if eq .Status 3}}
-            Disponible
-        {{else}}
-            NO STATUS. HOW?
-        {{end}}
-    </div>
+<div>
+    {{if eq .Status 1}} Emprunté {{else if eq .Status 2}} Perdu {{else if eq
+    .Status 3}} Disponible {{else}} NO STATUS. HOW? {{end}}
+</div>
 {{end}}

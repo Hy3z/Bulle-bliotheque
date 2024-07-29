@@ -1,6 +1,6 @@
 {{define "header"}}
         <!--HEADER HERE-->
-        <a href="https://bulle.rezel.net/browse"
+        <a href="http://localhost:8080/browse"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
            hx-target=".main"
@@ -16,7 +16,7 @@
                     relative
                     inline-block
                     h-full">
-            <img src="https://bulle.rezel.net/logo" alt="logo" class="logo
+            <img src="http://localhost:8080/logo" alt="logo" class="logo
                     hidden
                     dark:block
                     h-12
@@ -24,7 +24,7 @@
         </a>
 
         <div class="browse-button">
-            <a href="https://bulle.rezel.net/browse/all"
+            <a href="http://localhost:8080/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -43,7 +43,7 @@
                 Tous les livres
             </a>
 <!--
-            <a href="https://bulle.rezel.net/browse/latest"
+            <a href="http://localhost:8080/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -62,7 +62,7 @@
                 Nouveautés
             </a>
 -->
-            <a href="https://bulle.rezel.net/browse/tag/{tag}"
+            <a href="http://localhost:8080/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -82,7 +82,7 @@
                     h-full">
                 Manga
             </a>
-            <a href="https://bulle.rezel.net/browse/tag/{tag}"
+            <a href="http://localhost:8080/browse/tag/{tag}"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -115,7 +115,7 @@
                     value ="{{.Query}}"
                 {{end}}
                    hx-trigger="input changed delay:0.4s, search"
-                   hx-get="https://bulle.rezel.net/browse"
+                   hx-get="http://localhost:8080/browse"
                    hx-push-url="true"
                    hx-on::after-request="cleanURL()"
                    hx-headers='{"Tmpl":"main"}'
@@ -135,7 +135,7 @@
         </label>
 
 
-        <a href="https://bulle.rezel.net/contact"
+        <a href="http://localhost:8080/contact"
            onclick="clear_browse_bar()"
            hx-boost="true"
            hx-headers='{"Tmpl":"main"}'
@@ -155,7 +155,7 @@
         </a>
 
         {{if .IsAdmin}}
-            <a href="https://bulle.rezel.net/admin"
+            <a href="http://localhost:8080/admin"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -174,7 +174,7 @@
         {{end}}
 
         {{if and (hasField . "IsLogged") .IsLogged}}
-            <a href="https://bulle.rezel.net/account"
+            <a href="http://localhost:8080/account"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
@@ -191,7 +191,7 @@
                         h-full">
                 Mon compte</a>
 
-            <a href="https://bulle.rezel.net/logout"
+            <a href="http://localhost:8080/logout"
                class="header-auth
                         color-gray-200
                         hover:text-blue-600
@@ -204,7 +204,7 @@
                         h-full">
                 Logout</a>
         {{else}}
-        <a href="https://bulle.rezel.net/login"
+        <a href="http://localhost:8080/login"
            class="header-auth
                     color-gray-200
                     hover:text-blue-600

@@ -6,14 +6,15 @@ import (
 	"bb/util"
 	"context"
 	"errors"
-	"github.com/Nerzal/gocloak/v13"
-	"github.com/coreos/go-oidc"
-	"github.com/labstack/echo/v4"
-	"golang.org/x/oauth2"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/coreos/go-oidc"
+	"github.com/labstack/echo/v4"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -289,7 +290,7 @@ func Login(c echo.Context) error {
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
+		RedirectURL:  "http://localhost:8080" + util.CallbackLoginPath,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
@@ -310,7 +311,7 @@ func LoginCallback(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
+		RedirectURL:  "http://localhost:8080" + util.CallbackLoginPath,
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
 	token, err := oauth2Config.Exchange(ctx, c.QueryParam("code"))
@@ -342,7 +343,7 @@ func LoginCallback(c echo.Context) error {
 
 	addCookies(&c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
-	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
+	return c.Redirect(http.StatusPermanentRedirect, "http://localhost:8080"+path)
 }
 
 func Logout(c echo.Context) error {
@@ -376,7 +377,7 @@ func Logout(c echo.Context) error {
 		path = ""
 	}
 
-	redirectUrl := "https://bulle.rezel.net" + path
+	redirectUrl := "http://localhost:8080" + path
 
 	url := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
 	url += "?post_logout_redirect_uri=" + redirectUrl

@@ -2,36 +2,30 @@
     {Id, Cover, Title}
 -->
 {{define "book-preview"}}
-        <a href="https://bulle.rezel.net/book/{{.UUID}}"
-           onclick="clear_browse_bar()"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top">
-            <div class="book-image">
+<a
+    href="http://localhost:8080/book/{{.UUID}}"
+    onclick="clear_browse_bar()"
+    hx-boost="true"
+    hx-headers='{"Tmpl":"main"}'
+    hx-target=".main"
+    hx-swap="innerHTML show:window:top"
+>
+    <div class="book-image">
+        <img
+            src="http://localhost:8080/book/{{.UUID}}/cover"
+            alt="book"
+            class=""
+        />
+    </div>
+    <div class="book-title">
+        <!--BOOK TITLE HERE-->
+        {{.Title}}
+    </div>
 
-
-                <img src="https://bulle.rezel.net/book/{{.UUID}}/cover" alt="book" class="">
-
-            </div>
-            <div class="book-title">
-                <!--BOOK TITLE HERE-->
-                {{.Title}}
-            </div>
-
-            <div class="book-status">
-
-                {{if eq .Status 1}}
-                    Emprunté
-                {{else if eq .Status 2}}
-                    Perdu
-                {{else if eq .Status 3}}
-                    Disponible
-                {{else}}
-                    NO STATUS. HOW?
-                {{end}}
-
-            </div>
-    </a>
+    <div class="book-status">
+        {{if eq .Status 1}} Emprunté {{else if eq .Status 2}} Perdu {{else if eq
+        .Status 3}} Disponible {{else}} NO STATUS. HOW? {{end}}
+    </div>
+</a>
 
 {{end}}
