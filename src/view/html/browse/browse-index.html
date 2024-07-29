@@ -1,14 +1,11 @@
 {{define "browse-index"}}
-    <!DOCTYPE html>
-    <html lang="fr">
+<!doctype html>
+<html lang="fr">
     {{template "head"}}
     <body>
-    {{template "header" .}}
+        {{template "header" .}}
 
-    <div class="main">
-        {{template "browse" .Data}}
-    </div>
-
+        <div class="main">{{template "browse" .Data}}</div>
     </body>
-    </html>
+</html>
 {{end}}
