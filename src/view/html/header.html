@@ -1,117 +1,153 @@
 {{define "header"}}
-        <!--HEADER HERE-->
-        <a href="http://localhost:8080/browse"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top"
-           onclick="clear_browse_bar()">
-            <img src="http://localhost:8080/logo" alt="logo">
 
+
+
+    <div class="h-[6rem] flex justify-between bg-gray-100 items-center pl-10 pr-10 fixed top-0 w-[100%] border-b-4 border-gray-200 z-10">
+
+        <a href="http://localhost:8080/browse" onclick="clear_browse_bar();showTop()"
+           hx-boost="true" hx-headers='{"Tmpl":"main"}' hx-target=".main" hx-swap="innerHTML"
+           class="h-full flex flex-row items-center">
+               <img src="http://localhost:8080/logo" alt="logo" class="h-[90%]">
+            <div class="font-handwritten text-4xl">
+                ullothèque
+            </div>
         </a>
 
-        <div>
+        <div class="w-[800px] h-full flex items-center">
+                <input type="search" name="q" id="browseBar"
+                       placeholder="Livre, saga, genre, auteur, ..."
+                        {{if hasField . "Query"}}
+                            value ="{{.Query}}"
+                        {{end}}
+                       hx-trigger="input changed delay:0.4s, search"
+                       hx-get="http://localhost:8080/browse"
+                       hx-push-url="true"
+                       hx-on::after-request="cleanURL(); showTop()"
+                       hx-headers='{"Tmpl":"main"}'
+                       hx-include="this"
+                       hx-target=".main"
+                       hx-swap="innerHTML"
+
+                       class="w-[80%] h-10 rounded-full bg-[url('http://localhost:8080/glass')] bg-no-repeat bg-[length:1.5rem_1.5rem] bg-[center_left_1rem] pl-12">
+
+                <label class="ml-3 w-[20%] inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="serieModeToggle"
+                            onclick="toggle_serie_switch(); showTop()"
+                            hx-target=".main"
+                            hx-headers='{"Tmpl":"main"}'
+                            hx-swap="innerHTML"
+                            hx-trigger="toggle_serie_switch"
+                            class="sr-only peer" autocomplete="off">
+                    <div class="relative w-[3.5rem] h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <span class="ml-2 text-base text-left font-light text-gray-900 font-handwritten">Grouper par série</span>
+                </label>
+
+
+            </div>
+
+
+
+            <div class="h-full relative" id="dropdown">
+
+                <img src="http://localhost:8080/dropdown" class="h-[50%] mt-[50%]" id="dropdownImage" onclick="showTop()">
+                <div class="z-1 absolute hidden" id="dropdownContent">
+
+
+
+                    {{if .IsAdmin}}
+                        <a href="http://localhost:8080/admin"
+                        onclick="clear_browse_bar(); showTop()"
+                        hx-boost="true"
+                        hx-headers='{"Tmpl":"main"}'
+                        hx-target=".main"
+                        hx-swap="innerHTML">
+                            Pannel admin
+                        </a>
+                    {{end}}
+
+                    {{if .IsLogged}}
+                        <a href="http://localhost:8080/account"
+                        onclick="clear_browse_bar(); showTop()"
+                        hx-boost="true"
+                        hx-headers='{"Tmpl":"main"}'
+                        hx-target=".main"
+                        hx-swap="innerHTML">
+                            Mon compte</a>
+
+                        <a href="http://localhost:8080/logout">
+                            Logout</a>
+                    {{else}}
+                    <a href="http://localhost:8080/login">
+                        Login</a>
+                    {{end}}
+
+                    <a href="http://localhost:8080/contact"
+                    onclick="clear_browse_bar(); showTop()"
+                    hx-boost="true"
+                    hx-headers='{"Tmpl":"main"}'
+                    hx-target=".main"
+                    hx-swap="innerHTML">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="bg-gray-100">
+
+        <div class="w-auto h-9 bg-gray-300 ml-[0%] flex items-center justify-around font-poppins mt-[6rem] border-b-4 border-gray-200">
+
             <a href="http://localhost:8080/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top">
+               hx-swap="innerHTML">
                 Tous les livres
             </a>
-<!--
             <a href="http://localhost:8080/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top">
+               hx-swap="innerHTML">
                 Nouveautés
             </a>
--->
-            <a href="http://localhost:8080/browse/tag/{tag}"
+            <a href="http://localhost:8080/browse/tag/BD"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
-               hx-vals='{"tag":"Manga"}'
-               hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML show:window:top">
-                Manga
-            </a>
-            <a href="http://localhost:8080/browse/tag/{tag}"
-               onclick="clear_browse_bar()"
-               hx-boost="true"
-               hx-headers='{"Tmpl":"main"}'
-               hx-vals='{"tag":"BD"}'
-               hx-ext="path-params"
-               hx-target=".main"
-               hx-swap="innerHTML show:window:top">
+               hx-swap="innerHTML">
                 BD
             </a>
-        </div>
-
-        <label class ="flex-grow">
-            <input type="search" name="q" id="browse-bar"
-                placeholder="Livre, saga, genre, auteur, ..."
-                {{if hasField . "Query"}}
-                    value ="{{.Query}}"
-                {{end}}
-                   hx-trigger="input changed delay:0.4s, search"
-                   hx-get="http://localhost:8080/browse"
-                   hx-push-url="true"
-                   hx-on::after-request="cleanURL()"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-include="this"
-                   hx-target=".main"
-                   hx-swap="innerHTML show:window:top">
-
-        </label>
-
-        <label id="toggle_serie_mode_label">
-            <input type="checkbox" id="toggle_serie_mode"
-                   onclick="toggle_serie_switch()"
-                   hx-target=".main"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-swap="innerHTML show:window:top"
-                   hx-trigger="toggle_serie_switch">
-        </label>
-
-
-        <a href="http://localhost:8080/contact"
-           onclick="clear_browse_bar()"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top">
-            Contact
-        </a>
-
-        {{if .IsAdmin}}
-            <a href="http://localhost:8080/admin"
+            <a href="http://localhost:8080/browse/tag/Manga"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top">
-                Pannel admin
+               hx-swap="innerHTML">
+                Manga
             </a>
-        {{end}}
-
-        {{if .IsLogged}}
-            <a href="http://localhost:8080/account"
+            <a href="http://localhost:8080/browse/tag/Comics"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top">
-                Mon compte</a>
+               hx-swap="innerHTML">
+                Comics
+            </a>
 
-            <a href="http://localhost:8080/logout">
-                Logout</a>
-        {{else}}
-        <a href="http://localhost:8080/login">
-            Login</a>
-        {{end}}
 
-{{end}}
+        </div>
+</div>
+
+
+
+
+
+            {{end}}

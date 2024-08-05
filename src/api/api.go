@@ -84,6 +84,12 @@ func SetupNoAuth(e *echo.Echo) {
 	e.GET("/icon", func(c echo.Context) error {
 		return c.File("view/image/icon.png")
 	})
+	e.GET("/glass", func(c echo.Context) error {
+		return c.File("view/image/glass.png")
+	})
+	e.GET("/dropdown", func(c echo.Context) error {
+		return c.File("view/image/dropdown.png")
+	})
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
