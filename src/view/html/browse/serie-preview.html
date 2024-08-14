@@ -7,16 +7,23 @@
     hx-headers='{"Tmpl":"main"}'
     hx-target=".main"
     hx-swap="innerHTML show:window:top"
-    class="serie-preview"
+    class="h-[55vh] inline-block relative z-0 px-2 my-2"
 >
-    <div class="serie-image">
-        <img
-            src="http://localhost:8080/serie/{{.UUID}}/cover"
-            alt="cover"
-            class=""
-        />
+    <img
+        src="http://localhost:8080/serie/{{.UUID}}/cover"
+        alt="cover"
+        class="h-[89%] max-w-full rounded-md border-[6px] border-[#AA0000]"
+    />
+    <div
+        class="h-7 w-7 bg-gray-300 absolute bottom-[4rem] right-4 justify-center flex items-center font-handwritten border-2 border-black"
+    >
+        {{.BookCount}}
     </div>
-    <div class="serie-name">SERIE {{.Name}} {{.BookCount}}</div>
+    <div
+        class="x-2 pt-1 box-border min-w-full w-0 text-center font-poppins text-[1.85vh] overflow-hidden h-[11%]"
+    >
+        {{.Name}}
+    </div>
 </a>
 
 {{end}}

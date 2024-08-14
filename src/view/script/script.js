@@ -1,3 +1,5 @@
+htmx.config.scrollIntoViewOnBoost = false;
+
 //Browse bar ---------------------
 function clear_browse_bar() {
   var browse_bar = document.getElementById("browseBar");

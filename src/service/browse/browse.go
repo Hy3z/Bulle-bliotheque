@@ -15,16 +15,12 @@ import (
 //
 
 const (
-	MaxBatchSize = 100
+	MaxBatchSize = 50
 )
 
-/*func rootResearches() []model.Research {
-	var researches []model.Research
-
-	researches = append(researches, latestBooksResearch())
-	researches = append(researches, allBooksResearch(false))
-	return researches
-}*/
+func rootResearches(serieMode bool) []model.Research {
+	return []model.Research{allBooksResearch(serieMode)}
+}
 
 func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	qfile := util.CypherScriptDirectory + "/browse"
@@ -100,8 +96,12 @@ func respondWithBrowsePage(c echo.Context) error {
 	//If not filter applied, render default view
 	if qParam == "" {
 		return model.Browse{
-			IsHome: true,
-			//Researches: rootResearches(),
+			IsHome:     true,
+			BookCount:  getBookCount(),
+			SerieCount: getSerieCount(),
+			Researches: rootResearches(util.IsSerieMode(c)),
+			BDCount:    getBookCountByTag("BD"),
+			MangaCount: getBookCountByTag("Manga"),
 		}.RenderIndex(c, http.StatusOK, "")
 	}
 	return model.Browse{
@@ -114,8 +114,12 @@ func respondWithBrowseMain(c echo.Context) error {
 	//If not filter applied, return default view
 	if qParam == "" {
 		return model.Browse{
-			IsHome: true,
-			//Researches: rootResearches(),
+			IsHome:     true,
+			BookCount:  getBookCount(),
+			SerieCount: getSerieCount(),
+			Researches: rootResearches(util.IsSerieMode(c)),
+			BDCount:    getBookCountByTag("BD"),
+			MangaCount: getBookCountByTag("Manga"),
 		}.Render(c, http.StatusOK)
 	}
 	return model.Browse{
@@ -155,22 +159,16 @@ func respondWithBrowsePs(c echo.Context) error {
 }
 
 func RespondWithBrowse(c echo.Context) error {
-	logger.InfoLogger.Println("a")
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
-		logger.InfoLogger.Println("b")
 		return respondWithBrowsePage(c)
 	}
-	logger.InfoLogger.Println("c")
 	switch tmpl {
 	case util.MainContentType:
-		logger.InfoLogger.Println("d")
 		return respondWithBrowseMain(c)
 	case util.PreviewSetContentType:
-		logger.InfoLogger.Println("e")
 		return respondWithBrowsePs(c)
 	default:
-		logger.InfoLogger.Println("f")
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}

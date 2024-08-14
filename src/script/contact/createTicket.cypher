@@ -1,1 +1,1 @@
-CREATE (t:Ticket {message: $message, date:$date})
+CREATE (t:Ticket {message: $message, date:datetime({timezone: 'Europe/Paris'})})

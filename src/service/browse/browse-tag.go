@@ -143,3 +143,19 @@ func RespondWithTag(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 }
+
+func getBookCountByTag(tag string) int {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/browse/tag/getBookCountByTag.cypher", map[string]any{
+		"name": tag,
+	})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+	count, ok := res.Records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Println("Couldn't cast value")
+		return 0
+	}
+	return int(count)
+}

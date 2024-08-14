@@ -6,41 +6,12 @@ import (
 	"bb/model"
 	"bb/util"
 	"context"
-	"github.com/labstack/echo/v4"
+	"errors"
 	"net/http"
 	"net/url"
+
+	"github.com/labstack/echo/v4"
 )
-
-/*func getSerieByName(name string) (model.Serie, error) {
-	query :=
-		"MATCH (:Serie {name: $name})<-[r:PART_OF]-(b:Book) RETURN b.title, b.ISBN_13 ORDER BY r.opus ASC"
-	serie := model.Serie{Name: name}
-	res, err := database.Query(context.Background(), query, map[string]any{
-		"name": name,
-	})
-	if err != nil {
-		return serie, err
-	}
-
-	books := model.PreviewSet{}
-	for _, rec := range res.Records {
-		book := model.BookPreview{}
-		title, okT := rec.Values[0].(string)
-		isbn13, okI := rec.Values[1].(string)
-		if okT {
-			book.Title = title
-		}
-		if okI {
-			book.ISBN = isbn13
-		}
-		books = append(books, model.Preview{
-			BookPreview: book,
-		})
-	}
-
-	serie.Books = books
-	return serie, nil
-}*/
 
 func getSerieByUUID(uuid string) (model.Serie, error) {
 	serie := model.Serie{UUID: uuid}
@@ -48,30 +19,46 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 	if err != nil {
 		return serie, err
 	}
-
 	res, err := database.Query(context.Background(), query, map[string]any{
 		"uuid": uuid,
 	})
-
 	if err != nil {
 		return serie, err
 	}
-
+	if len(res.Records) == 0 {
+		return serie, errors.New("No serie found")
+	}
+	values := res.Records[0].Values
+	name, _ := values[0].(string)
+	likes, _ := values[1].(int64)
+	tags, _ := values[2].([]any)
+	authors, _ := values[3].([]any)
+	serie.Name = name
+	serie.Like = int(likes)
+	serie.Tags = util.CastArray[string](tags)
+	serie.Authors = util.CastArray[string](authors)
+	query, err = util.ReadCypherScript(util.CypherScriptDirectory + "/serie/getBooksBySerie.cypher")
+	if err != nil {
+		return serie, err
+	}
+	res, err = database.Query(context.Background(), query, map[string]any{
+		"uuid": uuid,
+	})
+	if err != nil {
+		return serie, err
+	}
 	books := model.PreviewSet{}
-	for i, rec := range res.Records {
-		if i == 0 {
-			name, _ := rec.Values[0].(string)
-			serie.Name = name
-		}
-		title, _ := rec.Values[1].(string)
-		uuid, _ := rec.Values[2].(string)
-		status, _ := rec.Values[3].(int64)
+	for _, rec := range res.Records {
+		title, _ := rec.Values[0].(string)
+		uuid, _ := rec.Values[1].(string)
+		status, _ := rec.Values[2].(int64)
 		books = append(books, model.Preview{
 			BookPreview: model.BookPreview{Title: title, UUID: uuid, Status: int(status)},
 		})
 	}
-
 	serie.Books = books
+	serie.BookCount = len(books)
+
 	return serie, nil
 }
 

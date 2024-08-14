@@ -8,8 +8,12 @@ import (
 
 type Browse struct {
 	Researches []Research
-	//Query      string
-	IsHome bool
+
+	IsHome     bool
+	BookCount  int
+	SerieCount int
+	BDCount    int
+	MangaCount int
 }
 
 const (

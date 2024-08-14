@@ -1,19 +1,16 @@
 {{define "header"}}
-
-
-
     <div class="h-[6rem] flex justify-between bg-gray-100 items-center pl-10 pr-10 fixed top-0 w-[100%] border-b-4 border-gray-200 z-10">
 
-        <a href="http://localhost:8080/browse" onclick="clear_browse_bar();showTop()"
+        <a href="http://localhost:8080/browse" hx-on::after-request="clear_browse_bar();showTop()"
            hx-boost="true" hx-headers='{"Tmpl":"main"}' hx-target=".main" hx-swap="innerHTML"
-           class="h-full flex flex-row items-center">
+           class="h-full w-auto flex flex-row items-center">
                <img src="http://localhost:8080/logo" alt="logo" class="h-[90%]">
             <div class="font-handwritten text-4xl">
-                ullothèque
+                <!--ullothèque-->
             </div>
         </a>
 
-        <div class="w-[800px] h-full flex items-center">
+        <div class="w-[1000px] h-full flex items-center">
                 <input type="search" name="q" id="browseBar"
                        placeholder="Livre, saga, genre, auteur, ..."
                         {{if hasField . "Query"}}
@@ -30,16 +27,25 @@
 
                        class="w-[80%] h-10 rounded-full bg-[url('http://localhost:8080/glass')] bg-no-repeat bg-[length:1.5rem_1.5rem] bg-[center_left_1rem] pl-12">
 
-                <label class="ml-3 w-[20%] inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="serieModeToggle"
-                            onclick="toggle_serie_switch(); showTop()"
-                            hx-target=".main"
-                            hx-headers='{"Tmpl":"main"}'
-                            hx-swap="innerHTML"
-                            hx-trigger="toggle_serie_switch"
-                            class="sr-only peer" autocomplete="off">
-                    <div class="relative w-[3.5rem] h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                    <span class="ml-2 text-base text-left font-light text-gray-900 font-handwritten">Grouper par série</span>
+                <label class="h-full group ml-3 w-[20%] inline-flex items-center cursor-pointer text-gray-900 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+
+
+                        <input type="checkbox" id="serieModeToggle"
+                               hx-on::after-request="toggle_serie_switch(); showTop()"
+                                hx-target=".main"
+                                hx-headers='{"Tmpl":"main"}'
+                                hx-swap="innerHTML"
+                                hx-trigger="toggle_serie_switch"
+                                class="sr-only peer" autocomplete="off">
+                        <div class="relative w-[2.75rem] h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                        </div>
+
+
+
+                        <div class="hidden group-hover:block ml-2 text-base text-left font-light font-poppins">Grouper par série</div>
+                        <img src="http://localhost:8080/dropdown" class="absolute ml-[2.5rem] -rotate-90 h-[45%] rounded-full group-hover:bg-gray-300 group-hover:translate-x-[375%] transition duration-200 ease-in-out" onclick="showTop()">
+
+
                 </label>
 
 
@@ -47,48 +53,68 @@
 
 
 
-            <div class="h-full relative" id="dropdown">
-
-                <img src="http://localhost:8080/dropdown" class="h-[50%] mt-[50%]" id="dropdownImage" onclick="showTop()">
-                <div class="z-1 absolute hidden" id="dropdownContent">
+            <div class="h-full relative group inline-block">
+                <img src="http://localhost:8080/dropdown" class="h-[50%] mt-[50%] rounded-full hover:bg-gray-300 hover:rotate-180 transition duration-200 ease-in-out" onclick="showTop()">
+                <div class="w-52 z-1 absolute mt-2 py-1 hidden bg-gray-200 group-hover:block font-poppins rounded-lg text-lg text-gray-900 text-right right-0 shadow ring-1 ring-slate-900/5 ">
 
 
 
                     {{if .IsAdmin}}
                         <a href="http://localhost:8080/admin"
-                        onclick="clear_browse_bar(); showTop()"
+                           hx-on::after-request="clear_browse_bar(); showTop()"
                         hx-boost="true"
                         hx-headers='{"Tmpl":"main"}'
                         hx-target=".main"
-                        hx-swap="innerHTML">
+                        hx-swap="innerHTML"
+                        class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             Pannel admin
                         </a>
                     {{end}}
 
                     {{if .IsLogged}}
                         <a href="http://localhost:8080/account"
-                        onclick="clear_browse_bar(); showTop()"
+                           hx-on::after-request="clear_browse_bar(); showTop()"
                         hx-boost="true"
                         hx-headers='{"Tmpl":"main"}'
                         hx-target=".main"
-                        hx-swap="innerHTML">
+                        hx-swap="innerHTML"
+                        class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             Mon compte</a>
 
-                        <a href="http://localhost:8080/logout">
+                        <a href="http://localhost:8080/logout" class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             Logout</a>
                     {{else}}
-                    <a href="http://localhost:8080/login">
+                    <a href="http://localhost:8080/login" class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         Login</a>
                     {{end}}
 
                     <a href="http://localhost:8080/contact"
-                    onclick="clear_browse_bar(); showTop()"
+                       hx-on::after-request="clear_browse_bar(); showTop()"
                     hx-boost="true"
                     hx-headers='{"Tmpl":"main"}'
                     hx-target=".main"
-                    hx-swap="innerHTML">
+                    hx-swap="innerHTML"
+                    class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         Contact
                     </a>
+
+                    <div class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9">
+                        <div class="flex flex-row items-center h-full float-right">
+                            <a href="https://ludo.rezel.net" target="_blank">
+                                Ludotech
+                            </a>
+                            <img src="http://localhost:8080/external" alt=" external" class="pl-1 h-[80%]">
+                        </div>
+                    </div>
+
+                    <div class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9">
+                        <div class="flex flex-row items-center h-full float-right">
+                            <a href="https://github.com/Hy3z/Bulle-bliotheque" target="_blank">
+                                GitHub
+                            </a>
+                            <img src="http://localhost:8080/external" alt=" external" class="pl-1 h-[80%]">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,7 +132,8 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Tous les livres
             </a>
             <a href="http://localhost:8080/browse/latest"
@@ -114,7 +141,8 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Nouveautés
             </a>
             <a href="http://localhost:8080/browse/tag/BD"
@@ -122,7 +150,8 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 BD
             </a>
             <a href="http://localhost:8080/browse/tag/Manga"
@@ -130,7 +159,8 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Manga
             </a>
             <a href="http://localhost:8080/browse/tag/Comics"
@@ -138,7 +168,8 @@
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Comics
             </a>
 

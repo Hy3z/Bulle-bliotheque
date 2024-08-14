@@ -2,18 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-.main {
+body {
     background-color: rgb(243 244 246);
 }
 
-#dropdown:hover #dropdownContent {
-    display: block;
-}
 
-#dropdownImage {
-    transition: transform 0.2s ease-in-out;
-}
-
-#dropdown:hover #dropdownImage {
-    transform: rotate(180deg);
-}

@@ -1,185 +1,198 @@
 {{define "book"}}
-<div>
-    {{.UUID}}
-    <img src="http://localhost:8080/book/{{.UUID}}/cover" alt="book" />
+<div class="flex flex-row pt-4">
+    <img
+        src="http://localhost:8080/book/{{.UUID}}/cover"
+        alt="cover"
+        class="h-[60vh] border-r-[6px] py-4 border-[#825432] pl-4"
+    />
+    <div class="flex flex-col font-poppins pt-6 pl-4">
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Titre</span>: {{.Title}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Description</span>: {{.Description}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Auteur(s)</span>: {{range .Authors}}
+            <a
+                href="http://localhost:8080/browse/author/{{escape .}}"
+                hx-on::after-request="clear_browse_bar();showTop()"
+                hx-boost="true"
+                hx-headers='{"Tmpl":"main"}'
+                hx-target=".main"
+                hx-swap="innerHTML"
+
+                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline px-[4px] underline-offset-2"
+            >
+                {{.}}
+            </a>
+            {{end}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Tag(s)</span>: {{range .Tags}}
+            <a
+                href="http://localhost:8080/browse/tag/{{escape .}}"
+                hx-on::after-request="clear_browse_bar();showTop()"
+                hx-boost="true"
+                hx-headers='{"Tmpl":"main"}'
+                hx-target=".main"
+                hx-swap="innerHTML"
+                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline px-[4px] underline-offset-2"
+            >
+                {{.}}
+            </a>
+            {{end}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Date de publication</span>:
+            {{.PublishedDate}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Editeur</span>: {{.Publisher}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Cote</span>: {{.Cote}}
+        </div>
+
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Nombre de pages</span>:
+            {{if hasField . "PageCount"}}{{.PageCount}}{{end}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Likes</span>: {{.LikeCount}} {{if
+            .IsLogged}} {{if .HasLiked}}
+            <button
+                hx-post="http://localhost:8080/book/{{.UUID}}/unlike"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-target="this"
+                class="line-through decoration-red-950 border-2 border-black text-black hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-1 ml-4 relative inline-block"
+            >
+                Liker
+            </button>
+
+            {{else}}
+
+            <button
+                hx-post="http://localhost:8080/book/{{.UUID}}/like"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-target="this"
+                class="border-2 border-black text-black hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-1 ml-4 relative inline-block"
+            >
+                Liker
+            </button>
+
+            {{end}} {{else}}
+            <a
+                href="http://localhost:8080/login"
+                class="border-2 border-black text-black hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-1 ml-4 relative inline-block"
+            >
+                Connectez-vous pour liker</a
+            >
+            {{end}}
+        </div>
+
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Serie</span>:
+            <a
+                href="http://localhost:8080/serie/{{.SerieUUID}}"
+                hx-on::after-request="clear_browse_bar();showTop()"
+                hx-boost="true"
+                hx-headers='{"Tmpl":"main"}'
+                hx-target=".main"
+                hx-swap="innerHTML"
+                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline px-[4px] underline-offset-2"
+            >
+                {{.SerieName}}
+            </a>
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Status</span>: {{if eq .Status 1}}
+            <span
+                class="h-7 w-7 rounded-full border-2 border-black bg-orange-950"
+            ></span>
+
+            Emprunté {{if .HasBorrowed}}
+            <button
+                hx-post="http://localhost:8080/book/{{.UUID}}/return"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-target="this"
+                class="border-2 border-black text-black hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-1 ml-4 relative inline-block"
+            >
+                Rendre
+            </button>
+            {{end}} {{else if eq .Status 2}}<span
+                class="h-7 w-7 rounded-full border-2 border-black bg-red-950"
+            ></span>
+            Perdu {{else if eq .Status 3}}
+            <span
+                class="inline-block align-middle h-6 w-6 rounded-full border-2 border-black bg-[#55FF55]"
+            ></span>
+            Disponible
+            <button
+                hx-post="http://localhost:8080/book/{{.UUID}}/borrow"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-target="this"
+                class="border-2 border-black text-black hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-1 ml-4 relative inline-block"
+            >
+                Emprunter</button
+            >{{end}}
+        </div>
+    </div>
 </div>
 
-<div>
-    <label>Title</label>
-    {{if .Title}} {{.Title}} {{end}}
+<div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+    Commentaires
 </div>
 
-<div>
-    <label>Description</label>
-    {{if .Description}} {{.Description}} {{end}}
-</div>
+{{if hasField . "UserReview"}}
 
-<div>
-    <label>Authors</label>
-    {{if .Authors}} {{range .Authors}}
-    <a
-        href="http://localhost:8080/browse/author/{{escape .}}"
-        hx-boost="true"
-        hx-headers='{"Tmpl":"main"}'
-        hx-target=".main"
-        hx-swap="innerHTML show:window:top"
-        class="header-main"
+    <form
+            hx-put="http://localhost:8080/book/{{.UUID}}/review"
+            hx-target="this"
+            hx-swap="outerHTML"
+            class="ml-[10%] mr-[10%] flex font-poppins items-center"
     >
-        {{.}}
-    </a>
-    {{end}} {{end}}
-</div>
+    <textarea
+            class="w-[80%] border-2 border-gray-300 p-1 rounded-lg overflow-y-scroll placeholder-gray-600"
+            type="text"
+            name="message"
+            placeholder="Modifiez votre commentaire..."
 
-<div>
-    <label>Tags</label>
-    {{if .Tags}} {{range .Tags}}
-    <a
-        href="http://localhost:8080/browse/tag/{{escape .}}"
-        hx-boost="true"
-        hx-headers='{"Tmpl":"main"}'
-        hx-target=".main"
-        hx-swap="innerHTML show:window:top"
-        class="header-main"
+    >{{.UserReview}}</textarea>
+        <button class="ml-4  border-2 bg-white p-[6px] w-auto hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Modifier</button>
+        <button
+                hx-put="http://localhost:8080/book/{{.UUID}}/review"
+                hx-target="this"
+                hx-swap="outerHTML"
+                class="ml-4 border-2 bg-white p-[6px] w-auto hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        >
+            Supprimer
+        </button>
+    </form>
+
+
+{{else}}
+    <form
+            hx-put="http://localhost:8080/book/{{.UUID}}/review"
+            hx-target="#reviews"
+            hx-swap="innerHTML"
+            class="ml-[10%] mr-[10%] flex font-poppins items-center"
     >
-        {{.}}
-    </a>
-    {{end}} {{end}}
-</div>
+    <textarea
+            class="w-[80%] border-2 border-gray-300 p-1 rounded-lg overflow-y-scroll placeholder-gray-600"
+            type="text"
+            name="message"
 
-<div>
-    <label>PublishedDate</label>
-    {{if .PublishedDate}} {{.PublishedDate}} {{end}}
-</div>
-
-<div>
-    <label>Publisher</label>
-    {{if .Publisher}} {{.Publisher}} {{end}}
-</div>
-
-<div>
-    <label>Cote</label>
-    {{if .Cote}} {{.Cote}} {{end}}
-</div>
-
-<div>
-    <label>PageCount</label>
-    {{if .PageCount}} {{.PageCount}} {{end}}
-</div>
-
-<div>
-    <label>Serie</label>
-    {{if and .SerieName .SerieUUID}}
-    <a
-        href="http://localhost:8080/serie/{{.SerieUUID}}"
-        hx-boost="true"
-        hx-headers='{"Tmpl":"main"}'
-        hx-target=".main"
-        hx-swap="innerHTML show:window:top"
-        class="header-main"
-    >
-        {{.SerieName}}
-    </a>
-    {{else if or .SerieName .SerieUUID}} SERIE EITHER MISSING NAME OR UUID
-    {{end}}
-</div>
-
-<div>
-    <label>Status</label>
-    {{if eq .Status 1}} Emprunté {{else if eq .Status 2}} Perdu {{else if eq
-    .Status 3}} Disponible {{else}} NO STATUS. HOW? {{end}}
-</div>
-
-{{if eq .Status 3}}
-<div>
-    <button
-        hx-post="http://localhost:8080/book/{{.UUID}}/borrow"
-        hx-swap="outerHTML"
-        hx-trigger="click"
-        hx-target="this"
-        class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
-    >
-        Emprunter
-    </button>
-</div>
-{{else if and .HasBorrowed (eq .Status 1)}}
-<div>
-    <button
-        hx-post="http://localhost:8080/book/{{.UUID}}/return"
-        hx-swap="outerHTML"
-        hx-trigger="click"
-        hx-target="this"
-        class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
-    >
-        Rendre
-    </button>
-</div>
+            placeholder="Ajoutez un commentaire..."
+    ></textarea>
+        <button class="ml-4 bg-white border-2 p-[6px] w-auto hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Poster</button>
+    </form>
 {{end}}
-
-<div>Nombre de like: {{.LikeCount}}</div>
-<div>
-    {{if .IsLogged}} {{if .HasLiked}}
-    <div>
-        <button
-            hx-post="http://localhost:8080/book/{{.UUID}}/unlike"
-            hx-swap="outerHTML"
-            hx-trigger="click"
-            hx-target="this"
-            class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
-        >
-            Déliker
-        </button>
+    <div id="reviews">
+{{template "reviews" .Reviews}}
     </div>
-    {{else}}
-    <div>
-        <button
-            hx-post="http://localhost:8080/book/{{.UUID}}/like"
-            hx-swap="outerHTML"
-            hx-trigger="click"
-            hx-target="this"
-            class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
-        >
-            Liker
-        </button>
-    </div>
-    {{end}} {{else}} Vous devez être connecté pour liker un livre {{end}}
-</div>
-
-<div>
-    {{if hasField . "UserReview"}} Votre commentaire:
-    <form
-        hx-put="http://localhost:8080/book/{{.UUID}}/review"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        <label
-            >Commentaire
-            <input type="text" name="message" value="{{.UserReview}}" />
-        </label>
-        <button>Mettre à jour</button>
-    </form>
-    <button
-        hx-put="http://localhost:8080/book/{{.UUID}}/review"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        Supprimer
-    </button>
-    {{else}} Ajouter un commentaire:
-    <form
-        hx-put="http://localhost:8080/book/{{.UUID}}/review"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        <label
-            >Commentaire
-            <input type="text" name="message" value="" />
-        </label>
-        <button class="btn">Ajouter</button>
-    </form>
-    {{end}}
-</div>
-
-<div>Commentaires</div>
-{{range .Reviews}}
-<div>{{.UserName}} le {{.Date}}: {{.Message}}</div>
-{{end}} {{end}}
+{{end}}

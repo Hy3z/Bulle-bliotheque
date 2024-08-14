@@ -5,11 +5,14 @@
     {{if and (hasField . "IsHome") (.IsHome)}}
         Bienvenue sur le site de la bulle
         Ca arrive fort!
+            Il y a: {{.BookCount}} livres à travers {{.SerieCount}} séries
+            Il y a {{.BDCount}} BDs et {{.MangaCount}} mangas, soit ~
+        {{perc (div (add .BDCount .MangaCount) .BookCount)}}% des livres
     {{end}}
 
     {{if hasField . "Researches"}}
         {{range .Researches}}
             {{template "research" .}}
-        {{end}}
+        {{end}})
     {{end}}
 {{end}}
