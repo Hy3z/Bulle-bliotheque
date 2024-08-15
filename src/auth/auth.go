@@ -104,41 +104,6 @@ func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	return true, nil
 }
 
-/*func sliceContains(slice []interface{}, tofind string) bool {
-	for _, inter := range slice {
-		sinter, ok := inter.(string)
-		if !ok {
-			continue
-		}
-		if sinter == tofind {
-			return true
-		}
-	}
-	return false
-}*/
-
-/*func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
-	if len(keys) == 0 {
-		return jwt, nil
-	}
-	next, ok := jwt[keys[0]]
-	if !ok {
-		return nil, pathEndedError
-	}
-	for _, key := range keys[1:] {
-		temp, ok := next.(map[string]interface{})
-		if !ok {
-			logger.InfoLogger.Printf("%s\n", key)
-			return nil, pathEndedError
-		}
-		next, ok = temp[key]
-		if !ok {
-			return nil, jwtKeyError
-		}
-	}
-	return next, nil
-}*/
-
 func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 	ctx := context.Background()
 	userInfo, err := client.GetUserInfo(ctx, access_token, realm)
@@ -167,55 +132,7 @@ func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 		continue
 	}
 
-	//logger.InfoLogger.Println(*userInfo.Sub)
-	//logger.InfoLogger.Println(*userInfo.Name)
 	return true
-
-	/*access_token, _, ok := getTokens(c)
-	if !ok {
-		return false
-	}
-
-	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(realmPublicKey))
-	if err != nil {
-		logger.InfoLogger.Printf("Error parsing public key: %s\n", err)
-		return false
-	}
-
-	token, err := jwt.ParseWithClaims(access_token, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return pk, nil
-	})
-
-	if err != nil {
-		logger.InfoLogger.Printf("Error parsing token: %s\n", err)
-		return false
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return false
-	}
-
-	iroles, err := jwtWalk(claims, "resource_access", clientID, "roles")
-	if err != nil {
-		logger.InfoLogger.Printf("Error walking jwt: %s\n", err)
-	}
-
-	roles, ok := iroles.([]interface{})
-	if !ok {
-		return false
-	}
-
-	for _, req_role := range req_roles {
-		if !sliceContains(roles, req_role) {
-			logger.InfoLogger.Printf("%s not in\n", req_role)
-			return false
-		}
-	}
-	return true*/
 }
 
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -258,6 +175,7 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func addCookies(c *echo.Context, access_token string, refresh_token string) {
+	//Set cookies to response
 	accessCookie := new(http.Cookie)
 	accessCookie.Name = access_token_cookie
 	accessCookie.Value = access_token
@@ -272,6 +190,18 @@ func addCookies(c *echo.Context, access_token string, refresh_token string) {
 	refreshCookie.Path = "/"
 	refreshCookie.SameSite = http.SameSiteNoneMode
 	(*c).SetCookie(refreshCookie)
+
+	//Set cookies to request so the new cookies are immediatly valid
+	if ac, err := (*c).Request().Cookie(access_token_cookie); err == nil {
+		ac.Value = access_token
+	} else {
+		(*c).Request().AddCookie(accessCookie)
+	}
+	if rc, err := (*c).Request().Cookie(refresh_token_cookie); err == nil {
+		rc.Value = refresh_token
+	} else {
+		(*c).Request().AddCookie(refreshCookie)
+	}
 }
 
 func Login(c echo.Context) error {
