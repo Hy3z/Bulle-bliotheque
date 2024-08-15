@@ -1,22 +1,36 @@
 {{define "account"}}
-<div>Mon compte</div>
-<div>UUID: {{.UUID}}</div>
-<div>Nom: {{.Name}}</div>
-<div>
-    Livres empruntés: {{range .Borrowed}} {{template "book-preview" .}}
-    <button
-        hx-post="https://bulle.rezel.net/book/{{.UUID}}/return"
-        hx-swap="outerHTML"
-        hx-trigger="click"
-        hx-target="this"
-        class="color-gray-200 hover:text-blue-600 dark:hover:text-blue-400 text-base transition-colors px-2 relative inline-block"
-    >
-        Rendre
-    </button>
+    <div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+        Mes informations
+    </div>
+    <div class="flex-col flex font-poppins items-center justify-around">
+        <div>
+            <span class="font-bold">Nom</span>: {{.Name}}
+        </div>
+        <div>
+            <span class="font-bold">Numéro</span>: {{.Name}}
+        </div>
+    </div>
+
+    <div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+        Livres empruntés
+    </div>
+    <div class="flex flex-wrap">
+    {{range .Borrowed}}
+        {{template "book-preview" .}}
     {{end}}
-</div>
-<div>Livres likés: {{range .Liked}} {{template "book-preview" .}} {{end}}</div>
-<div>
-    Livres commentés: {{range .Reviewed}} {{template "book-preview" .}} {{end}}
-</div>
+    </div>
+
+    <div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+        Livres likés
+    </div>
+    <div class="flex flex-wrap">
+        {{range .Liked}} {{template "book-preview" .}} {{end}}
+    </div>
+
+    <div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+        Livres commentés
+    </div>
+    <div class="flex flex-wrap">
+        {{range .Reviewed}} {{template "book-preview" .}} {{end}}
+    </div>
 {{end}}
