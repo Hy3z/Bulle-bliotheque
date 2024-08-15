@@ -1,5 +1,5 @@
 {{define "account"}}
-    <div class="ml-[35%] mr-[35%] text-center py-4 border-b-4 font-poppins">
+    <div class="ml-[35%] mr-[35%] text-center my-4 border-b-4 font-poppins">
         Mes informations
     </div>
     <div class="flex-col flex font-poppins items-center justify-around">
@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div class="ml-[35%] mr-[35%] text-center py-4 border-b-4 font-poppins">
+    <div class="ml-[35%] mr-[35%] text-center my-4 border-b-4 font-poppins">
         Livres empruntés
     </div>
     <div class="flex flex-wrap">
@@ -20,14 +20,14 @@
     {{end}}
     </div>
 
-    <div class="ml-[35%] mr-[35%] text-center py-4 border-b-4 font-poppins">
+    <div class="ml-[35%] mr-[35%] text-center my-4 border-b-4 font-poppins">
         Livres likés
     </div>
     <div class="flex flex-wrap">
         {{range .Liked}} {{template "book-preview" .}} {{end}}
     </div>
 
-    <div class="ml-[35%] mr-[35%] text-center py-4 border-b-4 font-poppins">
+    <div class="ml-[35%] mr-[35%] text-center my-4 border-b-4 font-poppins">
         Livres commentés
     </div>
     <div class="flex flex-wrap">
