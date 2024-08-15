@@ -1521,8 +1521,16 @@ body {
 }
 
 @media (min-width: 640px) {
+  .sm\:mt-\[6rem\] {
+    margin-top: 6rem;
+  }
+
   .sm\:h-\[10rem\] {
     height: 10rem;
+  }
+
+  .sm\:h-\[12rem\] {
+    height: 12rem;
   }
 }
 
