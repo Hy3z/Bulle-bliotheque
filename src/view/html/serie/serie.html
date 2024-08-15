@@ -1,7 +1,7 @@
 {{define "serie"}}
 <div class="flex flex-row pt-4">
     <img
-        src="http://localhost:8080/serie/{{.UUID}}/cover"
+        src="https://bulle.rezel.net/serie/{{.UUID}}/cover"
         alt="cover"
         class="h-[60vh] border-r-[6px] py-4 border-[#AA0000] pl-4"
     />
@@ -13,7 +13,7 @@
         <div class="border-b-4 mb-4">
             <span class="font-bold">Auteur(s)</span>: {{range .Authors}}
             <a
-                href="http://localhost:8080/browse/author/{{escape .}}"
+                href="https://bulle.rezel.net/browse/author/{{escape .}}"
                 hx-on::after-request="clear_browse_bar();showTop()"
                 hx-boost="true"
                 hx-headers='{"Tmpl":"main"}'
@@ -28,7 +28,7 @@
         <div class="border-b-4 mb-4">
             <span class="font-bold">Tag(s)</span>: {{range .Tags}}
             <a
-                href="http://localhost:8080/browse/tag/{{escape .}}"
+                href="https://bulle.rezel.net/browse/tag/{{escape .}}"
                 hx-on::after-request="clear_browse_bar();showTop()"
                 hx-boost="true"
                 hx-headers='{"Tmpl":"main"}'

@@ -5,7 +5,7 @@
 <div>
     Livres empruntés: {{range .Borrowed}} {{template "book-preview" .}}
     <button
-        hx-post="http://localhost:8080/book/{{.UUID}}/return"
+        hx-post="https://bulle.rezel.net/book/{{.UUID}}/return"
         hx-swap="outerHTML"
         hx-trigger="click"
         hx-target="this"

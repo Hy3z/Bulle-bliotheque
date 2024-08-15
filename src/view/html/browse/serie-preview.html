@@ -1,7 +1,7 @@
 {{define "serie-preview"}}
 
 <a
-    href="http://localhost:8080/serie/{{.UUID}}"
+    href="https://bulle.rezel.net/serie/{{.UUID}}"
     onclick="clear_browse_bar()"
     hx-boost="true"
     hx-headers='{"Tmpl":"main"}'
@@ -10,7 +10,7 @@
     class="h-[55vh] inline-block relative z-0 px-2 my-2 group hover:bg-gray-300/50 rounded-xl"
 >
     <img
-        src="http://localhost:8080/serie/{{.UUID}}/cover"
+        src="https://bulle.rezel.net/serie/{{.UUID}}/cover"
         alt="cover"
         class="h-[89%] max-w-full rounded-md border-[6px] border-[#AA0000]"
     />

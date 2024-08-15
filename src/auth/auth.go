@@ -290,7 +290,7 @@ func Login(c echo.Context) error {
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "http://localhost:8080" + util.CallbackLoginPath,
+		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
@@ -311,7 +311,7 @@ func LoginCallback(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080" + util.CallbackLoginPath,
+		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
 	token, err := oauth2Config.Exchange(ctx, c.QueryParam("code"))
@@ -343,7 +343,7 @@ func LoginCallback(c echo.Context) error {
 
 	addCookies(&c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
-	return c.Redirect(http.StatusPermanentRedirect, "http://localhost:8080"+path)
+	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
 }
 
 func Logout(c echo.Context) error {
@@ -377,7 +377,7 @@ func Logout(c echo.Context) error {
 		path = ""
 	}
 
-	redirectUrl := "http://localhost:8080" + path
+	redirectUrl := "https://bulle.rezel.net" + path
 
 	url := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
 	url += "?post_logout_redirect_uri=" + redirectUrl

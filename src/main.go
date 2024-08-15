@@ -25,5 +25,5 @@ func main() {
 	api.SetupAuth(e)
 	api.SetupRestricted(e)
 	api.SetupNoAuth(e)
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":80"))
 }
