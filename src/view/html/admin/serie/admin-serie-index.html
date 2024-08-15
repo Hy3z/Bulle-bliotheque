@@ -1,11 +1,14 @@
 {{define "admin-serie-index"}}
-<!doctype html>
-<html lang="fr">
+    <!DOCTYPE html>
+    <html lang="fr">
     {{template "head"}}
     <body>
-        {{template "header" .}}
+    {{template "header" .}}
 
-        <div class="main">{{template "admin-serie" .Data}}</div>
+    <div class="main">
+        {{template "admin-serie" .Data}}
+    </div>
+
     </body>
-</html>
+    </html>
 {{end}}

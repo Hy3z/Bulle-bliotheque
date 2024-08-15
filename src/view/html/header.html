@@ -124,15 +124,18 @@
 
         <div class="w-auto h-9 bg-gray-300 ml-[0%] flex items-center justify-around font-poppins mt-[6rem] border-b-4 border-gray-200">
 
+
             <a href="https://bulle.rezel.net/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
+
                hx-swap="innerHTML"
                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Tous les livres
             </a>
+
             <a href="https://bulle.rezel.net/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
@@ -173,9 +176,4 @@
 
         </div>
 </div>
-
-
-
-
-
             {{end}}
