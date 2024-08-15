@@ -847,6 +847,10 @@ video {
   max-height: 20rem;
 }
 
+.max-h-full {
+  max-height: 100%;
+}
+
 .w-0 {
   width: 0px;
 }
