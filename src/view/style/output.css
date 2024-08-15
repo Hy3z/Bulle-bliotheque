@@ -815,6 +815,18 @@ video {
   height: 40vh;
 }
 
+.h-\[70vh\] {
+  height: 70vh;
+}
+
+.h-\[80vh\] {
+  height: 80vh;
+}
+
+.h-\[90vh\] {
+  height: 90vh;
+}
+
 .max-h-\[60vh\] {
   max-height: 60vh;
 }
