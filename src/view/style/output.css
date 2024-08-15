@@ -847,10 +847,6 @@ video {
   min-width: 100%;
 }
 
-.max-w-\[40\%\] {
-  max-width: 40%;
-}
-
 .max-w-full {
   max-width: 100%;
 }
@@ -1057,6 +1053,11 @@ video {
 
 .bg-no-repeat {
   background-repeat: no-repeat;
+}
+
+.object-cover {
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .p-1 {
