@@ -1516,6 +1516,12 @@ body {
   --tw-ring-color: rgb(147 197 253 / var(--tw-ring-opacity));
 }
 
+@media (min-width: 640px) {
+  .sm\:h-\[10rem\] {
+    height: 10rem;
+  }
+}
+
 .peer:checked ~ .rtl\:peer-checked\:after\:-translate-x-full:where([dir="rtl"], [dir="rtl"] *)::after {
   content: var(--tw-content);
   --tw-translate-x: -100%;
