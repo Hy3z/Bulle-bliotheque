@@ -835,6 +835,10 @@ video {
   height: 5%;
 }
 
+.h-\[0\.1\%\] {
+  height: 0.1%;
+}
+
 .max-h-\[60vh\] {
   max-height: 60vh;
 }
