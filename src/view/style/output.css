@@ -795,6 +795,10 @@ video {
   height: 100%;
 }
 
+.max-h-\[60vh\] {
+  max-height: 60vh;
+}
+
 .w-0 {
   width: 0px;
 }
@@ -849,6 +853,10 @@ video {
 
 .max-w-full {
   max-width: 100%;
+}
+
+.max-w-\[50\%\] {
+  max-width: 50%;
 }
 
 .-rotate-90 {
