@@ -851,6 +851,10 @@ video {
   max-height: 100%;
 }
 
+.max-h-\[90\%\] {
+  max-height: 90%;
+}
+
 .w-0 {
   width: 0px;
 }
