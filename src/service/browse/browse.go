@@ -15,7 +15,7 @@ import (
 //
 
 const (
-	MaxBatchSize = 50
+	MaxBatchSize = 20
 )
 
 func rootResearches(serieMode bool) []model.Research {
