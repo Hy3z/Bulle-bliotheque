@@ -10,7 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
-	"time"
 )
 
 func getUserReviewByUUID(userUUID string, reviews []model.Review) string {
@@ -371,11 +370,16 @@ func RespondWithReview(c echo.Context) error {
 		"uuuid":   userUUID,
 		"buuid":   bookUUID,
 		"message": message,
-		"date":    time.Now().Format(time.DateOnly),
 	})
 	if err != nil {
 		logger.ErrorLogger.Printf("Error executing script: %s\n", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
-	return c.HTML(http.StatusOK, "Le message a été ajouté")
+
+	reviews, err := getBookReviewsByUUID(bookUUID)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error retrieving reviews: %s\n", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.Render(http.StatusOK, "reviews", reviews)
 }

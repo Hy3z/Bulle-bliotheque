@@ -1,0 +1,14 @@
+{{define "reviews"}}
+    <div class="pt-4 px-16">
+        {{range .}}
+            <div class="flex flex-col border-4 border-t-0 border-r-0 pl-2 pb-1 border-gray-400 ">
+                <div>
+                    <span class="font-poppins underline text-lg">{{.UserName}}</span> -
+                    <span class="italic">{{.Date}}</span>:
+                </div>
+                <div class="font-poppins ">
+                    {{.Message}}</div>
+            </div>
+        {{end}}
+    </div>
+{{end}}

@@ -46,10 +46,25 @@ func escape(s string) string {
 	return url.QueryEscape(s)
 }
 
+func add(v1 int, v2 int) int {
+	return v1 + v2
+}
+
+func div(v1 int, v2 int) float32 {
+	return float32(v1) / float32(v2)
+}
+
+func perc(v float32) int {
+	return int(v * 100)
+}
+
 func newTemplate() *Templates {
 	tmpl := template.New("").Funcs(map[string]any{
 		"hasField": hasField,
 		"escape":   escape,
+		"add":      add,
+		"div":      div,
+		"perc":     perc,
 	})
 	err := filepath.Walk("view/html", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
@@ -83,6 +98,21 @@ func SetupNoAuth(e *echo.Echo) {
 	})
 	e.GET("/icon", func(c echo.Context) error {
 		return c.File("view/image/icon.png")
+	})
+	e.GET("/glass", func(c echo.Context) error {
+		return c.File("view/image/glass.png")
+	})
+	e.GET("/dropdown", func(c echo.Context) error {
+		return c.File("view/image/dropdown.png")
+	})
+	e.GET("/external", func(c echo.Context) error {
+		return c.File("view/image/external.png")
+	})
+	e.GET("/bulle", func(c echo.Context) error {
+		return c.File("view/image/bulle.png")
+	})
+	e.GET("/complex_small_blue_thin", func(c echo.Context) error {
+		return c.File("view/image/complex_small_blue_thin.png")
 	})
 
 	e.GET("/", func(c echo.Context) error {

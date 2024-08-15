@@ -6,14 +6,15 @@ import (
 	"bb/util"
 	"context"
 	"errors"
-	"github.com/Nerzal/gocloak/v13"
-	"github.com/coreos/go-oidc"
-	"github.com/labstack/echo/v4"
-	"golang.org/x/oauth2"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/coreos/go-oidc"
+	"github.com/labstack/echo/v4"
+	"golang.org/x/oauth2"
 )
 
 const (

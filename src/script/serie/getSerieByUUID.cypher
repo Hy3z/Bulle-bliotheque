@@ -1,4 +1,8 @@
-MATCH (s:Serie {UUID: $uuid})<-[r:PART_OF]-(b:Book)-[:HAS_STATUS]->(bs:BookStatus)
-WHERE bs.ID <> 2
-RETURN s.name, b.title, b.UUID, bs.ID
-  ORDER BY r.opus ASC
+MATCH (s:Serie {UUID: $uuid})
+OPTIONAL MATCH (b:Book)-[:PART_OF]->(s)
+
+OPTIONAL MATCH (u:User)-[:HAS_LIKED]->(b)
+OPTIONAL MATCH (b)-[:HAS_TAG]->(t:Tag)
+OPTIONAL MATCH (a:Author)-[:WROTE]->(b)
+
+RETURN s.name, count(u), collect(distinct t.name), collect(distinct a.name)

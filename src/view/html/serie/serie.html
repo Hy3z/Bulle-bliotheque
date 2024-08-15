@@ -1,7 +1,54 @@
 {{define "serie"}}
-    <div class="serie">
-        <img src="https://bulle.rezel.net/serie/{{.UUID}}/cover" alt="cover" class="">
-        {{.Name}}
-        {{template "preview-set" .Books}}
+<div class="flex flex-row pt-4">
+    <img
+        src="https://bulle.rezel.net/serie/{{.UUID}}/cover"
+        alt="cover"
+        class="h-[60vh] border-r-[6px] py-4 border-[#AA0000] pl-4"
+    />
+    <div class="flex flex-col font-poppins pt-6 pl-4">
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Titre</span>: {{.Name}}
+        </div>
+
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Auteur(s)</span>: {{range .Authors}}
+            <a
+                href="https://bulle.rezel.net/browse/author/{{escape .}}"
+                hx-on::after-request="clear_browse_bar();showTop()"
+                hx-boost="true"
+                hx-headers='{"Tmpl":"main"}'
+                hx-target=".main"
+                hx-swap="innerHTML"
+                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline px-[4px] underline-offset-2"
+            >
+                {{.}}
+            </a>
+            {{end}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Tag(s)</span>: {{range .Tags}}
+            <a
+                href="https://bulle.rezel.net/browse/tag/{{escape .}}"
+                hx-on::after-request="clear_browse_bar();showTop()"
+                hx-boost="true"
+                hx-headers='{"Tmpl":"main"}'
+                hx-target=".main"
+                hx-swap="innerHTML"
+                class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline px-[4px] underline-offset-2"
+            >
+                {{.}}
+            </a>
+            {{end}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Likes cumulés </span>: {{.Like}}
+        </div>
+        <div class="border-b-4 mb-4">
+            <span class="font-bold">Livres en Bulle </span>: {{len .Books}}
+        </div>
     </div>
-{{end}}
+</div>
+<div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+    Dans la collection
+</div>
+{{template "preview-set" .Books}} {{end}}

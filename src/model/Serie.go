@@ -2,13 +2,18 @@ package model
 
 import (
 	"bb/auth"
+
 	"github.com/labstack/echo/v4"
 )
 
 type Serie struct {
-	Name  string
-	Books PreviewSet
-	UUID  string
+	Name      string
+	Books     PreviewSet
+	UUID      string
+	Tags      []string
+	Like      int
+	Authors   []string
+	BookCount int
 }
 
 const (

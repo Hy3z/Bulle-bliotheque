@@ -126,3 +126,31 @@ func RespondWithAll(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 }
+
+func getBookCount() int {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/browse/all/getBookCount.cypher", map[string]any{})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+	count, ok := res.Records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Println("Couldn't cast value")
+		return 0
+	}
+	return int(count)
+}
+
+func getSerieCount() int {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/browse/all/getSerieCount.cypher", map[string]any{})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+	count, ok := res.Records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Println("Couldn't cast value")
+		return 0
+	}
+	return int(count)
+}

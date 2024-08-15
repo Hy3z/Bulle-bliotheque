@@ -1,221 +1,179 @@
 {{define "header"}}
-        <!--HEADER HERE-->
-        <a href="https://bulle.rezel.net/browse"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top"
-           onclick="clear_browse_bar()"
-           class="header-main
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-sm
-                    transition-colors
-                    px-2.5
-                    relative
-                    inline-block
-                    h-full">
-            <img src="https://bulle.rezel.net/logo" alt="logo" class="logo
-                    hidden
-                    dark:block
-                    h-12
-                    cursor-pointer">
+    <div class="h-[6rem] flex justify-between bg-gray-100 items-center pl-10 pr-10 fixed top-0 w-[100%] border-b-4 border-gray-200 z-10">
+
+        <a href="https://bulle.rezel.net/browse" hx-on::after-request="clear_browse_bar();showTop()"
+           hx-boost="true" hx-headers='{"Tmpl":"main"}' hx-target=".main" hx-swap="innerHTML"
+           class="h-full w-auto flex flex-row items-center">
+               <img src="https://bulle.rezel.net/logo" alt="logo" class="h-[90%]">
         </a>
 
-        <div class="browse-button">
+        <div class="w-[1000px] h-full flex items-center">
+                <input type="search" name="q" id="browseBar"
+                       placeholder="Livre, saga, genre, auteur, ..."
+                        {{if hasField . "Query"}}
+                            value ="{{.Query}}"
+                        {{end}}
+                       hx-trigger="input changed delay:0.4s, search"
+                       hx-get="https://bulle.rezel.net/browse"
+                       hx-push-url="true"
+                       hx-on::after-request="cleanURL(); showTop()"
+                       hx-headers='{"Tmpl":"main"}'
+                       hx-include="this"
+                       hx-target=".main"
+                       hx-swap="innerHTML"
+
+                       class="w-[80%] h-10 rounded-full bg-[url('https://bulle.rezel.net/glass')] bg-no-repeat bg-[length:1.5rem_1.5rem] bg-[center_left_1rem] pl-12">
+
+                <label class="h-full group ml-3 w-[20%] inline-flex items-center cursor-pointer text-gray-900 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+
+
+                        <input type="checkbox" id="serieModeToggle"
+                               onclick="toggle_serie_switch(); showTop()"
+                                hx-target=".main"
+                                hx-headers='{"Tmpl":"main"}'
+                                hx-swap="innerHTML"
+                                hx-trigger="toggle_serie_switch"
+                                class="sr-only peer" autocomplete="off">
+                        <div class="relative w-[2.75rem] h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                        </div>
+
+
+
+                        <div class="hidden group-hover:block ml-2 text-base text-left font-light font-poppins">Grouper par série</div>
+                        <img src="https://bulle.rezel.net/dropdown" class="absolute ml-[2.5rem] -rotate-90 h-[45%] rounded-full group-hover:bg-gray-300 group-hover:translate-x-[375%] transition duration-200 ease-in-out" onclick="showTop()">
+
+
+                </label>
+
+
+            </div>
+
+
+
+            <div class="h-full relative group inline-block">
+                <img src="https://bulle.rezel.net/dropdown" class="h-[50%] mt-[50%] rounded-full hover:bg-gray-300 hover:rotate-180 transition duration-200 ease-in-out" onclick="showTop()">
+                <div class="w-52 z-1 absolute mt-2 py-1 hidden bg-gray-200 group-hover:block font-poppins rounded-lg text-lg text-gray-900 text-right right-0 shadow ring-1 ring-slate-900/5 ">
+
+
+
+                    {{if .IsAdmin}}
+                        <a href="https://bulle.rezel.net/admin"
+                           hx-on::after-request="clear_browse_bar(); showTop()"
+                        hx-boost="true"
+                        hx-headers='{"Tmpl":"main"}'
+                        hx-target=".main"
+                        hx-swap="innerHTML"
+                        class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            Pannel admin
+                        </a>
+                    {{end}}
+
+                    {{if .IsLogged}}
+                        <a href="https://bulle.rezel.net/account"
+                           hx-on::after-request="clear_browse_bar(); showTop()"
+                        hx-boost="true"
+                        hx-headers='{"Tmpl":"main"}'
+                        hx-target=".main"
+                        hx-swap="innerHTML"
+                        class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            Mon compte</a>
+
+                        <a href="https://bulle.rezel.net/logout" class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            Logout</a>
+                    {{else}}
+                    <a href="https://bulle.rezel.net/login" class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        Login</a>
+                    {{end}}
+
+                    <a href="https://bulle.rezel.net/contact"
+                       hx-on::after-request="clear_browse_bar(); showTop()"
+                    hx-boost="true"
+                    hx-headers='{"Tmpl":"main"}'
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        Contact
+                    </a>
+
+                    <div class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9">
+                        <div class="flex flex-row items-center h-full float-right">
+                            <a href="https://ludo.rezel.net" target="_blank">
+                                Ludotech
+                            </a>
+                            <img src="https://bulle.rezel.net/external" alt=" external" class="pl-1 h-[80%]">
+                        </div>
+                    </div>
+
+                    <div class="py-1 hover:bg-gray-400/50 pr-3 pl-16 block h-9">
+                        <div class="flex flex-row items-center h-full float-right">
+                            <a href="https://github.com/Hy3z/Bulle-bliotheque" target="_blank">
+                                GitHub
+                            </a>
+                            <img src="https://bulle.rezel.net/external" alt=" external" class="pl-1 h-[80%]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="bg-gray-100">
+
+        <div class="w-auto h-9 bg-gray-300 ml-[0%] flex items-center justify-around font-poppins mt-[6rem] border-b-4 border-gray-200">
+
+
             <a href="https://bulle.rezel.net/browse/all"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-latest
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Tous les livres
             </a>
-<!--
+
             <a href="https://bulle.rezel.net/browse/latest"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-latest
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Nouveautés
             </a>
--->
-            <a href="https://bulle.rezel.net/browse/tag/{tag}"
+            <a href="https://bulle.rezel.net/browse/tag/BD"
                onclick="clear_browse_bar()"
                hx-boost="true"
                hx-headers='{"Tmpl":"main"}'
-               hx-vals='{"tag":"Manga"}'
-               hx-ext="path-params"
                hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-manga
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
-                Manga
-            </a>
-            <a href="https://bulle.rezel.net/browse/tag/{tag}"
-               onclick="clear_browse_bar()"
-               hx-boost="true"
-               hx-headers='{"Tmpl":"main"}'
-               hx-vals='{"tag":"BD"}'
-               hx-ext="path-params"
-               hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="header-bd
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 BD
             </a>
+            <a href="https://bulle.rezel.net/browse/tag/Manga"
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Manga
+            </a>
+            <a href="https://bulle.rezel.net/browse/tag/Comics"
+               onclick="clear_browse_bar()"
+               hx-boost="true"
+               hx-headers='{"Tmpl":"main"}'
+               hx-target=".main"
+               hx-swap="innerHTML"
+               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Comics
+            </a>
+
+
         </div>
-
-        <label class ="flex-grow">
-            <input type="search" name="q" id="browse-bar"  class="
-                w-full
-                rounded-full
-                text-black
-                pl-5"
-                placeholder="Livre, saga, genre, auteur, ..."
-                {{if hasField . "Query"}}
-                    value ="{{.Query}}"
-                {{end}}
-                   hx-trigger="input changed delay:0.4s, search"
-                   hx-get="https://bulle.rezel.net/browse"
-                   hx-push-url="true"
-                   hx-on::after-request="cleanURL()"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-include="this"
-                   hx-target=".main"
-                   hx-swap="innerHTML show:window:top">
-
-        </label>
-
-        <label id="toggle_serie_mode_label">
-            <input type="checkbox" id="toggle_serie_mode"
-                   onclick="toggle_serie_switch()"
-                   hx-target=".main"
-                   hx-headers='{"Tmpl":"main"}'
-                   hx-swap="innerHTML show:window:top"
-                   hx-trigger="toggle_serie_switch">
-        </label>
-
-
-        <a href="https://bulle.rezel.net/contact"
-           onclick="clear_browse_bar()"
-           hx-boost="true"
-           hx-headers='{"Tmpl":"main"}'
-           hx-target=".main"
-           hx-swap="innerHTML show:window:top"
-           class="header-contact
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
-            Contact
-        </a>
-
-        {{if .IsAdmin}}
-            <a href="https://bulle.rezel.net/admin"
-               onclick="clear_browse_bar()"
-               hx-boost="true"
-               hx-headers='{"Tmpl":"main"}'
-               hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="color-gray-200
-                            hover:text-blue-600
-                            dark:hover:text-blue-400
-                            text-base
-                            transition-colors
-                            px-2
-                            relative
-                            inline-block
-                            h-full">
-                Pannel admin</a>
-        {{end}}
-
-        {{if and (hasField . "IsLogged") .IsLogged}}
-            <a href="https://bulle.rezel.net/account"
-               onclick="clear_browse_bar()"
-               hx-boost="true"
-               hx-headers='{"Tmpl":"main"}'
-               hx-target=".main"
-               hx-swap="innerHTML show:window:top"
-               class="color-gray-200
-                        hover:text-blue-600
-                        dark:hover:text-blue-400
-                        text-base
-                        transition-colors
-                        px-2
-                        relative
-                        inline-block
-                        h-full">
-                Mon compte</a>
-
-            <a href="https://bulle.rezel.net/logout"
-               class="header-auth
-                        color-gray-200
-                        hover:text-blue-600
-                        dark:hover:text-blue-400
-                        text-base
-                        transition-colors
-                        px-2
-                        relative
-                        inline-block
-                        h-full">
-                Logout</a>
-        {{else}}
-        <a href="https://bulle.rezel.net/login"
-           class="header-auth
-                    color-gray-200
-                    hover:text-blue-600
-                    dark:hover:text-blue-400
-                    text-base
-                    transition-colors
-                    px-2
-                    relative
-                    inline-block
-                    h-full">
-            Login</a>
-        {{end}}
-    </nav>
-{{end}}
+</div>
+            {{end}}

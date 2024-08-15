@@ -2,15 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-    background-color: #111111;
-}
-
 body {
-    color: rgb(243, 244, 246);
+    background-color: rgb(243 244 246);
 }
 
-.book-container {
-    gap: 0.5rem;
-}
 
