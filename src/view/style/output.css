@@ -1525,6 +1525,10 @@ body {
     margin-top: 6rem;
   }
 
+  .sm\:mt-\[12rem\] {
+    margin-top: 12rem;
+  }
+
   .sm\:h-\[10rem\] {
     height: 10rem;
   }
