@@ -7,7 +7,7 @@
     hx-headers='{"Tmpl":"main"}'
     hx-target=".main"
     hx-swap="innerHTML show:window:top"
-    class="h-[55vh] inline-block relative z-0 px-2 my-2"
+    class="h-[55vh] inline-block relative z-0 px-2 my-2 group hover:bg-gray-300/50 rounded-xl"
 >
     <img
         src="http://localhost:8080/serie/{{.UUID}}/cover"
@@ -20,7 +20,7 @@
         {{.BookCount}}
     </div>
     <div
-        class="x-2 pt-1 box-border min-w-full w-0 text-center font-poppins text-[1.85vh] overflow-hidden h-[11%]"
+        class="x-2 pt-1 box-border min-w-full w-0 text-center font-poppins text-[1.85vh] overflow-hidden h-[11%] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
     >
         {{.Name}}
     </div>

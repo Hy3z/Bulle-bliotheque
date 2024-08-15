@@ -5,9 +5,6 @@
            hx-boost="true" hx-headers='{"Tmpl":"main"}' hx-target=".main" hx-swap="innerHTML"
            class="h-full w-auto flex flex-row items-center">
                <img src="http://localhost:8080/logo" alt="logo" class="h-[90%]">
-            <div class="font-handwritten text-4xl">
-                <!--ullothèque-->
-            </div>
         </a>
 
         <div class="w-[1000px] h-full flex items-center">
@@ -31,7 +28,7 @@
 
 
                         <input type="checkbox" id="serieModeToggle"
-                               hx-on::after-request="toggle_serie_switch(); showTop()"
+                               onclick="toggle_serie_switch(); showTop()"
                                 hx-target=".main"
                                 hx-headers='{"Tmpl":"main"}'
                                 hx-swap="innerHTML"
