@@ -2,6 +2,7 @@ package api
 
 import (
 	"bb/auth"
+	"bb/logger"
 	"bb/service/account"
 	"bb/service/admin"
 	"bb/service/book"
@@ -28,7 +29,11 @@ type Templates struct {
 }
 
 func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	err := t.templates.ExecuteTemplate(w, name, data)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error on render: %s\n", err)
+	}
+	return err
 }
 
 // Fonctions utilisables dans les templates HTML
@@ -77,6 +82,7 @@ func newTemplate() *Templates {
 		return nil
 	})
 	if err != nil {
+		logger.ErrorLogger.Printf("Error walking filepath: %s\n", err)
 		return nil
 	}
 	return &Templates{
