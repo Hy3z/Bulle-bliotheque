@@ -3,7 +3,7 @@ Application web de l'association Bulle de Telecom Paris !
 
 # Base de données
 Le site utilise **neo4j** pour sa base de données. C'est une base de données **orientée graphe**, qui utilise le langage de requêtes **cypher**
-Le structure de cette base comme suit:
+Voici la structure de la base de données:
 
 ![Diagramme de la base](/resources/image/bdd.png)
 
