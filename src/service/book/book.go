@@ -12,6 +12,7 @@ import (
 	"reflect"
 )
 
+// getUserReviewByUUID trouve le commentaire d'un utilisateur dans un ensemble de commentaires. Renvoit "" si on ne trouve pas
 func getUserReviewByUUID(userUUID string, reviews []model.Review) string {
 	for _, review := range reviews {
 		if review.UserUUID == userUUID {
@@ -21,6 +22,7 @@ func getUserReviewByUUID(userUUID string, reviews []model.Review) string {
 	return ""
 }
 
+// getBookReviewsByUUID renvoit l'ensemble des commentaires pour l'UUID d'un livre
 func getBookReviewsByUUID(buuid string) ([]model.Review, error) {
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/getBookReviewsByUUID.cypher", map[string]any{
 		"uuid": buuid,
@@ -53,6 +55,7 @@ func getBookReviewsByUUID(buuid string) ([]model.Review, error) {
 	return reviews, nil
 }
 
+// getBookByUUID renvoit un Book en fonction de l'UUID du livre et de l'UUID de l'utilisateur
 func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	book := model.Book{}
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/book/getBookByUUID.cypher", map[string]any{
@@ -156,7 +159,7 @@ func getBookByUUID(uuid string, userUUID string) (model.Book, error) {
 	return book, nil
 }
 
-// getBookStatusByUUID returns ID=0 in case of an error
+// getBookStatusByUUID renvoit le status d'un livre. On renvoit l'ID 0 en cas d'erreur
 func getBookStatusByUUID(uuid string) int {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/book/getBookStatusByUUID.cypher")
 	if err != nil {
@@ -191,6 +194,7 @@ func getBookStatusByUUID(uuid string) int {
 	return int(id)
 }
 
+// respondWithBookMain renvoit l'élément HTML d'un livre
 func respondWithBookMain(c echo.Context) error {
 	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
 	if err != nil {
@@ -200,6 +204,7 @@ func respondWithBookMain(c echo.Context) error {
 	return book.Render(c, http.StatusOK)
 }
 
+// respondWithBookPage renvoit la page HTML d'un livre
 func respondWithBookPage(c echo.Context) error {
 	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
 	if err != nil {
@@ -209,6 +214,7 @@ func respondWithBookPage(c echo.Context) error {
 	return book.RenderIndex(c, http.StatusOK)
 }
 
+// RespondWithBook renvoit l'élément ou la page HTML d'un livre
 func RespondWithBook(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -223,12 +229,13 @@ func RespondWithBook(c echo.Context) error {
 	}
 }
 
+// RespondWithCover renvoit la couverture d'un livre en lisant l'UUID du livre dans l'url de la requête
 func RespondWithCover(c echo.Context) error {
 	uuid := c.Param(util.BookParam)
 	return c.File("./data/book/" + uuid + "/cover.jpg")
 }
 
-// RespondWithBorrow assumes the user is connected
+// RespondWithBorrow emprunte le livre s'il est disponible, et renvoit une réponse HTML de confirmation
 func RespondWithBorrow(c echo.Context) error {
 	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
@@ -260,14 +267,10 @@ func RespondWithBorrow(c echo.Context) error {
 		return c.HTML(http.StatusInternalServerError, "Une erreur est survenue")
 	}
 
-	//return c.Render(http.StatusOK, "borrow-success", nil)
 	return c.HTML(http.StatusOK, "Le livre a bien été emprunté")
 }
 
-type Test struct {
-	Test string
-}
-
+// RespondWithReturn rend le livre si l'utilisateur est le même que son détenteur, et renvoit une réponse HTML de confirmation
 func RespondWithReturn(c echo.Context) error {
 	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
@@ -301,6 +304,7 @@ func RespondWithReturn(c echo.Context) error {
 	return c.HTML(http.StatusOK, "Le livre a bien été rendu")
 }
 
+// RespondWithLike like le livre pour l'utilisateur, et renvoit une réponse HTML de confirmation
 func RespondWithLike(c echo.Context) error {
 	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
@@ -324,6 +328,7 @@ func RespondWithLike(c echo.Context) error {
 	return c.HTML(http.StatusOK, "Le livre a été liké")
 }
 
+// RespondWithUnlike retire le like d'un livre pour l'utilisateur, et renvoit une réponse HTML de confirmation
 func RespondWithUnlike(c echo.Context) error {
 	uuuid := auth.GetUserUUIDFromContext(c)
 	if uuuid == "" {
@@ -347,6 +352,7 @@ func RespondWithUnlike(c echo.Context) error {
 	return c.HTML(http.StatusOK, "Le livre a été déliké")
 }
 
+// RespondWithReview renvoit l'élement HTML correspondant à la liste des commentaires pour un livre
 func RespondWithReview(c echo.Context) error {
 	userUUID := auth.GetUserUUIDFromContext(c)
 	if userUUID == "" {

@@ -11,6 +11,7 @@ import (
 	"net/http"
 )
 
+// getBorrowedByUUID renvoit la liste des livres empruntés en fonction de l'UUID de l'utilisateur
 func getBorrowedByUUID(uuid string) ([]model.BookPreview, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/account/getBorrowedByUUID.cypher")
 	if err != nil {
@@ -35,6 +36,7 @@ func getBorrowedByUUID(uuid string) ([]model.BookPreview, error) {
 	return previews, nil
 }
 
+// getLikedByUUID renvoit la liste des livres likés en fonction de l'UUID de l'utilisateur
 func getLikedByUUID(uuid string) ([]model.BookPreview, error) {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/account/getLikedByUUID.cypher")
 	if err != nil {
@@ -59,6 +61,7 @@ func getLikedByUUID(uuid string) ([]model.BookPreview, error) {
 	return previews, nil
 }
 
+// getReviewedByUUID renvoit la liste des livres commentés en fonction de l'UUID de l'utilisateur
 func getReviewedByUUID(uuid string) ([]model.BookPreview, error) {
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/account/getReviewedByUUID.cypher", map[string]any{
 		"uuid": uuid,
@@ -78,6 +81,7 @@ func getReviewedByUUID(uuid string) ([]model.BookPreview, error) {
 	return previews, nil
 }
 
+// getAccountByUUID renvoit les informations du compte en fonction de son UUID et de son nom d'utilisateur
 func getAccountByUUID(uuid string, name string) (model.Account, error) {
 	account := model.Account{
 		UUID: uuid,
@@ -102,6 +106,7 @@ func getAccountByUUID(uuid string, name string) (model.Account, error) {
 	return account, nil
 }
 
+// respondWithAccountMain renvoit l'élement HTML du compte de l'utilisateur
 func respondWithAccountMain(c echo.Context, uuid string, name string) error {
 	account, err := getAccountByUUID(uuid, name)
 	if err != nil {
@@ -111,6 +116,7 @@ func respondWithAccountMain(c echo.Context, uuid string, name string) error {
 	return account.Render(c, http.StatusOK)
 }
 
+// respondWithAccountPage renvoit la page HTML du compte de l'utilisateur
 func respondWithAccountPage(c echo.Context, uuid string, name string) error {
 	account, err := getAccountByUUID(uuid, name)
 	if err != nil {
@@ -120,6 +126,7 @@ func respondWithAccountPage(c echo.Context, uuid string, name string) error {
 	return account.RenderIndex(c, http.StatusOK)
 }
 
+// RespondWithAccount renvoit la page ou l'élement HTML du compte de l'utilisateur
 func RespondWithAccount(c echo.Context) error {
 	uuid, name, ok := auth.GetUserInfoFromContext(c)
 	if !ok {

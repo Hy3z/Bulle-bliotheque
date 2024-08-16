@@ -10,14 +10,17 @@ import (
 	"net/http"
 )
 
+// respondWithContactMain renvoit l'élément HTML correspondant à la page de contact
 func respondWithContactMain(c echo.Context) error {
 	return model.RenderContact(c, http.StatusOK)
 }
 
+// respondWithContactPage renvoit la page HTML correspondante à la page de contact
 func respondWithContactPage(c echo.Context) error {
 	return model.RenderContactIndex(c, http.StatusOK)
 }
 
+// RespondWithContact renvoit la page ou l'élément HTML correspondant à la page de contact
 func RespondWithContact(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -32,6 +35,7 @@ func RespondWithContact(c echo.Context) error {
 	}
 }
 
+// ProcessContactTicket crée un ticket en lisant le message dans le contexte, et renvoit une réponse HTML de confirmation
 func ProcessContactTicket(c echo.Context) error {
 	message := c.FormValue("message")
 	if message == "" {

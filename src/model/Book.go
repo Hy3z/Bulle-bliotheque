@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Review structure à passer en argument d'une template "review" pour l'afficher correctement
 type Review struct {
 	UserUUID string
 	UserName string
@@ -12,6 +13,7 @@ type Review struct {
 	Message  string
 }
 
+// Book structure à passer en argument d'une template "book" pour l'afficher correctement
 type Book struct {
 	Title         string
 	UUID          string
@@ -38,6 +40,7 @@ type Book struct {
 }
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation des livres
 	bookTemplate      = "book"
 	bookIndexTemplate = "book-index"
 )

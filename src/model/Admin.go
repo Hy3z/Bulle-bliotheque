@@ -6,13 +6,15 @@ import (
 )
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation du pannel admin
 	adminTemplate      = "admin"
 	adminIndexTemplate = "admin-index"
-
+	//Nom des templates HTML correspondant aux pages de visualisation des séries dans le pannel admin
 	adminSerieTemplate      = "admin-serie"
 	adminSerieIndexTemplate = "admin-serie-index"
 )
 
+// AdminSerie structure à passer en argument d'une template "admin-serie" pour l'afficher correctement
 type AdminSerie struct {
 	Series []SeriePreview
 }

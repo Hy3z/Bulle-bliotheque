@@ -7,8 +7,10 @@ type Preview struct {
 	SeriePreview SeriePreview
 }
 
+// PreviewSet structure à passer en argument de toutes les templates "preview-set" pour l'afficher correctement
 type PreviewSet []Preview
 
+// InfinitePreviewSet structure à passer en argument de toutes les templates "infinite-preview-set" pour l'afficher correctement
 type InfinitePreviewSet struct {
 	PreviewSet PreviewSet
 	Url        string
@@ -16,6 +18,7 @@ type InfinitePreviewSet struct {
 }
 
 const (
+	//Nom des templates HTML correspondant aux ensembles finis et infinis de prévisualisation de livres
 	previewSetTemplate         = "preview-set"
 	infinitePreviewSetTemplate = "infinite-preview-set"
 )

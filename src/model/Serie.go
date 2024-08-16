@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Serie structure à passer en argument de toutes les templates "serie" pour l'afficher correctement
 type Serie struct {
 	Name      string
 	Books     PreviewSet
@@ -17,6 +18,7 @@ type Serie struct {
 }
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation des séries
 	serieTemplate      = "serie"
 	serieIndexTemplate = "serie-index"
 )

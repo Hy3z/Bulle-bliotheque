@@ -1,5 +1,6 @@
 package util
 
+// Clés des paramètres d'url (path parameters) utilisés à travers le site
 const (
 	PageParam   = "p"
 	BookParam   = "b"
@@ -7,5 +8,4 @@ const (
 	TagParam    = "tag"
 	SerieParam  = "s"
 	AuthorParam = "author"
-	//OriginParam = "origin"
 )

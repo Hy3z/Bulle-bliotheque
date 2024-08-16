@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation de la page contact
 	contactTemplate      = "contact"
 	contactIndexTemplate = "contact-index"
 )

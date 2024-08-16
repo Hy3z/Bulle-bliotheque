@@ -11,14 +11,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// respondWithAdminMain renvoit l'élement HTML du pannel admin
 func respondWithAdminMain(c echo.Context) error {
 	return model.RenderAdmin(c, http.StatusOK)
 }
 
+// respondWithAdminPage renvoit la page HTML du pannel admin
 func respondWithAdminPage(c echo.Context) error {
 	return model.RenderAdminIndex(c, http.StatusOK)
 }
 
+// RespondWithAdmin renvoit la page ou l'élement HTML du pannel admin
 func RespondWithAdmin(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -35,6 +38,7 @@ func RespondWithAdmin(c echo.Context) error {
 
 ////
 
+// getSeriePreviews renvoit l'ensemble des prévisualisations de séries
 func getSeriePreviews() []model.SeriePreview {
 	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/admin/serie/getSeries.cypher", map[string]any{})
 	if err != nil {
@@ -56,18 +60,21 @@ func getSeriePreviews() []model.SeriePreview {
 	return previews
 }
 
+// respondWithSerieMain renvoit l'élement HTML de la gestion de séries du pannel admin
 func respondWithSerieMain(c echo.Context) error {
 	return model.AdminSerie{
 		Series: getSeriePreviews(),
 	}.Render(c, http.StatusOK)
 }
 
+// respondWithSeriePage renvoit la page HTML de la gestion de séries du pannel admin
 func respondWithSeriePage(c echo.Context) error {
 	return model.AdminSerie{
 		Series: getSeriePreviews(),
 	}.RenderIndex(c, http.StatusOK)
 }
 
+// RespondWithSerie renvoit la page ou l'élement HTML de la gestion de séries du pannel admin
 func RespondWithSerie(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -82,6 +89,7 @@ func RespondWithSerie(c echo.Context) error {
 	}
 }
 
+// CreateSerie crée une série en lisant le context, puis renvoit une réponse HTML
 func CreateSerie(c echo.Context) error {
 	name := c.FormValue("name")
 	fileheader, err := c.FormFile("cover")

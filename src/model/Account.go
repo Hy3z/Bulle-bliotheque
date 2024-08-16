@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Account structure à passer en argument d'une template "account" pour l'afficher correctement
 type Account struct {
 	UUID     string
 	Name     string
@@ -14,6 +15,7 @@ type Account struct {
 }
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation des informations de l'utilisateur
 	accountTemplate      = "account"
 	accountIndexTemplate = "account-index"
 )

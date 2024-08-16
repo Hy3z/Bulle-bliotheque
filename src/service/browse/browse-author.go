@@ -12,6 +12,7 @@ import (
 	"strconv"
 )
 
+// getWroteByBps renvoit un ensemble de prévisualisation en fonction d'un auteur, d'un numéro de page et d'une limite de résultats
 func getWroteByBps(author string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	skip := (page - 1) * limit
 	qfile := util.CypherScriptDirectory + "/browse/author/"
@@ -54,6 +55,7 @@ func getWroteByBps(author string, page int, limit int, isSerieMode bool) model.P
 	return previews
 }
 
+// getWroteByRs renvoit une recherche (infinie ou pas) corresondant à la recherche par auteur
 func getWroteByRs(author string, isSerieMode bool) model.Research {
 	page := 1
 	bps1 := getWroteByBps(author, page, MaxBatchSize, isSerieMode)
@@ -75,6 +77,7 @@ func getWroteByRs(author string, isSerieMode bool) model.Research {
 	}
 }
 
+// respondWithAuthorPage renvoit la page HTML correspondant à la recherche par auteur
 func respondWithAuthorPage(c echo.Context) error {
 	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
@@ -87,7 +90,8 @@ func respondWithAuthorPage(c echo.Context) error {
 	}.RenderIndex(c, http.StatusOK, "")
 }
 
-func respondWithAuthorRs(c echo.Context) error {
+// respondWithAuthorMain renvoit l'élement HTML correspondant à la recherche par auteur
+func respondWithAuthorMain(c echo.Context) error {
 	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render default view
 	if err != nil || author == "" {
@@ -97,6 +101,7 @@ func respondWithAuthorRs(c echo.Context) error {
 	return getWroteByRs(author, util.IsSerieMode(c)).Render(c, http.StatusOK)
 }
 
+// respondWithAuthorPs renvoit un ensemble de prévisualisations HTML correspondant à la recherche par auteur
 func respondWithAuthorPs(c echo.Context) error {
 	author, err := url.QueryUnescape(c.Param(util.AuthorParam))
 	//If not filter applied, render nothing
@@ -127,6 +132,7 @@ func respondWithAuthorPs(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
+// RespondWithAuthor renvoit la page HTML, l'élement HTML, ou un ensemble de prévisualisations correspondant à la recherche par auteur
 func RespondWithAuthor(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -134,7 +140,7 @@ func RespondWithAuthor(c echo.Context) error {
 	}
 	switch tmpl {
 	case util.MainContentType:
-		return respondWithAuthorRs(c)
+		return respondWithAuthorMain(c)
 	case util.PreviewSetContentType:
 		return respondWithAuthorPs(c)
 	default:

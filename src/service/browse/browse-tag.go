@@ -12,6 +12,7 @@ import (
 	"strconv"
 )
 
+// getTaggedPs renvoit un ensemble de prévisualisation, en fonction d'un tag, d'un numéro de page et d'une limite de résultat
 func getTaggedPs(tag string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	skip := (page - 1) * limit
 	qfile := util.CypherScriptDirectory + "/browse/tag/"
@@ -53,6 +54,7 @@ func getTaggedPs(tag string, page int, limit int, isSerieMode bool) model.Previe
 	return previews
 }
 
+// getTaggedRs renvoit une recherche (infinie ou pas) contenant les livres taggés
 func getTaggedRs(tag string, isSerieMode bool) model.Research {
 	page := 1
 	ps1 := getTaggedPs(tag, page, MaxBatchSize, isSerieMode)
@@ -75,6 +77,7 @@ func getTaggedRs(tag string, isSerieMode bool) model.Research {
 	}
 }
 
+// respondWithTagPage renvoit la page HTML correspondant aux livres avec un certain tag
 func respondWithTagPage(c echo.Context) error {
 	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
@@ -88,7 +91,8 @@ func respondWithTagPage(c echo.Context) error {
 	}.RenderIndex(c, http.StatusOK, "")
 }
 
-func respondWithTagRs(c echo.Context) error {
+// respondWithTagMain renvoit l'élément HTML correspondant aux livres avec un certain tag
+func respondWithTagMain(c echo.Context) error {
 	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render default view
 	if err != nil || tag == "" {
@@ -98,6 +102,7 @@ func respondWithTagRs(c echo.Context) error {
 	return getTaggedRs(tag, util.IsSerieMode(c)).Render(c, http.StatusOK)
 }
 
+// respondWithTagMain renvoit un ensemble de prévisualisations correspondant aux livres avec un certain tag
 func respondWithTagPs(c echo.Context) error {
 	tag, err := url.QueryUnescape(c.Param(util.TagParam))
 	//If not filter applied, render nothing
@@ -128,6 +133,7 @@ func respondWithTagPs(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
+// RespondWithTag renvoit un la page HTML, l'élément HTML, ou ensemble de prévisualisations correspondant aux livres avec un certain tag. On fait ce choix en lisant un paramètre dans le header HTTP
 func RespondWithTag(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -135,7 +141,7 @@ func RespondWithTag(c echo.Context) error {
 	}
 	switch tmpl {
 	case util.MainContentType:
-		return respondWithTagRs(c)
+		return respondWithTagMain(c)
 	case util.PreviewSetContentType:
 		return respondWithTagPs(c)
 	default:
