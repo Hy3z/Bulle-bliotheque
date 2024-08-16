@@ -27,7 +27,7 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 		return serie, err
 	}
 	if len(res.Records) == 0 {
-		return serie, errors.New("No serie found")
+		return serie, errors.New("no serie found")
 	}
 	values := res.Records[0].Values
 	name, _ := values[0].(string)

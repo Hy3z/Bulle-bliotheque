@@ -21,8 +21,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//Ce fichier fait les liens entre l'url internet et les fonctions correspondantes
-
 type Templates struct {
 	templates *template.Template
 }
@@ -31,7 +29,6 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-// Fonctions utilisables dans les templates HTML
 func hasField(v interface{}, name string) bool {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() == reflect.Ptr {
@@ -44,20 +41,23 @@ func hasField(v interface{}, name string) bool {
 	field := rv.FieldByName(name)
 	return field.IsValid() && !field.IsZero()
 }
+
 func escape(s string) string {
 	return url.QueryEscape(s)
 }
+
 func add(v1 int, v2 int) int {
 	return v1 + v2
 }
+
 func div(v1 int, v2 int) float32 {
 	return float32(v1) / float32(v2)
 }
+
 func perc(v float32) int {
 	return int(v * 100)
 }
 
-// Cherche et crée les templates HTML du site
 func newTemplate() *Templates {
 	tmpl := template.New("").Funcs(map[string]any{
 		"hasField": hasField,
@@ -66,7 +66,6 @@ func newTemplate() *Templates {
 		"div":      div,
 		"perc":     perc,
 	})
-	//On cherche les templates HTML dans le dossier view
 	err := filepath.Walk("view/html", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			_, err := tmpl.ParseFiles(path)
@@ -86,10 +85,8 @@ func newTemplate() *Templates {
 
 //
 
-// Définition des routes qui ne nécessitent pas d'être authentifié
 func SetupNoAuth(e *echo.Echo) {
 	e.Renderer = newTemplate()
-	//Routes renvoyant des fichiers statiques
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
 	})
@@ -118,12 +115,10 @@ func SetupNoAuth(e *echo.Echo) {
 		return c.File("view/image/complex_small_blue_thin.png")
 	})
 
-	//On redirige / vers /browse
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, util.BrowsePath)
 	})
 
-	//Routes renvoyant des templates HTML remplies
 	e.GET(util.BrowsePath, browse.RespondWithBrowse)
 	e.GET(util.BrowseLatestPath, browse.RespondWithLatest)
 	e.GET(util.BrowseAllPath, browse.RespondWithAll)
@@ -131,6 +126,7 @@ func SetupNoAuth(e *echo.Echo) {
 	e.GET(util.BrowseAuthorPath, browse.RespondWithAuthor)
 
 	e.GET(util.BookPath, book.RespondWithBook)
+	//e.POST(util.BookPath, book.)
 	e.GET(util.BookCoverPath, book.RespondWithCover)
 
 	e.GET(util.SeriePath, serie.RespondWithSerie)
@@ -143,7 +139,6 @@ func SetupNoAuth(e *echo.Echo) {
 	e.GET(util.CallbackLoginPath, auth.LoginCallback)
 }
 
-// Définition des routes qui nécessitent d'être authentifié
 func SetupAuth(e *echo.Echo) {
 	e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
 	e.POST(util.BookBorrowPath, book.RespondWithBorrow, auth.HasTokenMiddleware)
@@ -155,13 +150,18 @@ func SetupAuth(e *echo.Echo) {
 
 	e.GET(util.AccountPath, account.RespondWithAccount, auth.HasTokenMiddleware)
 
+	e.GET("/auth", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, "HELLO LOGGED")
+	}, auth.HasTokenMiddleware)
 	e.GET(util.LogoutPath, auth.Logout, auth.HasTokenMiddleware)
 
 }
 
-// Définition des routes qui nécessitent d'être admin
 func SetupRestricted(e *echo.Echo) {
 	e.GET(util.AdminPath, admin.RespondWithAdmin, auth.HasRoleMiddleware)
 	e.GET(util.AdminSeriePath, admin.RespondWithSerie, auth.HasRoleMiddleware)
 	e.POST(util.AdminCreateSeriePath, admin.CreateSerie, auth.HasRoleMiddleware)
+	e.GET("/restricted", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, "HELLO RESTRICTED")
+	}, auth.HasRoleMiddleware)
 }

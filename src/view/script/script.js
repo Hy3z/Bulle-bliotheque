@@ -14,8 +14,8 @@ function cleanURL() {
 }
 
 function toggle_serie_switch() {
-  var serie_switch = document.getElementById("serieModeToggle");
-  var url = window.location.href;
+  const serie_switch = document.getElementById("serieModeToggle");
+  const url = window.location.href;
   serie_switch.setAttribute("hx-get", url);
   // @ts-ignore
   htmx.process(serie_switch);
