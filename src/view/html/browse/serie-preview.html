@@ -2,7 +2,7 @@
 
 <a
     href="https://bulle.rezel.net/serie/{{.UUID}}"
-    onclick="clear_browse_bar()"
+    hx-on::after-request="clear_browse_bar();showTop()"
     hx-boost="true"
     hx-headers='{"Tmpl":"main"}'
     hx-target=".main"
