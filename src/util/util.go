@@ -1,5 +1,6 @@
 package util
 
+// CastArray convertit directement un type inconnu en un tableau d'un type défini
 func CastArray[T any](array []any) []T {
 	var tarray []T
 	for _, v := range array {

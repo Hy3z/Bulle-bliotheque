@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// getSerieByUUID renvoit une Serie en l'UUID de celle-ci
 func getSerieByUUID(uuid string) (model.Serie, error) {
 	serie := model.Serie{UUID: uuid}
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/serie/getSerieByUUID.cypher")
@@ -26,7 +27,7 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 		return serie, err
 	}
 	if len(res.Records) == 0 {
-		return serie, errors.New("No serie found")
+		return serie, errors.New("no serie found")
 	}
 	values := res.Records[0].Values
 	name, _ := values[0].(string)
@@ -62,6 +63,7 @@ func getSerieByUUID(uuid string) (model.Serie, error) {
 	return serie, nil
 }
 
+// respondWithSerieMain renvoit l'élément HTML correspondant à une série
 func respondWithSerieMain(c echo.Context) error {
 	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
 	if err != nil {
@@ -76,6 +78,7 @@ func respondWithSerieMain(c echo.Context) error {
 	return serie.Render(c, http.StatusOK)
 }
 
+// respondWithSeriePage renvoit la page HTML correspondante à une série
 func respondWithSeriePage(c echo.Context) error {
 	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
 	if err != nil {
@@ -90,6 +93,7 @@ func respondWithSeriePage(c echo.Context) error {
 	return serie.RenderIndex(c, http.StatusOK)
 }
 
+// RespondWithSerie renvoit la page ou l'élément HTML correspondant à une série
 func RespondWithSerie(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -104,6 +108,7 @@ func RespondWithSerie(c echo.Context) error {
 	}
 }
 
+// RespondWithCover renvoit la couverture d'une série en lisant l'UUID de la série dans l'url de la requête
 func RespondWithCover(c echo.Context) error {
 	suuid, err := url.QueryUnescape(c.Param(util.SerieParam))
 	if err != nil {

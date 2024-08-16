@@ -1,8 +1,8 @@
 package util
 
+// Liste de tous les chemins disponibles à travers le site
 const (
-	BrowsePath = "/browse"
-
+	BrowsePath       = "/browse"
 	BrowseTagPath    = BrowsePath + "/tag/:" + TagParam
 	BrowseAuthorPath = BrowsePath + "/author/:" + AuthorParam
 	BrowseAllPath    = BrowsePath + "/all"
@@ -30,7 +30,6 @@ const (
 	AdminPath            = "/admin"
 	AdminSeriePath       = AdminPath + "/serie"
 	AdminCreateSeriePath = AdminSeriePath + "/create"
-	AdminBookPath        = AdminPath + "/book"
 
 	AccountPath = "/account"
 )

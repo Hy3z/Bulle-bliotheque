@@ -2,7 +2,7 @@
 
 <a
     href="https://bulle.rezel.net/book/{{.UUID}}"
-    onclick="clear_browse_bar()"
+    hx-on::after-request="clear_browse_bar();showTop()"
     hx-boost="true"
     hx-headers='{"Tmpl":"main"}'
     hx-target=".main"
@@ -19,13 +19,13 @@
         eq
         .Status
         1}}
-        bg-orange-950
+        bg-orange-500
         {{else
         if
         eq
         .Status
         2}}
-        bg-red-950
+        bg-red-600
         {{else
         if
         eq

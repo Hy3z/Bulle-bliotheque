@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Browse structure à passer en argument d'une template "browse" pour l'afficher correctement
 type Browse struct {
 	Researches []Research
 
@@ -17,6 +18,7 @@ type Browse struct {
 }
 
 const (
+	//Nom des templates HTML correspondant aux pages de visualisation d'une page de recherches
 	browseTemplate      = "browse"
 	browseIndexTemplate = "browse-index"
 )

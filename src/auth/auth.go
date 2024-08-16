@@ -5,7 +5,6 @@ import (
 	"bb/logger"
 	"bb/util"
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,45 +17,43 @@ import (
 )
 
 const (
-	ENV_PATH                   = ".env"
-	authHeaderKey              = "auth"
-	ENV_KEYCLOAK_URL           = "KEYCLOAK_URL"
-	ENV_KEYCLOAK_CLIENT_ID     = "KEYCLOAK_CLIENT_ID"
-	ENV_KEYCLOAK_CLIENT_SECRET = "KEYCLOAK_CLIENT_SECRET"
-	ENV_KEYCLOAK_REALM         = "KEYCLOAK_REALM"
-	ENV_KEYCLOAK_PUBLIC_KEY    = "KEYCLOACK_PUBLIC_KEY"
-	access_token_cookie        = "access-token"
-	refresh_token_cookie       = "refresh-token"
-	admin_role_name            = "admin"
-	refererHeaderKey           = "Referer"
+	EnvPath = ".env" //Nom du fichier contenant les variables d'environnements
+
+	//Clés des variables d'environnement dans le fichier
+	EnvKeycloakUrl          = "KEYCLOAK_URL"
+	EnvKeycloakClientId     = "KEYCLOAK_CLIENT_ID"
+	EnvKeycloakClientSecret = "KEYCLOAK_CLIENT_SECRET"
+	EnvKeycloakRealm        = "KEYCLOAK_REALM"
+
+	//Clés des cookies contenant les tokens Keycloak
+	accessTokenCookie  = "access-token"
+	refreshTokenCookie = "refresh-token"
+
+	adminRoleName    = "admin"   //Nom du rôle qui donne les pouvoirs d'admin
+	refererHeaderKey = "Referer" //Clés du paramètre de l'entête HTML utilisé pour revenir à la page du site après une connection (callback)
 )
 
 var (
-	pathEndedError error = errors.New("JWT path ended")
-	jwtKeyError    error = errors.New("Wrong key")
+	client       *gocloak.GoCloak
+	clientID     string
+	clientSecret string
+	realm        string
+	authUrl      string
+	ctx          context.Context
+	provider     *oidc.Provider
 )
 
-var (
-	client         *gocloak.GoCloak
-	clientID       string
-	clientSecret   string
-	realm          string
-	authUrl        string
-	ctx            context.Context
-	provider       *oidc.Provider
-	realmPublicKey string
-)
-
+// Initialisation des variables qui permettent de communiquer avec le serveur Keycloak
 func Setup() {
 	var err error
-	authUrl = os.Getenv(ENV_KEYCLOAK_URL) + "/auth"
-	clientID = os.Getenv(ENV_KEYCLOAK_CLIENT_ID)
-	realm = os.Getenv(ENV_KEYCLOAK_REALM)
-	clientSecret = os.Getenv(ENV_KEYCLOAK_CLIENT_SECRET)
-	realmPublicKey =
-		"-----BEGIN PUBLIC KEY-----\n" +
-			os.Getenv(ENV_KEYCLOAK_PUBLIC_KEY) +
-			"\n-----END PUBLIC KEY-----\n"
+	authUrl = os.Getenv(EnvKeycloakUrl) + "/auth"
+	clientID = os.Getenv(EnvKeycloakClientId)
+	realm = os.Getenv(EnvKeycloakRealm)
+	clientSecret = os.Getenv(EnvKeycloakClientSecret)
+	/*realmPublicKey =
+	"-----BEGIN PUBLIC KEY-----\n" +
+		os.Getenv(ENV_KEYCLOAK_PUBLIC_KEY) +
+		"\n-----END PUBLIC KEY-----\n"*/
 	client = gocloak.NewClient(authUrl)
 	ctx = context.Background()
 	provider, err = oidc.NewProvider(ctx, authUrl+"/realms/"+realm)
@@ -66,36 +63,31 @@ func Setup() {
 	logger.InfoLogger.Println("Sucessfully initialized auth")
 }
 
+// getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
 func getTokens(c echo.Context) (string, string, bool) {
-	access_token, err1 := c.Request().Cookie(access_token_cookie)
-	refresh_token, err2 := c.Request().Cookie(refresh_token_cookie)
+	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
+	refreshToken, err2 := c.Request().Cookie(refreshTokenCookie)
 	if err1 != nil || err2 != nil {
-		//logger.InfoLogger.Println(access_token)
-		//logger.InfoLogger.Println(refresh_token)
 		return "", "", false
 	}
-	return access_token.Value, refresh_token.Value, true
+	return accessToken.Value, refreshToken.Value, true
 }
 
+// hasToken Renvoit true si le token d'accès du contexte est valide. Le token est également rafraichit, et est renvoyé dans la deuxième variable si il y a eu un rafraichissement
 func hasToken(c echo.Context) (bool, *gocloak.JWT) {
-	access_token, refresh_token, ok := getTokens(c)
+	accessToken, refreshToken, ok := getTokens(c)
 	if !ok {
-		//logger.InfoLogger.Println("Not ok")
-		return false, nil
-	}
-	if !ok {
-		//logger.InfoLogger.Println("Not ok")
 		return false, nil
 	}
 
-	result, err := client.RetrospectToken(ctx, access_token, clientID, clientSecret, realm)
+	result, err := client.RetrospectToken(ctx, accessToken, clientID, clientSecret, realm)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
 		return false, nil
 	}
 
 	if !*result.Active {
-		newJWT, err := client.RefreshToken(ctx, refresh_token, clientID, clientSecret, realm)
+		newJWT, err := client.RefreshToken(ctx, refreshToken, clientID, clientSecret, realm)
 		if err != nil {
 			return false, nil
 		}
@@ -104,44 +96,10 @@ func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	return true, nil
 }
 
-/*func sliceContains(slice []interface{}, tofind string) bool {
-	for _, inter := range slice {
-		sinter, ok := inter.(string)
-		if !ok {
-			continue
-		}
-		if sinter == tofind {
-			return true
-		}
-	}
-	return false
-}*/
-
-/*func jwtWalk(jwt jwt.MapClaims, keys ...string) (interface{}, error) {
-	if len(keys) == 0 {
-		return jwt, nil
-	}
-	next, ok := jwt[keys[0]]
-	if !ok {
-		return nil, pathEndedError
-	}
-	for _, key := range keys[1:] {
-		temp, ok := next.(map[string]interface{})
-		if !ok {
-			logger.InfoLogger.Printf("%s\n", key)
-			return nil, pathEndedError
-		}
-		next, ok = temp[key]
-		if !ok {
-			return nil, jwtKeyError
-		}
-	}
-	return next, nil
-}*/
-
-func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
+// hasRoles Renvoit true si l'utilisateur détenant le token d'accès possède tous les rôles
+func hasRoles(accessToken string, reqRoles []string) bool {
 	ctx := context.Background()
-	userInfo, err := client.GetUserInfo(ctx, access_token, realm)
+	userInfo, err := client.GetUserInfo(ctx, accessToken, realm)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return false
@@ -160,120 +118,91 @@ func hasRoles(c echo.Context, access_token string, req_roles []string) bool {
 		return false
 	}
 
-	for _, req_role := range req_roles {
-		if !util.RecordsContains(res.Records, 0, req_role) {
+	for _, reqRole := range reqRoles {
+		if !util.RecordsContains(res.Records, 0, reqRole) {
 			return false
 		}
 		continue
 	}
 
-	//logger.InfoLogger.Println(*userInfo.Sub)
-	//logger.InfoLogger.Println(*userInfo.Name)
 	return true
-
-	/*access_token, _, ok := getTokens(c)
-	if !ok {
-		return false
-	}
-
-	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(realmPublicKey))
-	if err != nil {
-		logger.InfoLogger.Printf("Error parsing public key: %s\n", err)
-		return false
-	}
-
-	token, err := jwt.ParseWithClaims(access_token, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return pk, nil
-	})
-
-	if err != nil {
-		logger.InfoLogger.Printf("Error parsing token: %s\n", err)
-		return false
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return false
-	}
-
-	iroles, err := jwtWalk(claims, "resource_access", clientID, "roles")
-	if err != nil {
-		logger.InfoLogger.Printf("Error walking jwt: %s\n", err)
-	}
-
-	roles, ok := iroles.([]interface{})
-	if !ok {
-		return false
-	}
-
-	for _, req_role := range req_roles {
-		if !sliceContains(roles, req_role) {
-			logger.InfoLogger.Printf("%s not in\n", req_role)
-			return false
-		}
-	}
-	return true*/
 }
 
+// HasTokenMiddleware intervient lorsqu'on utilise un chemin protégé, et vérifie qu'on est bien authentifié
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenPresent, jwt := hasToken(c)
 		if tokenPresent {
 			if jwt != nil {
+				//On renvoit les nouveaux cookies dans la réponse si les tokens ont été rafraichis
 				addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
 			}
 			return next(c)
 		}
 
-		//On devra donc refaire l'action si on est pas encore connecté
-		//Dans le futur on passera un paramètre si on veut être quand même redirigé
-		//c.Request().Header.Set(refererHeaderKey, c.Path())
-
+		//Si l'utilisateur n'est pas authentifié, on le redirige sur la page de connection
 		return Login(c)
 	}
 }
 
+// HasRoleMiddleware intervient lorsqu'on utilise un chemin protégé par le rôle admin, et vérifie qu'on le possède
 func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenPresent, jwt := hasToken(c)
 
+		//L'utilisateur doit être authentifié
 		if !tokenPresent {
+			//On ajoute l'url actuelle dans le header de la requête pour que la page de connection nous renvoit sur la page actuelle
 			c.Request().Header.Set(refererHeaderKey, c.Path())
 			return Login(c)
 		}
-		access_token, _, _ := getTokens(c)
+		accessToken, _, _ := getTokens(c)
 		if jwt != nil {
+			//On renvoit les nouveaux cookies dans la réponse si les tokens ont été rafraichis
 			addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-			access_token = jwt.AccessToken
+			accessToken = jwt.AccessToken
 		}
 
-		if !hasRoles(c, access_token, []string{admin_role_name}) {
+		//On vérifie que l'utilisateur possède le role
+		if !hasRoles(accessToken, []string{adminRoleName}) {
 			return c.NoContent(http.StatusForbidden)
 		}
 		return next(c)
 	}
 }
 
-func addCookies(c *echo.Context, access_token string, refresh_token string) {
+// addCookies Ajoute les cookies dans la réponse et dans la requête HTML
+func addCookies(c *echo.Context, accessToken string, refreshToken string) {
+	//Cookies dans la réponse
 	accessCookie := new(http.Cookie)
-	accessCookie.Name = access_token_cookie
-	accessCookie.Value = access_token
+	accessCookie.Name = accessTokenCookie
+	accessCookie.Value = accessToken
 	accessCookie.Secure = true
 	accessCookie.Path = "/"
 	accessCookie.SameSite = http.SameSiteNoneMode
 	(*c).SetCookie(accessCookie)
 	refreshCookie := new(http.Cookie)
-	refreshCookie.Name = refresh_token_cookie
-	refreshCookie.Value = refresh_token
+	refreshCookie.Name = refreshTokenCookie
+	refreshCookie.Value = refreshToken
 	refreshCookie.Secure = true
 	refreshCookie.Path = "/"
 	refreshCookie.SameSite = http.SameSiteNoneMode
 	(*c).SetCookie(refreshCookie)
+
+	//On ajoute aussi les cookies dans la requête pour que les fonctions appelés juste après utilisent directement ces nouveaux cookies
+	if ac, err := (*c).Request().Cookie(accessTokenCookie); err == nil {
+		ac.Value = accessToken
+	} else {
+		(*c).Request().AddCookie(accessCookie)
+	}
+	if rc, err := (*c).Request().Cookie(refreshTokenCookie); err == nil {
+		rc.Value = refreshToken
+	} else {
+		(*c).Request().AddCookie(refreshCookie)
+	}
 }
 
+// Login redirige vers la page d'authentification Keycloak
 func Login(c echo.Context) error {
 	origin := c.Request().Header.Get(refererHeaderKey)
 	pUrl, _ := url.Parse(origin)
@@ -282,11 +211,12 @@ func Login(c echo.Context) error {
 		path += "?" + pUrl.RawQuery
 	}
 
-	//Prevent login-logout loop, just in case
+	//Pour éviter de tourner en boucle sur la page de connection/déconnection
 	if path == util.LogoutPath {
 		path = ""
 	}
 
+	//Configuration oauth2 pour le serveur Keycloak
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
@@ -295,15 +225,18 @@ func Login(c echo.Context) error {
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
 
+	//Si la requête HTML vient d'HTMX, on renvoit une page vide lui demandant de se rediriger automatiquement vers la page d'authentification Keycloak
 	if c.Request().Header.Get("HX-Request") == "true" {
 		c.Response().Header().Set("HX-Redirect", oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 		return c.NoContent(http.StatusOK)
 	} else {
+		//Sinon on redirige nous même
 		return c.Redirect(http.StatusTemporaryRedirect, oauth2Config.AuthCodeURL(url.QueryEscape(path)))
 	}
 
 }
 
+// LoginCallback est une page intermédiaire de redirection après la connection Keycloak, elle s'occupe d'ajouter les nouveaux cookies dans la réponse
 func LoginCallback(c echo.Context) error {
 	origin := c.QueryParam("state")
 	ctx := context.Background()
@@ -314,19 +247,22 @@ func LoginCallback(c echo.Context) error {
 		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
+	//Keycloak nous renvoit un code, qu'on échange pour les tokens d'accès et de rafraichissement
 	token, err := oauth2Config.Exchange(ctx, c.QueryParam("code"))
 	if err != nil {
 		logger.ErrorLogger.Printf("Error exchanging code: %s\n", err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	//On récupère les informations de l'utilisateur
+	//Notamment son numéro de carte de crédit, et les 3 chiffres au dos
 	uuid, name, err := GetUserInfo(token.AccessToken)
 	if err != nil {
 		logger.ErrorLogger.Printf("Error getting user infos: %s\n", err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	//Création & Mise à jour des info utilisateur à la connection
+	// Création/mise à jour des infos utilisateur à la connection
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/auth/createUser.cypher")
 	if err != nil {
 		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
@@ -341,29 +277,31 @@ func LoginCallback(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	//On renvoit l'utilisateur sur la page qu'il avait à l'origine, avant la connection
 	addCookies(&c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
 	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
 }
 
+// Logout déconnecte l'utilisateur, et le renvoit à sa page d'origine
 func Logout(c echo.Context) error {
-	//Delete previous cookies
+	//Suppression des cookies
 	c.SetCookie(&http.Cookie{
-		Name:     access_token_cookie,
+		Name:     accessTokenCookie,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
 	})
 	c.SetCookie(&http.Cookie{
-		Name:     refresh_token_cookie,
+		Name:     refreshTokenCookie,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
 	})
 
-	//Get redirect url
+	//On récupère l'url de redirection
 	origin := c.Request().Header.Get(refererHeaderKey)
 	pUrl, _ := url.Parse(origin)
 	path := pUrl.Path
@@ -371,102 +309,78 @@ func Logout(c echo.Context) error {
 		path += "?" + pUrl.RawQuery
 	}
 
-	//Urls containing such characters will result in 'Invalid url' from keycloak logout for some reason. There may be other unallowed characters
-	// So we default to root url
+	//Les urls contenant les caractères suivant sont considérés comme une url invalide (Invalid url) pour la déconnection Keycloak. On renvoit à la page d'acceuil dans ce cas
 	if strings.ContainsAny(path, "+% ") {
 		path = ""
 	}
 
+	//On construit l'url de déconnection Keycloak
 	redirectUrl := "https://bulle.rezel.net" + path
-
-	url := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
-	url += "?post_logout_redirect_uri=" + redirectUrl
-	url += "&client_id=" + clientID
-	return c.Redirect(http.StatusTemporaryRedirect, url)
+	logoutURL := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
+	logoutURL += "?post_logout_redirect_uri=" + redirectUrl
+	logoutURL += "&client_id=" + clientID
+	return c.Redirect(http.StatusTemporaryRedirect, logoutURL)
 }
 
+// IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
 func IsLogged(c echo.Context) bool {
 	ok, jwt := hasToken(c)
 	if !ok {
 		return false
 	}
-
 	if jwt != nil {
-		logger.InfoLogger.Println("Changed cookies")
 		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
 	}
 	return true
 }
 
+// IsAdmin renvoit true si l'utilisateur du contexte possède le rôle admin, en rafraichissant les tokens si nécessaires
 func IsAdmin(c echo.Context) bool {
 	tokenPresent, jwt := hasToken(c)
 	if !tokenPresent {
 		return false
 	}
-	access_token, _, _ := getTokens(c)
+	accessToken, _, _ := getTokens(c)
 	if jwt != nil {
 		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-		access_token = jwt.AccessToken
+		accessToken = jwt.AccessToken
 	}
-	return hasRoles(c, access_token, []string{admin_role_name})
+	return hasRoles(accessToken, []string{adminRoleName})
 }
 
-func GetUserInfo(access_token string) (string, string, error) {
-	info, err := client.GetUserInfo(context.Background(), access_token, realm)
+// GetUserInfo renvoit l'UUID de l'utilisateur, son nom complet, et une éventuelle erreur, à partir du token d'accès
+func GetUserInfo(accessToken string) (string, string, error) {
+	info, err := client.GetUserInfo(context.Background(), accessToken, realm)
 	if err != nil {
 		return "", "", err
 	}
-
 	return *info.Sub, *info.Name, nil
 }
 
+// GetUserInfoFromContext est similaire à GetUserInfo, mais prend en entrée le contexte
 func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
-	access_token, _, ok := getTokens(c)
+	accessToken, _, ok := getTokens(c)
 	if !ok {
 		return "", "", false
 	}
-	uuid, name, err := GetUserInfo(access_token)
+	uuid, name, err := GetUserInfo(accessToken)
 	return uuid, name, err == nil
 }
 
-// GetUserUUID returns user's UUID, empty if no user
-func GetUserUUID(access_token string) string {
-	uuid, _, err := GetUserInfo(access_token)
+// GetUserUUID renvoit uniquement l'UUID de l'utilisateur, ou "" en cas d'erreur, à partir du token d'accès
+func GetUserUUID(accessToken string) string {
+	uuid, _, err := GetUserInfo(accessToken)
 	if err != nil {
 		return ""
 	}
 	return uuid
 }
 
-// GetUserUUIDFromContext GetUserUUID returns user's UUID, empty if no user
+// GetUserUUIDFromContext est similaire à GetUserUUID, mais prend le contexte en entrée
 func GetUserUUIDFromContext(c echo.Context) string {
-	access_token, _, ok := getTokens(c)
+	accessToken, _, ok := getTokens(c)
 	if !ok {
 		return ""
 	}
-
-	return GetUserUUID(access_token)
-}
-
-func GetUserName(access_token string) string {
-	_, name, err := GetUserInfo(access_token)
-	if err != nil {
-		return ""
-	}
-	return name
-}
-
-// GetUserNameFromContext GetUserName returns user's UUID, empty if no user
-func GetUserNameFromContext(c echo.Context) string {
-	access_token, _, ok := getTokens(c)
-	if !ok {
-		return ""
-	}
-
-	info, err := client.GetUserInfo(context.Background(), access_token, realm)
-	if err != nil {
-		return ""
-	}
-
-	return *info.Sub
+	return GetUserUUID(accessToken)
 }

@@ -11,19 +11,25 @@ import (
 )
 
 func main() {
-	err := godotenv.Load(auth.ENV_PATH)
+	//Chargement des variables d'environnements
+	err := godotenv.Load(auth.EnvPath)
 	if err != nil {
-		logger.ErrorLogger.Fatalf("Error loading .env file %w", err)
+		logger.ErrorLogger.Fatalf("Error loading .env file %s", err)
 	}
 
+	//Activation du lien avec l'authentificateur Keycloak
 	auth.Setup()
 
+	//Connection du serveur à la base de données
 	database.Connect()
 	defer database.Disconnect()
 
+	//Création des routes
 	e := echo.New()
 	api.SetupAuth(e)
 	api.SetupRestricted(e)
 	api.SetupNoAuth(e)
+
+	//Démarrage du serveur HTTP sur le port 80
 	e.Logger.Fatal(e.Start(":80"))
 }

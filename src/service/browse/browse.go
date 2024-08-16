@@ -15,13 +15,16 @@ import (
 //
 
 const (
+	// Nombre maximum de prévisualisations renvoyées d'un coup
 	MaxBatchSize = 20
 )
 
+// rootResearches renvoit les recherches affichées sur la page d'acceuil
 func rootResearches(serieMode bool) []model.Research {
-	return []model.Research{allBooksResearch(serieMode)}
+	return []model.Research{latestBooksResearch(), allBooksResearch(serieMode)}
 }
 
+// executeBrowseQuery éxecute une recherche classique et renvoit un ensemble de prévisualisations, avec en entrées un texte, un numéro de page et une limite de résultat
 func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	qfile := util.CypherScriptDirectory + "/browse"
 	if isSerieMode {
@@ -69,6 +72,7 @@ func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) mo
 	return previews
 }
 
+// getBrowseResearch renvoit une recherche en fonction d'un texte
 func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 	page := 1
 	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize, isSerieMode)
@@ -91,6 +95,7 @@ func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 	}
 }
 
+// respondWithBrowsePage renvoit la page HTML correspondant à une recherche
 func respondWithBrowsePage(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render default view
@@ -109,6 +114,7 @@ func respondWithBrowsePage(c echo.Context) error {
 	}.RenderIndex(c, http.StatusOK, qParam)
 }
 
+// respondWithBrowseMain renvoit l'élement HTML correspondant à une recherche
 func respondWithBrowseMain(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, return default view
@@ -127,6 +133,7 @@ func respondWithBrowseMain(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
+// respondWithBrowsePs renvoit l'élement HTML correspondant à un ensemble de prévisualisations
 func respondWithBrowsePs(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render nothing
@@ -158,6 +165,7 @@ func respondWithBrowsePs(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
+// RespondWithBrowse renvoit la page HTML, l'élément HTML, ou un ensemble de prévisualisations correspondant à une recherche. On fait ce choix en lisant les paramètres dans le header HTTP
 func RespondWithBrowse(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
