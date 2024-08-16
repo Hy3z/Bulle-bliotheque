@@ -4,7 +4,7 @@ Application web de l'association Bulle de Telecom Paris !
 # Base de données
 Le site utilise **neo4j** pour sa base de données. C'est une base de données **orientée graphe**, qui utilise le langage de requêtes **cypher**
 Le structure de cette base comme suit:
-![](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/bdd.png)
+![Diagramme de la base](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/bdd.png)
 
 Comme on est dans une base de données graphe, on fait des requêtes avec du pattern matching
 > <ins>Exemple</ins>: ``MATCH (book:Book)-[r:PART_OF]->(s:Serie) WHERE book.title <> "Eldorado" RETURN r.opus`` renvoit tous les numéros d'opus de la relation `PART_OF` lorsque le titre du livre n'est pas `Eldorado`
@@ -32,7 +32,7 @@ Pour créer et renvoyer efficacement les bouts d'HTML que recquiert HTMX, on uti
 
 # Structure du projet
 Le fichier principal est  `/main.go`, c'est l'entrée du programme (comme `__main__` en python). Il regroupe les appels aux différents modules qui sont:
-![](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/files.png)
+![Dossiers du projet](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/files.png)
 
 - ## api
 L'api fait le lien entre les différentes routes du site (https://bulle.rezel.net/contact, https://bulle.rezel.net/login, etc.), et les fonctions qui traitent les requêtes (elles se trouvent dans le dossier `service`). L'api peut aussi faire le lien avec un fichier, pour renvoyer le CSS du site par exemple.
@@ -54,4 +54,4 @@ Juste des variables pour garder le site propre. C'est là qu'on définit vraimen
 - ## view
 Enfin, on retrouve içi tous les fichiers que va manipuler le site (hormis la base d'images de couverture des livres et séries, qui sera dans `/data`). On y retrouve les templates HTML dans `/view/html`, les fichiers Javascript et CSS dans `/view/script` et `/view/css`, ainsi que les images utilisées dans le bandeau et la page d'acceuil dans `/view/image`
 # Exemple d'éxécution
-![](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/example.png)
+![Exemple de requête depuis le site vers la page Contact](http://github.com/Hy3z/Bulle-bliotheque/blob/main/resources/image/example.png)
