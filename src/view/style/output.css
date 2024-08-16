@@ -787,72 +787,20 @@ video {
   height: 89%;
 }
 
-.h-\[90\%\] {
-  height: 90%;
-}
-
 .h-full {
   height: 100%;
-}
-
-.h-\[20\%\] {
-  height: 20%;
-}
-
-.h-\[10\%\] {
-  height: 10%;
-}
-
-.h-\[30\%\] {
-  height: 30%;
-}
-
-.h-\[20vh\] {
-  height: 20vh;
-}
-
-.h-\[40vh\] {
-  height: 40vh;
-}
-
-.h-\[70vh\] {
-  height: 70vh;
-}
-
-.h-\[80vh\] {
-  height: 80vh;
-}
-
-.h-\[90vh\] {
-  height: 90vh;
-}
-
-.h-\[1\%\] {
-  height: 1%;
-}
-
-.h-\[5\%\] {
-  height: 5%;
-}
-
-.h-\[0\.1\%\] {
-  height: 0.1%;
 }
 
 .max-h-\[60vh\] {
   max-height: 60vh;
 }
 
-.max-h-80 {
-  max-height: 20rem;
+.max-h-\[90\%\] {
+  max-height: 90%;
 }
 
 .max-h-full {
   max-height: 100%;
-}
-
-.max-h-\[90\%\] {
-  max-height: 90%;
 }
 
 .w-0 {
@@ -907,20 +855,16 @@ video {
   min-width: 100%;
 }
 
-.max-w-full {
-  max-width: 100%;
+.max-w-\[40\%\] {
+  max-width: 40%;
 }
 
 .max-w-\[50\%\] {
   max-width: 50%;
 }
 
-.max-w-\[40\%\] {
-  max-width: 40%;
-}
-
-.max-w-\[30\%\] {
-  max-width: 30%;
+.max-w-full {
+  max-width: 100%;
 }
 
 .-rotate-90 {
@@ -1130,11 +1074,6 @@ video {
 .object-contain {
   -o-object-fit: contain;
      object-fit: contain;
-}
-
-.object-cover {
-  -o-object-fit: cover;
-     object-fit: cover;
 }
 
 .p-1 {
@@ -1521,20 +1460,8 @@ body {
 }
 
 @media (min-width: 640px) {
-  .sm\:mt-\[6rem\] {
-    margin-top: 6rem;
-  }
-
-  .sm\:mt-\[12rem\] {
-    margin-top: 12rem;
-  }
-
-  .sm\:h-\[10rem\] {
-    height: 10rem;
-  }
-
-  .sm\:h-\[12rem\] {
-    height: 12rem;
+  .sm\:bottom-\[8rem\] {
+    bottom: 8rem;
   }
 }
 
