@@ -29,7 +29,7 @@ func (s Serie) Render(c echo.Context, code int) error {
 
 func (s Serie) RenderIndex(c echo.Context, code int) error {
 	return c.Render(code, serieIndexTemplate, Index{
-		IsLogged: auth.IsLogged(c),
+		IsLogged: auth.IsLogged(&c),
 		Data:     s,
 		IsAdmin:  auth.IsAdmin(c),
 	})

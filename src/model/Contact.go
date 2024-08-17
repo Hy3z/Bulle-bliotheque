@@ -17,7 +17,7 @@ func RenderContact(c echo.Context, code int) error {
 
 func RenderContactIndex(c echo.Context, code int) error {
 	return c.Render(code, contactIndexTemplate, Index{
-		IsLogged: auth.IsLogged(c),
+		IsLogged: auth.IsLogged(&c),
 		IsAdmin:  auth.IsAdmin(c),
 	})
 }

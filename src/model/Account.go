@@ -26,7 +26,7 @@ func (a Account) Render(c echo.Context, code int) error {
 
 func (a Account) RenderIndex(c echo.Context, code int) error {
 	return c.Render(code, accountIndexTemplate, Index{
-		IsLogged: auth.IsLogged(c),
+		IsLogged: auth.IsLogged(&c),
 		Data:     a,
 		IsAdmin:  auth.IsAdmin(c),
 	})
