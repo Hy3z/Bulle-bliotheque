@@ -93,6 +93,7 @@ func IsLogged(c echo.Context) bool {
 			return false
 		}
 		addCookies(c, jwt.AccessToken, jwt.RefreshToken)
+		logger.InfoLogger.Println("Refreshed cookies")
 	}
 	return true
 }
@@ -293,6 +294,7 @@ func IsAdmin(c echo.Context) bool {
 func GetUserInfo(accessToken string) (string, string, bool) {
 	info, err := client.GetUserInfo(context.Background(), accessToken, realm)
 	if err != nil {
+		logger.InfoLogger.Printf("Error getting user info: %s\n", err)
 		return "", "", false
 	}
 	return *info.Sub, *info.Name, true
