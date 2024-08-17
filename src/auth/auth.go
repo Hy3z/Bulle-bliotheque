@@ -362,6 +362,7 @@ func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		result, err := client.RetrospectToken(ctx, ac.Value, clientID, clientSecret, realm)
 		if err == nil {
 			logger.InfoLogger.Println("Cookie is up to date")
+			logger.InfoLogger.Printf("%t\n", *result.Active)
 			return next(c)
 		}
 
