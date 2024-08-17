@@ -5,22 +5,24 @@ import (
 	"context"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"os"
-	"time"
 )
 
+// Ce fichier gère la communication avec la base de données
+
 const (
-	ENV_DB_URI   = "DB_URI"
-	ENV_USERNAME = "DB_CLIENT_USERNAME"
-	ENV_PASSWORD = "DB_CLIENT_PASSWORD"
+	//Clés des informations contenus dans les variables d'environnements et nécessaires à la communication avec la base de données
+	EnvDbUri    = "DB_URI"
+	EnvUsername = "DB_CLIENT_USERNAME"
+	EnvPassword = "DB_CLIENT_PASSWORD"
 )
 
 var (
 	driver neo4j.DriverWithContext
-	//QueryError = errors.New("Error on query")
 )
 
+// Connect gère la connection initiale avec la base de données neo4j
 func Connect() {
-	uri, username, password := os.Getenv(ENV_DB_URI), os.Getenv(ENV_USERNAME), os.Getenv(ENV_PASSWORD)
+	uri, username, password := os.Getenv(EnvDbUri), os.Getenv(EnvUsername), os.Getenv(EnvPassword)
 	driver, _ = neo4j.NewDriverWithContext(uri, neo4j.BasicAuth(username, password, ""))
 	err := driver.VerifyConnectivity(context.Background())
 	if err != nil {
@@ -29,8 +31,8 @@ func Connect() {
 	logger.InfoLogger.Println("Successfully connected to database")
 }
 
+// Query éxecute une requête cypher contre la base de données
 func Query(ctx context.Context, query string, param map[string]any) (*neo4j.EagerResult, error) {
-	before := time.Now()
 	res, err := neo4j.ExecuteQuery(
 		ctx,
 		driver,
@@ -38,13 +40,13 @@ func Query(ctx context.Context, query string, param map[string]any) (*neo4j.Eage
 		param,
 		neo4j.EagerResultTransformer,
 		neo4j.ExecuteQueryWithDatabase("neo4j"))
-	logger.InfoLogger.Printf("%s\n", time.Since(before))
 	if err != nil {
 		logger.WarningLogger.Printf("Error on query %s: %s\n", query, err)
 	}
 	return res, err
 }
 
+// Disconnect déconnecte la base de données
 func Disconnect() {
-	driver.Close(context.Background())
+	_ = driver.Close(context.Background())
 }

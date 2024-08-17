@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-// Return a PreviewSet of all books or series, with skip and limit
+// fetchPreviews renvoit un ensemble de prévisualisations en fonction du numéro de la page et d'un nombre limite de résultat
 func fetchPreviews(page int, limit int, isSerieMode bool) model.PreviewSet {
 	qfile := util.CypherScriptDirectory + "/browse/all/"
 	if isSerieMode {
@@ -54,7 +54,7 @@ func fetchPreviews(page int, limit int, isSerieMode bool) model.PreviewSet {
 	return previews
 }
 
-// Return an empty infinite search, linking to first page
+// allBooksResearch renvoit une recherche infinie contenant tous les livres/séries
 func allBooksResearch(isSerieMode bool) model.Research {
 	page := 1
 	previews := fetchPreviews(page, MaxBatchSize, isSerieMode)
@@ -76,20 +76,22 @@ func allBooksResearch(isSerieMode bool) model.Research {
 	}
 }
 
+// respondWithAllPage renvoit la page HTML correspondant à la recherche de tous les livres/séries
 func respondWithAllPage(c echo.Context) error {
 	return model.Browse{
 		Researches: []model.Research{allBooksResearch(util.IsSerieMode(c))},
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, "")
 }
 
+// respondWithAllPage renvoit l'élement HTML correspondant à la recherche de tous les livres/séries
 func respondWithAllMain(c echo.Context) error {
 	return allBooksResearch(util.IsSerieMode(c)).Render(c, http.StatusOK)
 }
 
-// Return a (infinite) book-set from all books, takes a page argument
+// respondWithAllPs renvoit une recherche infinie (ou non) de tous les livres
 func respondWithAllPs(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam(util.PageParam))
-	//If no page is precised, return nothing
+	//If no page is given, return nothing
 	if err != nil || page < 1 {
 		logger.WarningLogger.Println("Missing or invalid page argument")
 		return c.NoContent(http.StatusBadRequest)
@@ -111,6 +113,7 @@ func respondWithAllPs(c echo.Context) error {
 	}
 }
 
+// RespondWithAll renvoit l'élement HTML, la page HTML, ou un ensemble de prévisualisations de tous les livres/séries
 func RespondWithAll(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -125,4 +128,34 @@ func RespondWithAll(c echo.Context) error {
 		logger.ErrorLogger.Printf("Wrong template requested: %s\n", tmpl)
 		return c.NoContent(http.StatusBadRequest)
 	}
+}
+
+// getBookCount renvoit le nombre total de livres dans la base de données
+func getBookCount() int {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/browse/all/getBookCount.cypher", map[string]any{})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+	count, ok := res.Records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Println("Couldn't cast value")
+		return 0
+	}
+	return int(count)
+}
+
+// getSerieCount renvoit le nombre total de séries dans la base de données
+func getSerieCount() int {
+	res, err := util.ExecuteCypherScript(util.CypherScriptDirectory+"/browse/all/getSerieCount.cypher", map[string]any{})
+	if err != nil {
+		logger.ErrorLogger.Printf("Error reading script: %s\n", err)
+		return 0
+	}
+	count, ok := res.Records[0].Values[0].(int64)
+	if !ok {
+		logger.ErrorLogger.Println("Couldn't cast value")
+		return 0
+	}
+	return int(count)
 }

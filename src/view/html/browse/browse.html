@@ -1,15 +1,102 @@
-<!--
-{[]Research}
--->
-{{define "browse"}}
-    {{if and (hasField . "IsHome") (.IsHome)}}
-        Bienvenue sur le site de la bulle
-        Ca arrive fort!
-    {{end}}
+{{define "browse"}} {{if and (hasField . "IsHome") (.IsHome)}}
 
-    {{if hasField . "Researches"}}
-        {{range .Researches}}
-            {{template "research" .}}
-        {{end}}
-    {{end}}
-{{end}}
+<div class="mt-10 h-80 mx-[15%] flex flex-row items-center">
+    <img
+        src="https://bulle.rezel.net/logo"
+        alt="bulle"
+        class="max-h-full max-w-[40%] mr-8 rounded-md"
+    />
+    <div
+        class="h-full justify-center overflow-y-scroll flex flex-col items-center j"
+    >
+        <div class="text-3xl font-bold font-handwritten">Présentation</div>
+        <div class="font-poppins pt-2">
+            <p class="py-1">
+                Bienvenue en Bulle, la bibliothèque étudiante de l'école!
+            </p>
+            <p class="py-1">
+                Les livres sont à disposition de tous les étudiants et ceux-ci
+                peuvent les emprunter comme bons leur semble, à condition de le
+                signaler sur le site (bouton Emprunter sur la page d'un livre,
+                puis bouton Rendre).
+            </p>
+            <p class="py-1">
+                Actuellement, le site permet de naviguer dans la collection, de
+                signaler ses emprunts, liker des livres, et écrire des
+                commentaires.
+            </p>
+        </div>
+    </div>
+</div>
+<div class="pr-[10%]">
+    <hr class="border-2 rounded-r-xl border-gray-700" />
+</div>
+
+<div class="h-80 mx-[15%] flex flex-row items-center justify-end">
+    <div
+        class="h-full justify-center overflow-y-scroll flex flex-col items-center"
+    >
+        <div class="text-3xl font-bold font-handwritten">Collaboration</div>
+        <div class="font-poppins pt-2">
+            <p class="py-1">
+                Le site est toujours en construction, et en permanente
+                évolution!
+            </p>
+            <p class="py-1">
+                Si vous voyez des erreurs, des informations manquantes sur un
+                livre, des idées de tags pour les livres, etc... -> Utilisez la
+                rubrique
+                <a
+                    href="https://bulle.rezel.net/contact"
+                    hx-on::after-request="clear_browse_bar(); showTop()"
+                    hx-boost="true"
+                    hx-headers='{"Tmpl":"main"}'
+                    hx-target=".main"
+                    hx-swap="innerHTML"
+                    class="underline hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >Contact</a
+                >, ça nous aiderait énormément <3
+            </p>
+            <p class="py-1">
+                Le site est d'ailleurs open-source, si l'envie vous prend d'y
+                contribuer.
+            </p>
+        </div>
+    </div>
+    <img
+        src="https://bulle.rezel.net/bulle"
+        alt="bulle"
+        class="max-h-full max-w-[40%] ml-8 rounded-md shadow ring-1 ring-slate-900/5"
+    />
+</div>
+<div class="pl-[10%]">
+    <hr class="border-2 rounded-l-xl border-gray-700" />
+</div>
+
+<div class="h-80 mx-[15%] flex flex-row items-center">
+    <img
+        src="https://bulle.rezel.net/complex_small_blue_thin"
+        alt="bulle"
+        class="max-h-full max-w-[40%] mr-8 rounded-md"
+    />
+    <div
+        class="h-full justify-center overflow-y-scroll flex flex-col items-center"
+    >
+        <div class="text-3xl font-bold font-handwritten">Statistiques</div>
+        <div class="font-poppins pt-2">
+            La Bulle, c'est
+            <span class="font-semibold">{{.BookCount}}</span> livres regroupant
+            <span class="font-semibold">{{.SerieCount}}</span> séries, dont
+            <span class="font-semibold">{{.BDCount}}</span> BDs et
+            <span class="font-semibold">{{.MangaCount}}</span> mangas, soit
+            ~<span class="font-semibold"
+                >{{perc (div (add .BDCount .MangaCount) .BookCount)}}</span
+            >% de nos livres.
+        </div>
+    </div>
+</div>
+
+<hr class="border-2 rounded-r-xl border-gray-700 mb-10" />
+
+{{end}} {{if hasField . "Researches"}} {{range .Researches}} {{template
+"research" .}} {{end}}) {{end}} {{end}}

@@ -11,9 +11,11 @@ import (
 )
 
 const (
+	//Nombre de résultats maximum pour les ajouts récents
 	MaxLatestBatchSize = 20
 )
 
+// latestBooksResearch renvoit une recherche contenant les ajouts récents
 func latestBooksResearch() model.Research {
 	query, err := util.ReadCypherScript(util.CypherScriptDirectory + "/browse/latest/browse-latest.cypher")
 	if err != nil {
@@ -51,18 +53,19 @@ func latestBooksResearch() model.Research {
 	}
 }
 
-// Return a page with only the latest books as research
+// respondWithLatestPage renvoit la page HTML correspondant aux ajouts récents
 func respondWithLatestPage(c echo.Context) error {
 	return model.Browse{
 		Researches: []model.Research{latestBooksResearch()},
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, "")
 }
 
-// Return a research containing all the latest books
-func respondWithLatestRs(c echo.Context) error {
+// respondWithLatestMain renvoit l'élément HTML correspondant aux ajouts récents
+func respondWithLatestMain(c echo.Context) error {
 	return latestBooksResearch().Render(c, http.StatusOK)
 }
 
+// RespondWithLatest renvoit l'élement ou la page HTML correspondant aux ajouts récents
 func RespondWithLatest(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {
@@ -70,7 +73,7 @@ func RespondWithLatest(c echo.Context) error {
 	}
 	switch tmpl {
 	case util.MainContentType:
-		return respondWithLatestRs(c)
+		return respondWithLatestMain(c)
 	default:
 		logger.ErrorLogger.Printf("Wrong template requested: %s \n", tmpl)
 		return c.NoContent(http.StatusBadRequest)

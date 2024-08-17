@@ -6,25 +6,25 @@ import (
 	"bb/model"
 	"bb/util"
 	"context"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 //
 
 const (
-	MaxBatchSize = 100
+	// Nombre maximum de prévisualisations renvoyées d'un coup
+	MaxBatchSize = 20
 )
 
-/*func rootResearches() []model.Research {
-	var researches []model.Research
+// rootResearches renvoit les recherches affichées sur la page d'acceuil
+func rootResearches(serieMode bool) []model.Research {
+	return []model.Research{latestBooksResearch(), allBooksResearch(serieMode)}
+}
 
-	researches = append(researches, latestBooksResearch())
-	researches = append(researches, allBooksResearch(false))
-	return researches
-}*/
-
+// executeBrowseQuery éxecute une recherche classique et renvoit un ensemble de prévisualisations, avec en entrées un texte, un numéro de page et une limite de résultat
 func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) model.PreviewSet {
 	qfile := util.CypherScriptDirectory + "/browse"
 	if isSerieMode {
@@ -72,6 +72,7 @@ func executeBrowseQuery(qParam string, page int, limit int, isSerieMode bool) mo
 	return previews
 }
 
+// getBrowseResearch renvoit une recherche en fonction d'un texte
 func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 	page := 1
 	bps1 := executeBrowseQuery(qParam, page, MaxBatchSize, isSerieMode)
@@ -94,37 +95,45 @@ func getBrowseResearch(qParam string, isSerieMode bool) model.Research {
 	}
 }
 
+// respondWithBrowsePage renvoit la page HTML correspondant à une recherche
 func respondWithBrowsePage(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render default view
 	if qParam == "" {
 		return model.Browse{
-			IsHome: true,
-			//Researches: rootResearches(),
-		}.RenderIndex(c, http.StatusOK)
+			IsHome:     true,
+			BookCount:  getBookCount(),
+			SerieCount: getSerieCount(),
+			Researches: rootResearches(util.IsSerieMode(c)),
+			BDCount:    getBookCountByTag("BD"),
+			MangaCount: getBookCountByTag("Manga"),
+		}.RenderIndex(c, http.StatusOK, "")
 	}
-
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
-		Query:      qParam,
-	}.RenderIndex(c, http.StatusOK)
+	}.RenderIndex(c, http.StatusOK, qParam)
 }
 
+// respondWithBrowseMain renvoit l'élement HTML correspondant à une recherche
 func respondWithBrowseMain(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, return default view
 	if qParam == "" {
 		return model.Browse{
-			IsHome: true,
-			//Researches: rootResearches(),
+			IsHome:     true,
+			BookCount:  getBookCount(),
+			SerieCount: getSerieCount(),
+			Researches: rootResearches(util.IsSerieMode(c)),
+			BDCount:    getBookCountByTag("BD"),
+			MangaCount: getBookCountByTag("Manga"),
 		}.Render(c, http.StatusOK)
 	}
 	return model.Browse{
 		Researches: []model.Research{getBrowseResearch(qParam, util.IsSerieMode(c))},
-		Query:      qParam,
 	}.Render(c, http.StatusOK)
 }
 
+// respondWithBrowsePs renvoit l'élement HTML correspondant à un ensemble de prévisualisations
 func respondWithBrowsePs(c echo.Context) error {
 	qParam := c.QueryParam(util.QueryParam)
 	//If not filter applied, render nothing
@@ -156,6 +165,7 @@ func respondWithBrowsePs(c echo.Context) error {
 	}.Render(c, http.StatusOK)
 }
 
+// RespondWithBrowse renvoit la page HTML, l'élément HTML, ou un ensemble de prévisualisations correspondant à une recherche. On fait ce choix en lisant les paramètres dans le header HTTP
 func RespondWithBrowse(c echo.Context) error {
 	tmpl, err := util.GetHeaderTemplate(c)
 	if err != nil {

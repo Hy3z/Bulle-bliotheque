@@ -2,33 +2,27 @@ package util
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 const (
-	headerTemplateKey  = "Tmpl"
+	//Clé du paramètre HTTP signifiant la nature de la réponse HTML voulue (élément ou page entière)
+	headerTemplateKey = "Tmpl"
+	//Clé du paramètre HTTP indiquant si le mode série est activé
 	headerSerieModeKey = "Smode"
-	//headerOriginKey    = "Origin"
-	//PageType          = "page"
+	//Valeur du paramètre HTTP headerTemplateKey pour un élement
 	MainContentType = "main"
-	//ResearchContentType   = "research"
+	//Valeur du paramètre HTTP headerTemplateKey pour un ensemble de prévisuels
 	PreviewSetContentType = "previewSet"
-
-	/*
-		BpsType           = "bps"
-		//PreviewSetType    = "ps"
-		ResearchType = "rs"
-		BookType     = "b"
-		SerieType    = "s"
-		ContactType  = "c"
-		AuthType     = "a"*/
 )
 
 var (
-	NoTemplateHeader = errors.New("No template header was given")
+	NoTemplateHeader = errors.New("no template header was given")
 )
 
+// GetHeaderTemplate lit le header HTTP et renvoit la valeur du paramètre headerTemplateKey
 func GetHeaderTemplate(c echo.Context) (string, error) {
 	header := c.Request().Header.Get(headerTemplateKey)
 	if header == "" {
@@ -37,6 +31,7 @@ func GetHeaderTemplate(c echo.Context) (string, error) {
 	return header, nil
 }
 
+// IsSerieMode renvoit true si le paramètre HTTP headerSerieModeKey est présent et vrai
 func IsSerieMode(c echo.Context) bool {
 	for key, values := range c.Request().Header {
 		if key != headerSerieModeKey {
@@ -52,11 +47,3 @@ func IsSerieMode(c echo.Context) bool {
 	}
 	return false
 }
-
-/* GetOrigin(c echo.Context) (string, error) {
-	header := c.Request().Header.Get(headerOriginKey)
-	if header == "" {
-		return "", NoTemplateHeader
-	}
-	return header, nil
-}*/

@@ -1,19 +1,26 @@
 {{define "contact"}}
-    <div class="contact-ticket">
-        Laisser un ticket:
-        <form hx-post="/contact/ticket" hx-swap="outerHTML">
+    <div class="font-poppins text-center pt-6 pb-2">
+        <div>
+            Une question? Des erreurs sur la fiche descriptive d'un livre? Une blague hilarante?
+        </div>
+        <div>
+            Laissez nous un message, et nous le lirons sous 6 mois !
+        </div>
+        <div class="text-sm text-gray-700 pt-2">
+            (Mettez l'url si le message concerne une page en particulier svp)
+        </div>
 
-            <div class="ticket-author">
-                <label>Nom (facultatif)</label>
-                <label><input type="text" name="author" class="text-black"></label>
-            </div>
-            <div class="ticket-message">
-                <label>Message</label>
-                <label><input type="text" name="message" class="text-black"></label>
-            </div>
-            <div class="ticket-button">
-                <button class="btn">Envoyer</button>
-            </div>
-        </form>
+
     </div>
+    <div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+        Laisser un message
+    </div>
+
+
+
+    <form hx-post="/contact/ticket" hx-swap="outerHTML" class="w-full flex flex-row px-16 justify-center font-poppins items-center">
+        <textarea placeholder="Nom (facultatif)" name="author" class="mx-4 w-[20%] border-2 border-gray-300 p-1 rounded-lg overflow-y-scroll placeholder-gray-600"></textarea>
+        <textarea placeholder="Votre message..." name="message" class="mx-4 w-[50%] border-2 border-gray-300 p-1 rounded-lg overflow-y-scroll placeholder-gray-600 h-24"></textarea>
+        <button class="ml-4 bg-white border-2 p-[6px] w-auto hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Envoyer</button>
+    </form>
 {{end}}

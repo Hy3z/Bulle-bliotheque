@@ -1,23 +1,10 @@
-<!--
-{Name, IsInfinite, BookPreviewSet, InfiniteBookPreviewSet}
--->
 {{define "research"}}
-    <div class="research">
-        <div class="research-name">
-
-            <!--RESEARCH NAME HERE-->
-            {{.Name}}
-
-        </div>
-        <div class="book-container grid grid-cols-5">
-
-            <!--BOOK TEMPLATES HERE-->
-            {{if hasField . "InfinitePreviewSet"}}
-                {{template "infinite-preview-set" .InfinitePreviewSet}}
-            {{else if hasField . "PreviewSet"}}
-                {{template "preview-set" .PreviewSet}}
-            {{end}}
-
-        </div>
-    </div>
+<div class="ml-[35%] mr-[35%] text-center pt-4 mb-8 border-b-4 font-poppins">
+    {{.Name}}
+</div>
+<div class="flex flex-wrap">
+    {{if hasField . "InfinitePreviewSet"}} {{template "infinite-preview-set"
+    .InfinitePreviewSet}} {{else if hasField . "PreviewSet"}} {{template
+    "preview-set" .PreviewSet}} {{end}}
+</div>
 {{end}}

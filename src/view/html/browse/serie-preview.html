@@ -1,24 +1,29 @@
 {{define "serie-preview"}}
 
-    <a href="https://bulle.rezel.net/serie/{{.UUID}}"
-       onclick="clear_browse_bar()"
-       hx-boost="true"
-       hx-headers='{"Tmpl":"main"}'
-       hx-target=".main"
-       hx-swap="innerHTML show:window:top"
-       class="serie-preview">
-
-        <div class="serie-image">
-
-
-            <img src="https://bulle.rezel.net/serie/{{.UUID}}/cover" alt="cover" class="">
-
-        </div>
-        <div class="serie-name">
-            SERIE
-            {{.Name}}
-            {{.BookCount}}
-        </div>
-    </a>
+<a
+    href="https://bulle.rezel.net/serie/{{.UUID}}"
+    hx-on::after-request="clear_browse_bar();showTop()"
+    hx-boost="true"
+    hx-headers='{"Tmpl":"main"}'
+    hx-target=".main"
+    hx-swap="innerHTML show:window:top"
+    class="h-[55vh] inline-block relative z-0 px-2 my-2 group hover:bg-gray-300/50 rounded-xl"
+>
+    <img
+        src="https://bulle.rezel.net/serie/{{.UUID}}/cover"
+        alt="cover"
+        class="h-[89%] max-w-full rounded-md border-[6px] border-[#AA0000]"
+    />
+    <div
+        class="h-7 w-7 bg-gray-300 absolute bottom-[4rem] right-4 justify-center flex items-center font-handwritten border-2 border-black"
+    >
+        {{.BookCount}}
+    </div>
+    <div
+        class="x-2 pt-1 box-border min-w-full w-0 text-center font-poppins text-[1.85vh] overflow-hidden h-[11%] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+    >
+        {{.Name}}
+    </div>
+</a>
 
 {{end}}
