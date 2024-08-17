@@ -352,8 +352,9 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ac, err1 := c.Request().Cookie(accessTokenCookie)
-		rc, err2 := c.Request().Cookie(refreshTokenCookie)
+		rq := c.Request()
+		ac, err1 := rq.Cookie(accessTokenCookie)
+		rc, err2 := rq.Cookie(refreshTokenCookie)
 		if err1 != nil || err2 != nil {
 			logger.InfoLogger.Println("Found no cookies")
 			return next(c)
@@ -378,6 +379,7 @@ func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			test, _ := c.Request().Cookie(accessTokenCookie)
 			logger.InfoLogger.Printf("new token: %s\n", ac.Value)
 			logger.InfoLogger.Printf("test token: %s\n", test.Value)
+			c.SetRequest(rq)
 		}
 		return next(c)
 	}
