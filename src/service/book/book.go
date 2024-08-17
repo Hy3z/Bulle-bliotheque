@@ -196,7 +196,7 @@ func getBookStatusByUUID(uuid string) int {
 
 // respondWithBookMain renvoit l'élément HTML d'un livre
 func respondWithBookMain(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -206,7 +206,7 @@ func respondWithBookMain(c echo.Context) error {
 
 // respondWithBookPage renvoit la page HTML d'un livre
 func respondWithBookPage(c echo.Context) error {
-	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUIDFromContext(c))
+	book, err := getBookByUUID(c.Param(util.BookParam), auth.GetUserUUID(c))
 	if err != nil {
 		logger.WarningLogger.Printf("Error %s \n", err)
 		return c.NoContent(http.StatusNotFound)
@@ -237,7 +237,7 @@ func RespondWithCover(c echo.Context) error {
 
 // RespondWithBorrow emprunte le livre s'il est disponible, et renvoit une réponse HTML de confirmation
 func RespondWithBorrow(c echo.Context) error {
-	uuuid := auth.GetUserUUIDFromContext(c)
+	uuuid := auth.GetUserUUID(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
@@ -272,7 +272,7 @@ func RespondWithBorrow(c echo.Context) error {
 
 // RespondWithReturn rend le livre si l'utilisateur est le même que son détenteur, et renvoit une réponse HTML de confirmation
 func RespondWithReturn(c echo.Context) error {
-	uuuid := auth.GetUserUUIDFromContext(c)
+	uuuid := auth.GetUserUUID(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
@@ -306,7 +306,7 @@ func RespondWithReturn(c echo.Context) error {
 
 // RespondWithLike like le livre pour l'utilisateur, et renvoit une réponse HTML de confirmation
 func RespondWithLike(c echo.Context) error {
-	uuuid := auth.GetUserUUIDFromContext(c)
+	uuuid := auth.GetUserUUID(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
@@ -330,7 +330,7 @@ func RespondWithLike(c echo.Context) error {
 
 // RespondWithUnlike retire le like d'un livre pour l'utilisateur, et renvoit une réponse HTML de confirmation
 func RespondWithUnlike(c echo.Context) error {
-	uuuid := auth.GetUserUUIDFromContext(c)
+	uuuid := auth.GetUserUUID(c)
 	if uuuid == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
@@ -354,7 +354,7 @@ func RespondWithUnlike(c echo.Context) error {
 
 // RespondWithReview renvoit l'élement HTML correspondant à la liste des commentaires pour un livre
 func RespondWithReview(c echo.Context) error {
-	userUUID := auth.GetUserUUIDFromContext(c)
+	userUUID := auth.GetUserUUID(c)
 	if userUUID == "" {
 		return c.NoContent(http.StatusForbidden)
 	}
