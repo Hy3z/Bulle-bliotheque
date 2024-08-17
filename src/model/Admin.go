@@ -25,7 +25,7 @@ func RenderAdmin(c echo.Context, code int) error {
 
 func RenderAdminIndex(c echo.Context, code int) error {
 	return c.Render(code, adminIndexTemplate, Index{
-		IsLogged: auth.IsLogged(&c),
+		IsLogged: auth.IsLogged(c),
 		Data:     nil,
 		IsAdmin:  auth.IsAdmin(c),
 	})
@@ -37,7 +37,7 @@ func (as AdminSerie) Render(c echo.Context, code int) error {
 
 func (as AdminSerie) RenderIndex(c echo.Context, code int) error {
 	return c.Render(code, adminSerieIndexTemplate, Index{
-		IsLogged: auth.IsLogged(&c),
+		IsLogged: auth.IsLogged(c),
 		Data:     as,
 		IsAdmin:  auth.IsAdmin(c),
 	})

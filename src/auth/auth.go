@@ -43,6 +43,18 @@ var (
 	provider     *oidc.Provider
 )
 
+type CustomContext struct {
+	echo.Context
+}
+
+func (c *CustomContext) Foo() {
+	println("foo")
+}
+
+func (c *CustomContext) Bar() {
+	println("bar")
+}
+
 // Initialisation des variables qui permettent de communiquer avec le serveur Keycloak
 func Setup() {
 	var err error
@@ -63,6 +75,25 @@ func Setup() {
 	logger.InfoLogger.Println("Sucessfully initialized auth")
 }
 
+// addCookies Ajoute les cookies dans la réponse et dans la requête HTML
+func addCookies(c echo.Context, accessToken string, refreshToken string) {
+	//Cookies dans la réponse
+	accessCookie := new(http.Cookie)
+	accessCookie.Name = accessTokenCookie
+	accessCookie.Value = accessToken
+	accessCookie.Secure = true
+	accessCookie.Path = "/"
+	accessCookie.SameSite = http.SameSiteNoneMode
+	c.SetCookie(accessCookie)
+	refreshCookie := new(http.Cookie)
+	refreshCookie.Name = refreshTokenCookie
+	refreshCookie.Value = refreshToken
+	refreshCookie.Secure = true
+	refreshCookie.Path = "/"
+	refreshCookie.SameSite = http.SameSiteNoneMode
+	c.SetCookie(refreshCookie)
+}
+
 // getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
 func getTokens(c echo.Context) (string, string, bool) {
 	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
@@ -75,14 +106,15 @@ func getTokens(c echo.Context) (string, string, bool) {
 }
 
 // IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
-func IsLogged(c *echo.Context) bool {
-	accessToken, refreshToken, ok := getTokens(*c)
+func IsLogged(c echo.Context) bool {
+	accessToken, _, ok := getTokens(c)
 	if !ok {
 		return false
 	}
 
 	result, err := client.RetrospectToken(ctx, accessToken, clientID, clientSecret, realm)
-	if err != nil {
+	return err == nil && *result.Active
+	/*if err != nil {
 		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
 		return false
 	}
@@ -96,7 +128,7 @@ func IsLogged(c *echo.Context) bool {
 		addCookies(c, jwt.AccessToken, jwt.RefreshToken)
 		logger.InfoLogger.Println("Refreshed cookies")
 	}
-	return true
+	return true*/
 }
 
 // hasRoles Renvoit true si l'utilisateur détenant le token d'accès possède tous les rôles
@@ -129,38 +161,6 @@ func hasRoles(accessToken string, reqRoles []string) bool {
 	}
 
 	return true
-}
-
-// addCookies Ajoute les cookies dans la réponse et dans la requête HTML
-func addCookies(c *echo.Context, accessToken string, refreshToken string) {
-	//Cookies dans la réponse
-	accessCookie := new(http.Cookie)
-	accessCookie.Name = accessTokenCookie
-	accessCookie.Value = accessToken
-	accessCookie.Secure = true
-	accessCookie.Path = "/"
-	accessCookie.SameSite = http.SameSiteNoneMode
-	(*c).SetCookie(accessCookie)
-	refreshCookie := new(http.Cookie)
-	refreshCookie.Name = refreshTokenCookie
-	refreshCookie.Value = refreshToken
-	refreshCookie.Secure = true
-	refreshCookie.Path = "/"
-	refreshCookie.SameSite = http.SameSiteNoneMode
-	(*c).SetCookie(refreshCookie)
-
-	logger.InfoLogger.Printf("New token: %s\n", accessToken)
-	//On ajoute aussi les cookies dans la requête pour que les fonctions appelés juste après utilisent directement ces nouveaux cookies
-	if ac, err := (*c).Request().Cookie(accessTokenCookie); err == nil {
-		ac.Value = accessToken
-	} else {
-		(*c).Request().AddCookie(accessCookie)
-	}
-	if rc, err := (*c).Request().Cookie(refreshTokenCookie); err == nil {
-		rc.Value = refreshToken
-	} else {
-		(*c).Request().AddCookie(refreshCookie)
-	}
 }
 
 // Login redirige vers la page d'authentification Keycloak
@@ -239,7 +239,7 @@ func LoginCallback(c echo.Context) error {
 	}
 
 	//On renvoit l'utilisateur sur la page qu'il avait à l'origine, avant la connection
-	addCookies(&c, token.AccessToken, token.RefreshToken)
+	addCookies(c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
 	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
 }
@@ -285,7 +285,7 @@ func Logout(c echo.Context) error {
 
 // IsAdmin renvoit true si l'utilisateur du contexte possède le rôle admin, en rafraichissant les tokens si nécessaires
 func IsAdmin(c echo.Context) bool {
-	if !IsLogged(&c) {
+	if !IsLogged(c) {
 		return false
 	}
 	accessToken, _, _ := getTokens(c)
@@ -304,7 +304,7 @@ func GetUserInfo(accessToken string) (string, string, bool) {
 
 // GetUserInfoFromContext l'UUID de l'utilisateur, son nom complet, et un boolean de confirmation, à partir du contexte
 func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
-	if !IsLogged(&c) {
+	if !IsLogged(c) {
 		return "", "", false
 	}
 	accessToken, _, _ := getTokens(c)
@@ -323,7 +323,7 @@ func GetUserUUID(c echo.Context) string {
 // HasTokenMiddleware intervient lorsqu'on utilise un chemin protégé, et vérifie qu'on est bien authentifié
 func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if IsLogged(&c) {
+		if IsLogged(c) {
 			return next(c)
 		}
 
@@ -336,7 +336,7 @@ func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		//L'utilisateur doit être authentifié
-		if !IsLogged(&c) {
+		if !IsLogged(c) {
 			//On ajoute l'url actuelle dans le header de la requête pour que la page de connection nous renvoit sur la page actuelle
 			c.Request().Header.Set(refererHeaderKey, c.Path())
 			return Login(c)
@@ -345,6 +345,37 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		//On vérifie que l'utilisateur possède le role
 		if !hasRoles(accessToken, []string{adminRoleName}) {
 			return c.NoContent(http.StatusForbidden)
+		}
+		return next(c)
+	}
+}
+
+func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ac, err1 := c.Request().Cookie(accessTokenCookie)
+		rc, err2 := c.Request().Cookie(refreshTokenCookie)
+		if err1 != nil || err2 != nil {
+			logger.InfoLogger.Println("Found no cookies")
+			return next(c)
+		}
+
+		result, err := client.RetrospectToken(ctx, ac.Value, clientID, clientSecret, realm)
+		if err == nil {
+			logger.InfoLogger.Println("Cookie is up to date")
+			return next(c)
+		}
+
+		if !*result.Active {
+			jwt, err := client.RefreshToken(ctx, rc.Value, clientID, clientSecret, realm)
+			if err != nil {
+				logger.ErrorLogger.Printf("Error refreshing token: %s\n", err)
+				return next(c)
+			}
+			addCookies(c, jwt.AccessToken, jwt.RefreshToken)
+			logger.InfoLogger.Printf("old token: %s\n", ac.Value)
+			ac.Value = jwt.AccessToken
+			rc.Value = jwt.RefreshToken
+			logger.InfoLogger.Printf("new token: %s\n", ac.Value)
 		}
 		return next(c)
 	}

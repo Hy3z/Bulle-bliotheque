@@ -26,6 +26,7 @@ func main() {
 
 	//Création des routes
 	e := echo.New()
+	e.Use(auth.RefreshTokenMiddleware)
 	api.SetupAuth(e)
 	api.SetupRestricted(e)
 	api.SetupNoAuth(e)

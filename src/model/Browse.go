@@ -29,7 +29,7 @@ func (m Browse) Render(c echo.Context, code int) error {
 
 func (m Browse) RenderIndex(c echo.Context, code int, query string) error {
 	return c.Render(code, browseIndexTemplate, Index{
-		IsLogged: auth.IsLogged(&c),
+		IsLogged: auth.IsLogged(c),
 		Query:    query,
 		Data:     m,
 		IsAdmin:  auth.IsAdmin(c),
