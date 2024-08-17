@@ -107,9 +107,6 @@ func getTokens(c echo.Context) (string, string, bool) {
 
 // IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
 func IsLogged(c echo.Context) bool {
-	for _, cook := range c.Cookies() {
-		logger.InfoLogger.Printf("cookie %s: %s\n", cook.Name, cook.Value)
-	}
 	accessToken, _, ok := getTokens(c)
 	if !ok {
 		return false
@@ -378,7 +375,9 @@ func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			logger.InfoLogger.Printf("old token: %s\n", ac.Value)
 			ac.Value = jwt.AccessToken
 			rc.Value = jwt.RefreshToken
+			test, _ := c.Request().Cookie(accessTokenCookie)
 			logger.InfoLogger.Printf("new token: %s\n", ac.Value)
+			logger.InfoLogger.Printf("test token: %s\n", test.Value)
 		}
 		return next(c)
 	}
