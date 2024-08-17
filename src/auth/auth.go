@@ -107,6 +107,9 @@ func getTokens(c echo.Context) (string, string, bool) {
 
 // IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
 func IsLogged(c echo.Context) bool {
+	for _, cook := range c.Cookies() {
+		logger.InfoLogger.Printf("cookie %s: %s\n", cook.Name, cook.Value)
+	}
 	accessToken, _, ok := getTokens(c)
 	if !ok {
 		return false
