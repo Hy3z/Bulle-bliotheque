@@ -67,6 +67,7 @@ func Setup() {
 func getTokens(c echo.Context) (string, string, bool) {
 	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
 	refreshToken, err2 := c.Request().Cookie(refreshTokenCookie)
+	logger.InfoLogger.Printf("Access token: %s\n", accessToken)
 	if err1 != nil || err2 != nil {
 		return "", "", false
 	}
@@ -148,6 +149,7 @@ func addCookies(c echo.Context, accessToken string, refreshToken string) {
 	refreshCookie.SameSite = http.SameSiteNoneMode
 	c.SetCookie(refreshCookie)
 
+	logger.InfoLogger.Printf("New token: %s\n", accessToken)
 	//On ajoute aussi les cookies dans la requête pour que les fonctions appelés juste après utilisent directement ces nouveaux cookies
 	if ac, err := c.Request().Cookie(accessTokenCookie); err == nil {
 		ac.Value = accessToken
