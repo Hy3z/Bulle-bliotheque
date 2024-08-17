@@ -77,6 +77,7 @@ func getTokens(c echo.Context) (string, string, bool) {
 func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	accessToken, refreshToken, ok := getTokens(c)
 	if !ok {
+		logger.ErrorLogger.Println("Token not found")
 		return false, nil
 	}
 
@@ -89,6 +90,7 @@ func hasToken(c echo.Context) (bool, *gocloak.JWT) {
 	if !*result.Active {
 		newJWT, err := client.RefreshToken(ctx, refreshToken, clientID, clientSecret, realm)
 		if err != nil {
+			logger.ErrorLogger.Printf("Error refreshing token: %s\n", err)
 			return false, nil
 		}
 		return true, newJWT
@@ -325,6 +327,7 @@ func Logout(c echo.Context) error {
 // IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
 func IsLogged(c echo.Context) bool {
 	ok, jwt := hasToken(c)
+	logger.InfoLogger.Printf("%t,%t", ok, jwt != nil)
 	if !ok {
 		return false
 	}
