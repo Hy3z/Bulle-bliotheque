@@ -92,11 +92,9 @@ func addCookies(c echo.Context, accessToken string, refreshToken string) {
 	refreshCookie.Path = "/"
 	refreshCookie.SameSite = http.SameSiteNoneMode
 	c.SetCookie(refreshCookie)
-
-	logger.InfoLogger.Printf("\nREADING COOKIES: %s\n\n", c.Response().Header().Get("Set-Cookie"))
-
 }
 
+/*
 // getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
 func getTokens(c echo.Context) (string, string, bool) {
 	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
@@ -106,11 +104,34 @@ func getTokens(c echo.Context) (string, string, bool) {
 		return "", "", false
 	}
 	return accessToken.Value, refreshToken.Value, true
+}*/
+
+func getAccessToken(c echo.Context) (string, bool) {
+	//On cherche d'abord le token dans la réponse HTTP si jamais il a été rafraichit
+	for _, value := range c.Response().Header().Values("Set-Cookie") {
+		after, found := strings.CutPrefix(value, accessTokenCookie+"=")
+		if !found {
+			continue
+		}
+		before, _, found := strings.Cut(after, ";")
+		if !found {
+			continue
+		}
+		logger.InfoLogger.Printf("Found cookie: %s\n", before)
+		return before, true
+	}
+
+	//Sinon on le cherche dans la requête
+	accessToken, err := c.Request().Cookie(accessTokenCookie)
+	if err != nil {
+		return "", false
+	}
+	return accessToken.Value, true
 }
 
 // IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
 func IsLogged(c echo.Context) bool {
-	accessToken, _, ok := getTokens(c)
+	accessToken, ok := getAccessToken(c)
 	if !ok {
 		return false
 	}
@@ -291,7 +312,7 @@ func IsAdmin(c echo.Context) bool {
 	if !IsLogged(c) {
 		return false
 	}
-	accessToken, _, _ := getTokens(c)
+	accessToken, _ := getAccessToken(c)
 	return hasRoles(accessToken, []string{adminRoleName})
 }
 
@@ -310,7 +331,7 @@ func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
 	if !IsLogged(c) {
 		return "", "", false
 	}
-	accessToken, _, _ := getTokens(c)
+	accessToken, _ := getAccessToken(c)
 	return GetUserInfo(accessToken)
 }
 
@@ -344,7 +365,7 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Request().Header.Set(refererHeaderKey, c.Path())
 			return Login(c)
 		}
-		accessToken, _, _ := getTokens(c)
+		accessToken, _ := getAccessToken(c)
 		//On vérifie que l'utilisateur possède le role
 		if !hasRoles(accessToken, []string{adminRoleName}) {
 			return c.NoContent(http.StatusForbidden)
