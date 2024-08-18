@@ -355,6 +355,7 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		rq := c.Request()
 		ac, err1 := rq.Cookie(accessTokenCookie)
 		rc, err2 := rq.Cookie(refreshTokenCookie)
 		if err1 != nil || err2 != nil {
