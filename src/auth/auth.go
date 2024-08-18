@@ -92,6 +92,9 @@ func addCookies(c echo.Context, accessToken string, refreshToken string) {
 	refreshCookie.Path = "/"
 	refreshCookie.SameSite = http.SameSiteNoneMode
 	c.SetCookie(refreshCookie)
+
+	logger.InfoLogger.Printf("\nREADING COOKIES: %s\n\n", c.Response().Header().Get("Set-Cookie"))
+
 }
 
 // getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
@@ -352,7 +355,6 @@ func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		rq := c.Request()
 		ac, err1 := rq.Cookie(accessTokenCookie)
 		rc, err2 := rq.Cookie(refreshTokenCookie)
 		if err1 != nil || err2 != nil {
