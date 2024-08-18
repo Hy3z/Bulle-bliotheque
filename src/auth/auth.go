@@ -63,37 +63,56 @@ func Setup() {
 	logger.InfoLogger.Println("Sucessfully initialized auth")
 }
 
-// getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
-func getTokens(c echo.Context) (string, string, bool) {
-	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
-	refreshToken, err2 := c.Request().Cookie(refreshTokenCookie)
-	if err1 != nil || err2 != nil {
-		return "", "", false
-	}
-	return accessToken.Value, refreshToken.Value, true
+// addCookies Ajoute les cookies dans la réponse et dans la requête HTML
+func addCookies(c echo.Context, accessToken string, refreshToken string) {
+	//Cookies dans la réponse
+	accessCookie := new(http.Cookie)
+	accessCookie.Name = accessTokenCookie
+	accessCookie.Value = accessToken
+	accessCookie.Secure = true
+	accessCookie.Path = "/"
+	accessCookie.SameSite = http.SameSiteNoneMode
+	c.SetCookie(accessCookie)
+	refreshCookie := new(http.Cookie)
+	refreshCookie.Name = refreshTokenCookie
+	refreshCookie.Value = refreshToken
+	refreshCookie.Secure = true
+	refreshCookie.Path = "/"
+	refreshCookie.SameSite = http.SameSiteNoneMode
+	c.SetCookie(refreshCookie)
 }
 
-// hasToken Renvoit true si le token d'accès du contexte est valide. Le token est également rafraichit, et est renvoyé dans la deuxième variable si il y a eu un rafraichissement
-func hasToken(c echo.Context) (bool, *gocloak.JWT) {
-	accessToken, refreshToken, ok := getTokens(c)
+func getAccessToken(c echo.Context) (string, bool) {
+	//On cherche d'abord le token dans la réponse HTTP si jamais il a été rafraichit
+	for _, value := range c.Response().Header().Values("Set-Cookie") {
+		after, found := strings.CutPrefix(value, accessTokenCookie+"=")
+		if !found {
+			continue
+		}
+		before, _, found := strings.Cut(after, ";")
+		if !found {
+			continue
+		}
+		return before, true
+	}
+
+	//Sinon on le cherche dans la requête
+	accessToken, err := c.Request().Cookie(accessTokenCookie)
+	if err != nil {
+		return "", false
+	}
+	return accessToken.Value, true
+}
+
+// IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
+func IsLogged(c echo.Context) bool {
+	accessToken, ok := getAccessToken(c)
 	if !ok {
-		return false, nil
+		return false
 	}
 
 	result, err := client.RetrospectToken(ctx, accessToken, clientID, clientSecret, realm)
-	if err != nil {
-		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
-		return false, nil
-	}
-
-	if !*result.Active {
-		newJWT, err := client.RefreshToken(ctx, refreshToken, clientID, clientSecret, realm)
-		if err != nil {
-			return false, nil
-		}
-		return true, newJWT
-	}
-	return true, nil
+	return err == nil && *result.Active
 }
 
 // hasRoles Renvoit true si l'utilisateur détenant le token d'accès possède tous les rôles
@@ -126,80 +145,6 @@ func hasRoles(accessToken string, reqRoles []string) bool {
 	}
 
 	return true
-}
-
-// HasTokenMiddleware intervient lorsqu'on utilise un chemin protégé, et vérifie qu'on est bien authentifié
-func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		tokenPresent, jwt := hasToken(c)
-		if tokenPresent {
-			if jwt != nil {
-				//On renvoit les nouveaux cookies dans la réponse si les tokens ont été rafraichis
-				addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-			}
-			return next(c)
-		}
-
-		//Si l'utilisateur n'est pas authentifié, on le redirige sur la page de connection
-		return Login(c)
-	}
-}
-
-// HasRoleMiddleware intervient lorsqu'on utilise un chemin protégé par le rôle admin, et vérifie qu'on le possède
-func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		tokenPresent, jwt := hasToken(c)
-
-		//L'utilisateur doit être authentifié
-		if !tokenPresent {
-			//On ajoute l'url actuelle dans le header de la requête pour que la page de connection nous renvoit sur la page actuelle
-			c.Request().Header.Set(refererHeaderKey, c.Path())
-			return Login(c)
-		}
-		accessToken, _, _ := getTokens(c)
-		if jwt != nil {
-			//On renvoit les nouveaux cookies dans la réponse si les tokens ont été rafraichis
-			addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-			accessToken = jwt.AccessToken
-		}
-
-		//On vérifie que l'utilisateur possède le role
-		if !hasRoles(accessToken, []string{adminRoleName}) {
-			return c.NoContent(http.StatusForbidden)
-		}
-		return next(c)
-	}
-}
-
-// addCookies Ajoute les cookies dans la réponse et dans la requête HTML
-func addCookies(c *echo.Context, accessToken string, refreshToken string) {
-	//Cookies dans la réponse
-	accessCookie := new(http.Cookie)
-	accessCookie.Name = accessTokenCookie
-	accessCookie.Value = accessToken
-	accessCookie.Secure = true
-	accessCookie.Path = "/"
-	accessCookie.SameSite = http.SameSiteNoneMode
-	(*c).SetCookie(accessCookie)
-	refreshCookie := new(http.Cookie)
-	refreshCookie.Name = refreshTokenCookie
-	refreshCookie.Value = refreshToken
-	refreshCookie.Secure = true
-	refreshCookie.Path = "/"
-	refreshCookie.SameSite = http.SameSiteNoneMode
-	(*c).SetCookie(refreshCookie)
-
-	//On ajoute aussi les cookies dans la requête pour que les fonctions appelés juste après utilisent directement ces nouveaux cookies
-	if ac, err := (*c).Request().Cookie(accessTokenCookie); err == nil {
-		ac.Value = accessToken
-	} else {
-		(*c).Request().AddCookie(accessCookie)
-	}
-	if rc, err := (*c).Request().Cookie(refreshTokenCookie); err == nil {
-		rc.Value = refreshToken
-	} else {
-		(*c).Request().AddCookie(refreshCookie)
-	}
 }
 
 // Login redirige vers la page d'authentification Keycloak
@@ -256,9 +201,9 @@ func LoginCallback(c echo.Context) error {
 
 	//On récupère les informations de l'utilisateur
 	//Notamment son numéro de carte de crédit, et les 3 chiffres au dos
-	uuid, name, err := GetUserInfo(token.AccessToken)
-	if err != nil {
-		logger.ErrorLogger.Printf("Error getting user infos: %s\n", err)
+	uuid, name, ok := GetUserInfo(token.AccessToken)
+	if !ok {
+		logger.ErrorLogger.Println("Error getting user infos")
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -278,7 +223,7 @@ func LoginCallback(c echo.Context) error {
 	}
 
 	//On renvoit l'utilisateur sur la page qu'il avait à l'origine, avant la connection
-	addCookies(&c, token.AccessToken, token.RefreshToken)
+	addCookies(c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
 	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
 }
@@ -322,65 +267,96 @@ func Logout(c echo.Context) error {
 	return c.Redirect(http.StatusTemporaryRedirect, logoutURL)
 }
 
-// IsLogged renvoit true si les tokens contenus dans le contexte sont valides, en rafraichissant les tokens si nécessaires
-func IsLogged(c echo.Context) bool {
-	ok, jwt := hasToken(c)
-	if !ok {
-		return false
-	}
-	if jwt != nil {
-		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-	}
-	return true
-}
-
 // IsAdmin renvoit true si l'utilisateur du contexte possède le rôle admin, en rafraichissant les tokens si nécessaires
 func IsAdmin(c echo.Context) bool {
-	tokenPresent, jwt := hasToken(c)
-	if !tokenPresent {
+	if !IsLogged(c) {
 		return false
 	}
-	accessToken, _, _ := getTokens(c)
-	if jwt != nil {
-		addCookies(&c, jwt.AccessToken, jwt.RefreshToken)
-		accessToken = jwt.AccessToken
-	}
+	accessToken, _ := getAccessToken(c)
 	return hasRoles(accessToken, []string{adminRoleName})
 }
 
-// GetUserInfo renvoit l'UUID de l'utilisateur, son nom complet, et une éventuelle erreur, à partir du token d'accès
-func GetUserInfo(accessToken string) (string, string, error) {
+// GetUserInfo l'UUID de l'utilisateur, son nom complet, et un boolean de confirmation, à partir du token d'accès
+func GetUserInfo(accessToken string) (string, string, bool) {
 	info, err := client.GetUserInfo(context.Background(), accessToken, realm)
 	if err != nil {
-		return "", "", err
-	}
-	return *info.Sub, *info.Name, nil
-}
-
-// GetUserInfoFromContext est similaire à GetUserInfo, mais prend en entrée le contexte
-func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
-	accessToken, _, ok := getTokens(c)
-	if !ok {
+		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return "", "", false
 	}
-	uuid, name, err := GetUserInfo(accessToken)
-	return uuid, name, err == nil
+	return *info.Sub, *info.Name, true
+}
+
+// GetUserInfoFromContext l'UUID de l'utilisateur, son nom complet, et un boolean de confirmation, à partir du contexte
+func GetUserInfoFromContext(c echo.Context) (string, string, bool) {
+	if !IsLogged(c) {
+		return "", "", false
+	}
+	accessToken, _ := getAccessToken(c)
+	return GetUserInfo(accessToken)
 }
 
 // GetUserUUID renvoit uniquement l'UUID de l'utilisateur, ou "" en cas d'erreur, à partir du token d'accès
-func GetUserUUID(accessToken string) string {
-	uuid, _, err := GetUserInfo(accessToken)
-	if err != nil {
+func GetUserUUID(c echo.Context) string {
+	uuid, _, ok := GetUserInfoFromContext(c)
+	if !ok {
 		return ""
 	}
 	return uuid
 }
 
-// GetUserUUIDFromContext est similaire à GetUserUUID, mais prend le contexte en entrée
-func GetUserUUIDFromContext(c echo.Context) string {
-	accessToken, _, ok := getTokens(c)
-	if !ok {
-		return ""
+// HasTokenMiddleware intervient lorsqu'on utilise un chemin protégé, et vérifie qu'on est bien authentifié
+func HasTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if IsLogged(c) {
+			return next(c)
+		}
+
+		//Si l'utilisateur n'est pas authentifié, on le redirige sur la page de connection
+		return Login(c)
 	}
-	return GetUserUUID(accessToken)
+}
+
+// HasRoleMiddleware intervient lorsqu'on utilise un chemin protégé par le rôle admin, et vérifie qu'on le possède
+func HasRoleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		//L'utilisateur doit être authentifié
+		if !IsLogged(c) {
+			//On ajoute l'url actuelle dans le header de la requête pour que la page de connection nous renvoit sur la page actuelle
+			c.Request().Header.Set(refererHeaderKey, c.Path())
+			return Login(c)
+		}
+		accessToken, _ := getAccessToken(c)
+		//On vérifie que l'utilisateur possède le role
+		if !hasRoles(accessToken, []string{adminRoleName}) {
+			return c.NoContent(http.StatusForbidden)
+		}
+		return next(c)
+	}
+}
+
+func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		rq := c.Request()
+		ac, err1 := rq.Cookie(accessTokenCookie)
+		rc, err2 := rq.Cookie(refreshTokenCookie)
+		if err1 != nil || err2 != nil {
+			return next(c)
+		}
+
+		result, err := client.RetrospectToken(ctx, ac.Value, clientID, clientSecret, realm)
+		if err != nil {
+			logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
+			return next(c)
+		}
+
+		if !*result.Active {
+			jwt, err := client.RefreshToken(ctx, rc.Value, clientID, clientSecret, realm)
+			if err != nil {
+				logger.ErrorLogger.Printf("Error refreshing token: %s\n", err)
+				return next(c)
+			}
+			addCookies(c, jwt.AccessToken, jwt.RefreshToken)
+		}
+		return next(c)
+	}
 }
