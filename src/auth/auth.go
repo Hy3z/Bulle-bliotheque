@@ -43,18 +43,6 @@ var (
 	provider     *oidc.Provider
 )
 
-type CustomContext struct {
-	echo.Context
-}
-
-func (c *CustomContext) Foo() {
-	println("foo")
-}
-
-func (c *CustomContext) Bar() {
-	println("bar")
-}
-
 // Initialisation des variables qui permettent de communiquer avec le serveur Keycloak
 func Setup() {
 	var err error
