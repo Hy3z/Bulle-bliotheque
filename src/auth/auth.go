@@ -94,18 +94,6 @@ func addCookies(c echo.Context, accessToken string, refreshToken string) {
 	c.SetCookie(refreshCookie)
 }
 
-/*
-// getTokens Renvoit les tokens d'accès et de rafraichissement contenu dans un contexte, le boolean vaut true si les deux tokens ont été trouvés
-func getTokens(c echo.Context) (string, string, bool) {
-	accessToken, err1 := c.Request().Cookie(accessTokenCookie)
-	refreshToken, err2 := c.Request().Cookie(refreshTokenCookie)
-	logger.InfoLogger.Printf("Access token: %s\n", accessToken)
-	if err1 != nil || err2 != nil {
-		return "", "", false
-	}
-	return accessToken.Value, refreshToken.Value, true
-}*/
-
 func getAccessToken(c echo.Context) (string, bool) {
 	//On cherche d'abord le token dans la réponse HTTP si jamais il a été rafraichit
 	for _, value := range c.Response().Header().Values("Set-Cookie") {
@@ -117,7 +105,6 @@ func getAccessToken(c echo.Context) (string, bool) {
 		if !found {
 			continue
 		}
-		logger.InfoLogger.Printf("Found cookie: %s\n", before)
 		return before, true
 	}
 
@@ -138,21 +125,6 @@ func IsLogged(c echo.Context) bool {
 
 	result, err := client.RetrospectToken(ctx, accessToken, clientID, clientSecret, realm)
 	return err == nil && *result.Active
-	/*if err != nil {
-		logger.ErrorLogger.Printf("Error retrospecting token: %s\n", err)
-		return false
-	}
-
-	if !*result.Active {
-		jwt, err := client.RefreshToken(ctx, refreshToken, clientID, clientSecret, realm)
-		if err != nil {
-			logger.ErrorLogger.Printf("Error refreshing token: %s\n", err)
-			return false
-		}
-		addCookies(c, jwt.AccessToken, jwt.RefreshToken)
-		logger.InfoLogger.Println("Refreshed cookies")
-	}
-	return true*/
 }
 
 // hasRoles Renvoit true si l'utilisateur détenant le token d'accès possède tous les rôles
@@ -320,7 +292,7 @@ func IsAdmin(c echo.Context) bool {
 func GetUserInfo(accessToken string) (string, string, bool) {
 	info, err := client.GetUserInfo(context.Background(), accessToken, realm)
 	if err != nil {
-		logger.InfoLogger.Printf("Error getting user info: %s\n", err)
+		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return "", "", false
 	}
 	return *info.Sub, *info.Name, true
@@ -380,7 +352,6 @@ func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		ac, err1 := rq.Cookie(accessTokenCookie)
 		rc, err2 := rq.Cookie(refreshTokenCookie)
 		if err1 != nil || err2 != nil {
-			logger.InfoLogger.Println("Found no cookies")
 			return next(c)
 		}
 
@@ -397,13 +368,6 @@ func RefreshTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 				return next(c)
 			}
 			addCookies(c, jwt.AccessToken, jwt.RefreshToken)
-			logger.InfoLogger.Printf("old token: %s\n", ac.Value)
-			ac.Value = jwt.AccessToken
-			rc.Value = jwt.RefreshToken
-			test, _ := c.Request().Cookie(accessTokenCookie)
-			logger.InfoLogger.Printf("new token: %s\n", ac.Value)
-			logger.InfoLogger.Printf("test token: %s\n", test.Value)
-			c.SetRequest(rq)
 		}
 		return next(c)
 	}
