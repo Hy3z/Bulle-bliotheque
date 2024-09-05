@@ -6,3 +6,4 @@ src/tmp
 src/logs
 src/out
 src/bb
+node_modules/
