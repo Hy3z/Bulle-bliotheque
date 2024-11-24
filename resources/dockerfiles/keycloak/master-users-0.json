@@ -1,0 +1,63 @@
+{
+  "realm" : "master",
+  "users" : [ {
+    "id" : "4083a2bb-d9e4-4c84-ba7a-9985b4140d80",
+    "username" : "admin",
+    "emailVerified" : false,
+    "attributes" : {
+      "is_temporary_admin" : [ "true" ]
+    },
+    "createdTimestamp" : 1732444277722,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "11cd2ecc-18ff-427b-85bb-d4438b88f7d8",
+      "type" : "password",
+      "createdDate" : 1732444277852,
+      "secretData" : "{\"value\":\"gyq8qsBuVAZ/7EIx9xhi2kAZPWL46MJ81KR9OapXWbo=\",\"salt\":\"q1PCgeLIIXUUn87CX82GyQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "admin", "default-roles-master" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "9b9da4ff-b8c9-4eba-adb9-d91e26f3f402",
+    "username" : "service-account-bulle",
+    "emailVerified" : false,
+    "createdTimestamp" : 1732444345401,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "bulle",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-master" ],
+    "clientRoles" : {
+      "bulle" : [ "uma_protection" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "0594756c-727d-416f-9c16-27f76c521b7e",
+    "username" : "user",
+    "emailVerified" : false,
+    "createdTimestamp" : 1732444311438,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "5992d2d4-bc0a-4913-9327-38b1237882e6",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1732444328218,
+      "secretData" : "{\"value\":\"2T4F92qT60u6imqzEq7TDuRPzCnbx56+52et/OlMBrU=\",\"salt\":\"XJfPn164pI42ePijd2gaJA==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-master" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}

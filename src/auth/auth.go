@@ -41,12 +41,13 @@ var (
 	authUrl      string
 	ctx          context.Context
 	provider     *oidc.Provider
+	appUrl       string
 )
 
 // Initialisation des variables qui permettent de communiquer avec le serveur Keycloak
-func Setup() {
+func Setup(_appUrl string) {
 	var err error
-	authUrl = os.Getenv(EnvKeycloakUrl) + "/auth"
+	authUrl = os.Getenv(EnvKeycloakUrl) //+ "/auth"
 	clientID = os.Getenv(EnvKeycloakClientId)
 	realm = os.Getenv(EnvKeycloakRealm)
 	clientSecret = os.Getenv(EnvKeycloakClientSecret)
@@ -60,6 +61,7 @@ func Setup() {
 	if err != nil {
 		logger.ErrorLogger.Panicf("Couldn't create provider: %s\n", err)
 	}
+	appUrl = _appUrl
 	logger.InfoLogger.Println("Sucessfully initialized auth")
 }
 
@@ -165,7 +167,7 @@ func Login(c echo.Context) error {
 	oauth2Config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
+		RedirectURL:  appUrl + util.CallbackLoginPath,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
@@ -189,10 +191,12 @@ func LoginCallback(c echo.Context) error {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "https://bulle.rezel.net" + util.CallbackLoginPath,
+		RedirectURL:  appUrl + util.CallbackLoginPath,
 		Scopes:       []string{oidc.ScopeOpenID},
 	}
 	//Keycloak nous renvoit un code, qu'on échange pour les tokens d'accès et de rafraichissement
+	///logger.InfoLogger.Printf("Received code: %s\n", c.QueryParam("code"))
+
 	token, err := oauth2Config.Exchange(ctx, c.QueryParam("code"))
 	if err != nil {
 		logger.ErrorLogger.Printf("Error exchanging code: %s\n", err)
@@ -203,6 +207,7 @@ func LoginCallback(c echo.Context) error {
 	//Notamment son numéro de carte de crédit, et les 3 chiffres au dos
 	uuid, name, ok := GetUserInfo(token.AccessToken)
 	if !ok {
+
 		logger.ErrorLogger.Println("Error getting user infos")
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -225,7 +230,7 @@ func LoginCallback(c echo.Context) error {
 	//On renvoit l'utilisateur sur la page qu'il avait à l'origine, avant la connection
 	addCookies(c, token.AccessToken, token.RefreshToken)
 	path, _ := url.QueryUnescape(origin)
-	return c.Redirect(http.StatusPermanentRedirect, "https://bulle.rezel.net"+path)
+	return c.Redirect(http.StatusPermanentRedirect, appUrl+path)
 }
 
 // Logout déconnecte l'utilisateur, et le renvoit à sa page d'origine
@@ -260,7 +265,7 @@ func Logout(c echo.Context) error {
 	}
 
 	//On construit l'url de déconnection Keycloak
-	redirectUrl := "https://bulle.rezel.net" + path
+	redirectUrl := appUrl + path
 	logoutURL := authUrl + "/realms/" + realm + "/protocol/openid-connect/logout"
 	logoutURL += "?post_logout_redirect_uri=" + redirectUrl
 	logoutURL += "&client_id=" + clientID
@@ -283,7 +288,13 @@ func GetUserInfo(accessToken string) (string, string, bool) {
 		logger.ErrorLogger.Printf("Error getting user info: %s\n", err)
 		return "", "", false
 	}
-	return *info.Sub, *info.Name, true
+	name := ""
+	if info.Name != nil {
+		name = *info.Name
+	} else if info.PreferredUsername != nil {
+		name = *info.PreferredUsername
+	}
+	return *info.Sub, name, true
 }
 
 // GetUserInfoFromContext l'UUID de l'utilisateur, son nom complet, et un boolean de confirmation, à partir du contexte

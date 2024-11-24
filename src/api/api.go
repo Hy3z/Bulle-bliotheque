@@ -28,6 +28,8 @@ type Templates struct {
 	templates *template.Template
 }
 
+var _appUrl string
+
 func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	err := t.templates.ExecuteTemplate(w, name, data)
 	if err != nil {
@@ -52,6 +54,9 @@ func hasField(v interface{}, name string) bool {
 func escape(s string) string {
 	return url.QueryEscape(s)
 }
+func concat(s1 string, s2 string) string {
+	return s1 + s2
+}
 func add(v1 int, v2 int) int {
 	return v1 + v2
 }
@@ -60,6 +65,9 @@ func div(v1 int, v2 int) float32 {
 }
 func perc(v float32) int {
 	return int(v * 100)
+}
+func appUrl() string {
+	return _appUrl
 }
 
 // Cherche et crée les templates HTML du site
@@ -70,6 +78,7 @@ func newTemplate() *Templates {
 		"add":      add,
 		"div":      div,
 		"perc":     perc,
+		"appUrl":   appUrl,
 	})
 	//On cherche les templates HTML dans le dossier view
 	err := filepath.Walk("view/html", func(path string, info os.FileInfo, err error) error {
@@ -90,11 +99,16 @@ func newTemplate() *Templates {
 	}
 }
 
-//
+func Setup(__appUrl string, e *echo.Echo) {
+	_appUrl = __appUrl
+	e.Renderer = newTemplate()
+	setupAuth(e)
+	setupNoAuth(e)
+	setupRestricted(e)
+}
 
 // Définition des routes qui ne nécessitent pas d'être authentifié
-func SetupNoAuth(e *echo.Echo) {
-	e.Renderer = newTemplate()
+func setupNoAuth(e *echo.Echo) {
 	//Routes renvoyant des fichiers statiques
 	e.GET("/css", func(c echo.Context) error {
 		return c.File("view/style/output.css")
@@ -150,7 +164,7 @@ func SetupNoAuth(e *echo.Echo) {
 }
 
 // Définition des routes qui nécessitent d'être authentifié
-func SetupAuth(e *echo.Echo) {
+func setupAuth(e *echo.Echo) {
 	e.POST(util.BookReturnPath, book.RespondWithReturn, auth.HasTokenMiddleware)
 	e.POST(util.BookBorrowPath, book.RespondWithBorrow, auth.HasTokenMiddleware)
 
@@ -166,7 +180,7 @@ func SetupAuth(e *echo.Echo) {
 }
 
 // Définition des routes qui nécessitent d'être admin
-func SetupRestricted(e *echo.Echo) {
+func setupRestricted(e *echo.Echo) {
 	e.GET(util.AdminPath, admin.RespondWithAdmin, auth.HasRoleMiddleware)
 	e.GET(util.AdminSeriePath, admin.RespondWithSerie, auth.HasRoleMiddleware)
 	e.POST(util.AdminCreateSeriePath, admin.CreateSerie, auth.HasRoleMiddleware)

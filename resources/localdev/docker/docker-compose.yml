@@ -1,0 +1,13 @@
+services:
+  neo4j:
+    image: bullotheque-local-neo4j
+    container_name: bullotheque-neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+
+  keycloak:
+    image: bullotheque-local-keycloak
+    container_name: bullotheque-keycloak
+    ports:
+      - 8080:8080

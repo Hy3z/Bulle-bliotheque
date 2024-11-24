@@ -5,6 +5,7 @@ import (
 	"bb/auth"
 	"bb/database"
 	"bb/logger"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -17,8 +18,12 @@ func main() {
 		logger.ErrorLogger.Fatalf("Error loading .env file %s", err)
 	}
 
+	appUrl := os.Getenv("APP_URL")
+	if appUrl == "" {
+		logger.ErrorLogger.Fatal("App Url env is empty\n")
+	}
 	//Activation du lien avec l'authentificateur Keycloak
-	auth.Setup()
+	auth.Setup(appUrl)
 
 	//Connection du serveur à la base de données
 	database.Connect()
@@ -27,10 +32,8 @@ func main() {
 	//Création des routes
 	e := echo.New()
 	e.Use(auth.RefreshTokenMiddleware)
-	api.SetupAuth(e)
-	api.SetupRestricted(e)
-	api.SetupNoAuth(e)
+	api.Setup(appUrl, e)
 
 	//Démarrage du serveur HTTP sur le port 80
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start(":8000"))
 }

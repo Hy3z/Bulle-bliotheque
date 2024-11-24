@@ -1,5 +1,5 @@
 .idea
-.env
+src/.env
 .gradle
 /bin/
 src/tmp
@@ -7,3 +7,4 @@ src/logs
 src/out
 src/bb
 node_modules/
+src/data
