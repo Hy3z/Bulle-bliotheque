@@ -1,6 +1,6 @@
 {{define "browse"}} {{if and (hasField . "IsHome") (.IsHome)}}
 
-<div class="mt-10 h-80 mx-[15%] flex flex-row items-center">
+<div class="mt-8 h-80 mx-[15%] flex flex-row items-center">
     <img
         src="{{appUrl}}/logo"
         alt="bulle"
@@ -20,18 +20,20 @@
                 signaler sur le site (bouton Emprunter sur la page d'un livre,
                 puis bouton Rendre).
             </p>
+            <!--
             <p class="py-1">
                 Actuellement, le site permet de naviguer dans la collection, de
                 signaler ses emprunts, liker des livres, et écrire des
                 commentaires.
             </p>
+            -->
         </div>
     </div>
 </div>
 <div class="pr-[10%]">
     <hr class="border-2 rounded-r-xl border-gray-700" />
 </div>
-
+<!--
 <div class="h-80 mx-[15%] flex flex-row items-center justify-end">
     <div
         class="h-full justify-center overflow-y-scroll flex flex-col items-center"
@@ -72,8 +74,8 @@
 <div class="pl-[10%]">
     <hr class="border-2 rounded-l-xl border-gray-700" />
 </div>
-
-<div class="h-80 mx-[15%] flex flex-row items-center">
+-->
+<div class="h-80 mx-[15%] flex flex-row items-center py-4">
     <img
         src="{{appUrl}}/complex_small_blue_thin"
         alt="bulle"
@@ -96,7 +98,13 @@
     </div>
 </div>
 
+<div class="pl-[10%]">
+    <hr class="border-2 rounded-l-xl border-gray-700" />
+</div>
+
+<!--
 <hr class="border-2 rounded-r-xl border-gray-700 mb-10" />
+-->
 
 {{end}} {{if hasField . "Researches"}} {{range .Researches}} {{template
 "research" .}} {{end}}) {{end}} {{end}}
