@@ -149,6 +149,7 @@ func setupNoAuth(e *echo.Echo) {
 	e.GET(util.BrowseAllPath, browse.RespondWithAll)
 	e.GET(util.BrowseTagPath, browse.RespondWithTag)
 	e.GET(util.BrowseAuthorPath, browse.RespondWithAuthor)
+	e.GET(util.BrowseLikedPath, browse.RespondWithLiked)
 
 	e.GET(util.BookPath, book.RespondWithBook)
 	e.GET(util.BookCoverPath, book.RespondWithCover)
