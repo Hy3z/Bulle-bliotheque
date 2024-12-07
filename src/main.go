@@ -22,6 +22,12 @@ func main() {
 	if appUrl == "" {
 		logger.ErrorLogger.Fatal("App Url env is empty\n")
 	}
+
+	appPort := os.Getenv("APP_PORT")
+	if appPort == "" {
+		logger.ErrorLogger.Fatal("App Port env is empty\n")
+	}
+
 	//Activation du lien avec l'authentificateur Keycloak
 	auth.Setup(appUrl)
 
@@ -35,5 +41,5 @@ func main() {
 	api.Setup(appUrl, e)
 
 	//Démarrage du serveur HTTP sur le port 80
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start(":" + appPort))
 }
