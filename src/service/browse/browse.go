@@ -21,7 +21,7 @@ const (
 
 // rootResearches renvoit les recherches affichées sur la page d'acceuil
 func rootResearches(serieMode bool) []model.Research {
-	return []model.Research{latestBooksResearch(), allBooksResearch(serieMode)}
+	return []model.Research{latestBooksResearch(), likedBooksResearch(serieMode)}
 }
 
 // executeBrowseQuery éxecute une recherche classique et renvoit un ensemble de prévisualisations, avec en entrées un texte, un numéro de page et une limite de résultat

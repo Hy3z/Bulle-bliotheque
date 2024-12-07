@@ -7,6 +7,7 @@ const (
 	BrowseAuthorPath = BrowsePath + "/author/:" + AuthorParam
 	BrowseAllPath    = BrowsePath + "/all"
 	BrowseLatestPath = BrowsePath + "/latest"
+	BrowseLikedPath  = BrowsePath + "/liked"
 
 	BookPath       = "/book/:" + BookParam
 	BookCoverPath  = BookPath + "/cover"
