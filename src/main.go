@@ -40,6 +40,6 @@ func main() {
 	e.Use(auth.RefreshTokenMiddleware)
 	api.Setup(appUrl, e)
 
-	//Démarrage du serveur HTTP sur le port 80
+	//Démarrage du serveur HTTP sur le port appPort
 	e.Logger.Fatal(e.Start(":" + appPort))
 }
