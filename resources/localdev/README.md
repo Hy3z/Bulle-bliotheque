@@ -20,7 +20,7 @@ Le programme utilise le fichier d'environnement ``.env`` contenant :
 Ce fichier doit être placé au même endroit que l'exécutable (le mettre dans ``src/`` permet d'utiliser l'utilitaire de live-reload ``air`` pour plus de confort quand on développe en local)
 
 ## Conseil
-Il est conseillé de laisser la structure du projet intacte et de 
+Il est conseillé de laisser la structure du projet intacte afin de ne pas avoir à copier-coller les dossiers ``script`` et ``view`` à chaque modification, et de 
+
     - créer un lien symbolique entre le fichier ``ressources/localdev/.env`` et ``src/.env`` 
     - créer un lien symbolique entre le dossier ``ressources/localdev/data`` et ``src/data``
-afin de ne pas avoir à copier-coller les dossiers ``script`` et ``view`` à chaque modification
