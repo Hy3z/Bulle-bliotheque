@@ -18,4 +18,4 @@ L'utilisateur ``admin`` l'est aussi dans la base de données, donc celui-ci a ac
   (c'est réellement le mot de passe)
 
 # ATTENTION
-Les images docker ne fournissent pas de volumes pour sauvegarder les données. Si vous arrêtez les containers, vous perdre les données.
+Les images docker ne fournissent pas de volumes pour sauvegarder les données. Si vous arrêtez les containers, vous perdrez les données.
